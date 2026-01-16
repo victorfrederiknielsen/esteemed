@@ -60,6 +60,11 @@
   inherits: false;
 }
 
+.consensus-badge-wrapper {
+  position: relative;
+  isolation: isolate;
+}
+
 .consensus-badge {
   --gradient: linear-gradient(
     -45deg,
@@ -81,22 +86,30 @@
 .consensus-badge::after {
   content: "";
   position: absolute;
-  inset: 0;
-  background: inherit;
-  background-size: inherit;
-  animation: inherit;
-  border-radius: inherit;
+  background: linear-gradient(
+    -45deg,
+    #22c55e,
+    #10b981,
+    #06b6d4,
+    #8b5cf6,
+    #ec4899,
+    #f59e0b,
+    #22c55e
+  );
+  background-size: 400% 400%;
+  animation: gradient-flow 4s ease infinite;
+  border-radius: 9999px;
   z-index: -1;
 }
 
 .consensus-badge::before {
-  inset: -4px;
-  filter: blur(8px);
-  opacity: 0.75;
+  inset: -6px;
+  filter: blur(12px);
+  opacity: 0.8;
 }
 
 .consensus-badge::after {
-  inset: -8px;
-  filter: blur(16px);
-  opacity: 0.5;
+  inset: -12px;
+  filter: blur(24px);
+  opacity: 0.6;
 }
