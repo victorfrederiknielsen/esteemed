@@ -22,54 +22,40 @@ export const HeatmapCard = forwardRef<HTMLDivElement, HeatmapCardProps>(
     // Primary color: hsl(221.2, 83.2%, 53.3%) converted to hsla
     const backgroundColor = `hsla(221.2, 83.2%, 53.3%, ${opacity})`;
 
-    if (isMode) {
-      return (
-        <div ref={ref} className="consensus-badge-wrapper">
-          <div className="consensus-glow-outer rounded-lg" />
-          <div
-            className="consensus-badge relative rounded-lg p-3 transition-all duration-500"
-            style={{ background: undefined }}
-          >
-            <div className="flex flex-col items-center gap-2">
-              <span className="font-bold text-4xl text-white transition-all duration-500">
-                {label}
-              </span>
-              {voteCount > 0 && (
-                <>
-                  <span className="text-sm text-white/90 font-medium">
-                    {voteCount} vote{voteCount !== 1 ? "s" : ""}
-                  </span>
-                  <ProfileCircleStack names={voterNames} />
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-      );
-    }
-
     return (
-      <div
-        ref={ref}
-        className="relative rounded-lg p-3 transition-all duration-500"
-        style={{ backgroundColor }}
-      >
-        <div className="flex flex-col items-center gap-2">
-          <span
-            className={`font-bold transition-all duration-500 ${
-              voteCount > 0 ? "text-3xl text-white" : "text-xl text-slate-400"
-            }`}
-          >
-            {label}
-          </span>
-          {voteCount > 0 && (
-            <>
-              <span className="text-xs text-white/80">
-                {voteCount} vote{voteCount !== 1 ? "s" : ""}
-              </span>
-              <ProfileCircleStack names={voterNames} />
-            </>
-          )}
+      <div ref={ref} className="relative">
+        {/* Glow effect for mode card - positioned absolutely so it doesn't affect layout */}
+        {isMode && (
+          <>
+            <div className="absolute -inset-4 consensus-glow-card rounded-lg pointer-events-none" />
+          </>
+        )}
+        {/* Card content - consistent size for all cards */}
+        <div
+          className={`relative rounded-lg p-3 min-h-[100px] flex flex-col items-center justify-center transition-all duration-500 ${
+            isMode ? "consensus-badge" : ""
+          }`}
+          style={isMode ? undefined : { backgroundColor }}
+        >
+          <div className="flex flex-col items-center gap-2">
+            <span
+              className={`font-bold text-3xl transition-all duration-500 ${
+                voteCount > 0 ? "text-white" : "text-slate-400"
+              }`}
+            >
+              {label}
+            </span>
+            {voteCount > 0 && (
+              <>
+                <span
+                  className={`text-xs ${isMode ? "text-white/90" : "text-white/80"}`}
+                >
+                  {voteCount} vote{voteCount !== 1 ? "s" : ""}
+                </span>
+                <ProfileCircleStack names={voterNames} />
+              </>
+            )}
+          </div>
         </div>
       </div>
     );

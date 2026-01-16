@@ -124,3 +124,21 @@
   opacity: 0.5;
   z-index: -2;
 }
+
+.consensus-glow-card {
+  background: linear-gradient(
+    -45deg,
+    #22c55e,
+    #10b981,
+    #06b6d4,
+    #8b5cf6,
+    #ec4899,
+    #f59e0b,
+    #22c55e
+  );
+  background-size: 400% 400%;
+  animation: gradient-flow 4s ease infinite;
+  filter: blur(40px);
+  opacity: 0.7;
+  z-index: -1;
+}
