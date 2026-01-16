@@ -78,8 +78,9 @@ async function* streamServerSide<Res>(
   const response = await fetch(`${BASE_URL}/${service}/${method}`, {
     method: "POST",
     headers: {
-      "Content-Type": "application/json",
+      "Content-Type": "application/connect+json",
       "Connect-Protocol-Version": "1",
+      "Connect-Accept-Encoding": "identity",
     },
     body: JSON.stringify(request),
     signal,
