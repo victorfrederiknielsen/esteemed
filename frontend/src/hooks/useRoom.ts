@@ -123,7 +123,7 @@ export function useRoom(roomId?: string): UseRoomState & UseRoomActions {
 
       if (response.room) {
         saveSession({
-          roomId: response.room.id,
+          roomId: response.room.name, // Use name for URL matching
           participantId: response.participantId,
           sessionToken: response.sessionToken,
         });
@@ -166,7 +166,7 @@ export function useRoom(roomId?: string): UseRoomState & UseRoomActions {
 
       if (response.room) {
         saveSession({
-          roomId: response.room.id,
+          roomId: response.room.name, // Use name for URL matching
           participantId: response.participantId,
           sessionToken: response.sessionToken,
         });
