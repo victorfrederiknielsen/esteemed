@@ -1,8 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import type { VoteSummary } from "@/gen/types";
-import { cardValueToLabel, CARD_VALUES } from "@/gen/types";
+import type { VoteSummary } from "@/lib/types";
+import { cardValueToLabel, CARD_VALUES } from "@/lib/types";
 import { RefreshCw, Trophy, TrendingUp, Users } from "lucide-react";
 
 interface VoteResultsProps {

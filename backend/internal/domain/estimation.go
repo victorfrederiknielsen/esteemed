@@ -140,7 +140,7 @@ func (r *Room) GetVoteStatus() []*Vote {
 
 	status := make([]*Vote, 0, len(r.Participants))
 	for _, p := range r.Participants {
-		vote, hasVoted := r.Votes[p.ID]
+		_, hasVoted := r.Votes[p.ID]
 		if hasVoted {
 			// Only include that they voted, not the value
 			status = append(status, &Vote{

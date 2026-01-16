@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { roomClient, estimationClient, saveSession, loadSession, clearSession } from "@/lib/client";
-import type { Room, Participant } from "@/gen/types";
+import type { Room, Participant } from "@/gen/esteemed/v1/room_pb";
+import { RoomState } from "@/gen/esteemed/v1/room_pb";
 
 interface UseRoomState {
   room: Room | null;
@@ -255,3 +256,5 @@ export function useRoom(roomId?: string): UseRoomState & UseRoomActions {
     setTopic,
   };
 }
+
+export { RoomState };

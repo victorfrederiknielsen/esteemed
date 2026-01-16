@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { estimationClient } from "@/lib/client";
-import type { CardValue, VoteSummary } from "@/gen/types";
+import type { VoteSummary } from "@/gen/esteemed/v1/estimation_pb";
+import { CardValue } from "@/gen/esteemed/v1/estimation_pb";
 
 interface VoteStatus {
   participantId: string;
@@ -198,3 +199,5 @@ export function useVoting(
     resetRound,
   };
 }
+
+export { CardValue };

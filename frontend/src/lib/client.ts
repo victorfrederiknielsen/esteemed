@@ -9,6 +9,9 @@ import type {
   GetRoomResponse,
   WatchRoomRequest,
   RoomEvent,
+} from "@/gen/esteemed/v1/room_pb";
+
+import type {
   CastVoteRequest,
   CastVoteResponse,
   RevealVotesRequest,
@@ -19,16 +22,38 @@ import type {
   SetTopicResponse,
   WatchVotesRequest,
   VoteEvent,
-} from "@/gen/types";
+} from "@/gen/esteemed/v1/estimation_pb";
+
+import { fromJson, type DescMessage } from "@bufbuild/protobuf";
+import {
+  CreateRoomResponseSchema,
+  JoinRoomResponseSchema,
+  LeaveRoomResponseSchema,
+  GetRoomResponseSchema,
+  RoomEventSchema,
+} from "@/gen/esteemed/v1/room_pb";
+
+import {
+  CastVoteResponseSchema,
+  RevealVotesResponseSchema,
+  ResetRoundResponseSchema,
+  SetTopicResponseSchema,
+  VoteEventSchema,
+} from "@/gen/esteemed/v1/estimation_pb";
 
 const BASE_URL = "";
 
-async function callUnary<Req, Res>(service: string, method: string, request: Req): Promise<Res> {
+// Generic unary call using Connect JSON protocol
+async function callUnary<Res>(
+  service: string,
+  method: string,
+  request: object,
+  responseSchema: DescMessage
+): Promise<Res> {
   const response = await fetch(`${BASE_URL}/${service}/${method}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "Connect-Protocol-Version": "1",
     },
     body: JSON.stringify(request),
   });
@@ -38,13 +63,16 @@ async function callUnary<Req, Res>(service: string, method: string, request: Req
     throw new Error(error.message || `${response.status}: ${response.statusText}`);
   }
 
-  return response.json();
+  const json = await response.json();
+  return fromJson(responseSchema, json) as Res;
 }
 
-async function* streamServerSide<Req, Res>(
+// Server streaming using Connect JSON protocol
+async function* streamServerSide<Res>(
   service: string,
   method: string,
-  request: Req,
+  request: object,
+  responseSchema: DescMessage,
   signal?: AbortSignal
 ): AsyncGenerator<Res> {
   const response = await fetch(`${BASE_URL}/${service}/${method}`, {
@@ -52,7 +80,6 @@ async function* streamServerSide<Req, Res>(
     headers: {
       "Content-Type": "application/json",
       "Connect-Protocol-Version": "1",
-      "Connect-Accept-Encoding": "identity",
     },
     body: JSON.stringify(request),
     signal,
@@ -84,7 +111,7 @@ async function* streamServerSide<Req, Res>(
         try {
           const parsed = JSON.parse(line);
           if (parsed.result) {
-            yield parsed.result as Res;
+            yield fromJson(responseSchema, parsed.result) as Res;
           }
         } catch {
           // Skip invalid JSON lines
@@ -92,54 +119,94 @@ async function* streamServerSide<Req, Res>(
       }
     }
   }
-
-  // Process any remaining buffer
-  if (buffer.trim()) {
-    try {
-      const parsed = JSON.parse(buffer);
-      if (parsed.result) {
-        yield parsed.result as Res;
-      }
-    } catch {
-      // Skip invalid JSON
-    }
-  }
 }
 
 // Room Service Client
 export const roomClient = {
-  createRoom: (request: CreateRoomRequest) =>
-    callUnary<CreateRoomRequest, CreateRoomResponse>("esteemed.v1.RoomService", "CreateRoom", request),
+  createRoom: (request: Partial<CreateRoomRequest>) =>
+    callUnary<CreateRoomResponse>(
+      "esteemed.v1.RoomService",
+      "CreateRoom",
+      request,
+      CreateRoomResponseSchema
+    ),
 
-  joinRoom: (request: JoinRoomRequest) =>
-    callUnary<JoinRoomRequest, JoinRoomResponse>("esteemed.v1.RoomService", "JoinRoom", request),
+  joinRoom: (request: Partial<JoinRoomRequest>) =>
+    callUnary<JoinRoomResponse>(
+      "esteemed.v1.RoomService",
+      "JoinRoom",
+      request,
+      JoinRoomResponseSchema
+    ),
 
-  leaveRoom: (request: LeaveRoomRequest) =>
-    callUnary<LeaveRoomRequest, LeaveRoomResponse>("esteemed.v1.RoomService", "LeaveRoom", request),
+  leaveRoom: (request: Partial<LeaveRoomRequest>) =>
+    callUnary<LeaveRoomResponse>(
+      "esteemed.v1.RoomService",
+      "LeaveRoom",
+      request,
+      LeaveRoomResponseSchema
+    ),
 
-  getRoom: (request: GetRoomRequest) =>
-    callUnary<GetRoomRequest, GetRoomResponse>("esteemed.v1.RoomService", "GetRoom", request),
+  getRoom: (request: Partial<GetRoomRequest>) =>
+    callUnary<GetRoomResponse>(
+      "esteemed.v1.RoomService",
+      "GetRoom",
+      request,
+      GetRoomResponseSchema
+    ),
 
-  watchRoom: (request: WatchRoomRequest, options?: { signal?: AbortSignal }) =>
-    streamServerSide<WatchRoomRequest, RoomEvent>("esteemed.v1.RoomService", "WatchRoom", request, options?.signal),
+  watchRoom: (request: Partial<WatchRoomRequest>, options?: { signal?: AbortSignal }) =>
+    streamServerSide<RoomEvent>(
+      "esteemed.v1.RoomService",
+      "WatchRoom",
+      request,
+      RoomEventSchema,
+      options?.signal
+    ),
 };
 
 // Estimation Service Client
 export const estimationClient = {
-  castVote: (request: CastVoteRequest) =>
-    callUnary<CastVoteRequest, CastVoteResponse>("esteemed.v1.EstimationService", "CastVote", request),
+  castVote: (request: Partial<CastVoteRequest>) =>
+    callUnary<CastVoteResponse>(
+      "esteemed.v1.EstimationService",
+      "CastVote",
+      request,
+      CastVoteResponseSchema
+    ),
 
-  revealVotes: (request: RevealVotesRequest) =>
-    callUnary<RevealVotesRequest, RevealVotesResponse>("esteemed.v1.EstimationService", "RevealVotes", request),
+  revealVotes: (request: Partial<RevealVotesRequest>) =>
+    callUnary<RevealVotesResponse>(
+      "esteemed.v1.EstimationService",
+      "RevealVotes",
+      request,
+      RevealVotesResponseSchema
+    ),
 
-  resetRound: (request: ResetRoundRequest) =>
-    callUnary<ResetRoundRequest, ResetRoundResponse>("esteemed.v1.EstimationService", "ResetRound", request),
+  resetRound: (request: Partial<ResetRoundRequest>) =>
+    callUnary<ResetRoundResponse>(
+      "esteemed.v1.EstimationService",
+      "ResetRound",
+      request,
+      ResetRoundResponseSchema
+    ),
 
-  setTopic: (request: SetTopicRequest) =>
-    callUnary<SetTopicRequest, SetTopicResponse>("esteemed.v1.EstimationService", "SetTopic", request),
+  setTopic: (request: Partial<SetTopicRequest>) =>
+    callUnary<SetTopicResponse>(
+      "esteemed.v1.EstimationService",
+      "SetTopic",
+      request,
+      SetTopicResponseSchema
+    ),
 
-  watchVotes: (request: WatchVotesRequest, options?: { signal?: AbortSignal }) =>
-    streamServerSide<WatchVotesRequest, VoteEvent>("esteemed.v1.EstimationService", "WatchVotes", request, options?.signal),
+  watchVotes: (request: Partial<WatchVotesRequest>, options?: { signal?: AbortSignal }) =>
+    streamServerSide<VoteEvent>(
+      "esteemed.v1.EstimationService",
+      "WatchVotes",
+      request,
+      VoteEventSchema,
+      options?.signal
+    ),
 };
 
 // Session storage helpers

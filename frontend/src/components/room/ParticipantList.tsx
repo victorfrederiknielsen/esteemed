@@ -2,8 +2,8 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import type { Participant, VoteSummary, CardValue } from "@/gen/types";
-import { cardValueToLabel } from "@/gen/types";
+import type { Participant, VoteSummary, CardValue } from "@/lib/types";
+import { cardValueToLabel } from "@/lib/types";
 import { Check, Crown } from "lucide-react";
 
 interface VoteStatus {

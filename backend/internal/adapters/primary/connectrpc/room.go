@@ -2,6 +2,7 @@ package connectrpc
 
 import (
 	"context"
+	"net/http"
 
 	"connectrpc.com/connect"
 
@@ -22,7 +23,7 @@ func NewRoomHandler(service primary.RoomService) *RoomHandler {
 }
 
 // Handler returns the ConnectRPC handler
-func (h *RoomHandler) Handler() (string, esteemedv1connect.RoomServiceHandler) {
+func (h *RoomHandler) Handler() (string, http.Handler) {
 	return esteemedv1connect.NewRoomServiceHandler(h)
 }
 

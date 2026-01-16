@@ -11,9 +11,13 @@ export default defineConfig({
     },
   },
   server: {
+    host: true,
+    watch: {
+      usePolling: true, // Required for Docker/WSL
+    },
     proxy: {
       "/esteemed.v1": {
-        target: "http://localhost:8080",
+        target: process.env.VITE_API_URL || "http://localhost:8080",
         changeOrigin: true,
       },
     },

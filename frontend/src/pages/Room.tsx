@@ -4,12 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { useRoom } from "@/hooks/useRoom";
+import { useRoom, RoomState } from "@/hooks/useRoom";
 import { useVoting } from "@/hooks/useVoting";
 import { VotingCards } from "@/components/room/VotingCards";
 import { ParticipantList } from "@/components/room/ParticipantList";
 import { VoteResults } from "@/components/room/VoteResults";
-import { RoomState } from "@/gen/types";
 import { Copy, LogOut, Users } from "lucide-react";
 
 export function RoomPage() {

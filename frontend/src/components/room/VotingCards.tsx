@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { CardValue, CARD_VALUES } from "@/gen/types";
+import { CardValue, CARD_VALUES } from "@/lib/types";
 
 interface VotingCardsProps {
   selectedValue: CardValue | null;

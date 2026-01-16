@@ -2,6 +2,7 @@ package connectrpc
 
 import (
 	"context"
+	"net/http"
 
 	"connectrpc.com/connect"
 
@@ -22,7 +23,7 @@ func NewEstimationHandler(service primary.EstimationService) *EstimationHandler 
 }
 
 // Handler returns the ConnectRPC handler
-func (h *EstimationHandler) Handler() (string, esteemedv1connect.EstimationServiceHandler) {
+func (h *EstimationHandler) Handler() (string, http.Handler) {
 	return esteemedv1connect.NewEstimationServiceHandler(h)
 }
 

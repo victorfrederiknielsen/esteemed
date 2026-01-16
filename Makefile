@@ -1,4 +1,4 @@
-.PHONY: dev dev-backend dev-frontend proto build docker-build k8s-deploy frontend-setup frontend-components clean test
+.PHONY: dev dev-backend dev-frontend proto build docker-build k8s-deploy frontend-setup frontend-components clean test up down logs
 
 # Development
 dev: dev-backend dev-frontend
@@ -31,6 +31,16 @@ docker-build:
 
 docker-run:
 	docker run -p 8080:8080 esteemed:latest
+
+# Docker Compose (local dev with hot reload)
+up:
+	docker compose up --build
+
+down:
+	docker compose down
+
+logs:
+	docker compose logs -f
 
 # Kubernetes
 k8s-deploy:
@@ -77,6 +87,9 @@ help:
 	@echo "  dev            - Run frontend + backend dev servers"
 	@echo "  dev-backend    - Go server on :8080"
 	@echo "  dev-frontend   - Vite on :5173"
+	@echo "  up             - Start both services with Docker Compose (hot reload)"
+	@echo "  down           - Stop Docker Compose services"
+	@echo "  logs           - Follow Docker Compose logs"
 	@echo "  proto          - Generate Go + TypeScript from proto"
 	@echo "  build          - Build production artifacts"
 	@echo "  docker-build   - Build container image"
