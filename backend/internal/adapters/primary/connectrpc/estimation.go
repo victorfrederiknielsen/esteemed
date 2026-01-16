@@ -6,10 +6,10 @@ import (
 
 	"connectrpc.com/connect"
 
-	"github.com/vicmanager/esteemed/backend/internal/domain"
-	"github.com/vicmanager/esteemed/backend/internal/ports/primary"
 	esteemedv1 "github.com/vicmanager/esteemed/backend/gen/esteemed/v1"
 	"github.com/vicmanager/esteemed/backend/gen/esteemed/v1/esteemedv1connect"
+	"github.com/vicmanager/esteemed/backend/internal/domain"
+	"github.com/vicmanager/esteemed/backend/internal/ports/primary"
 )
 
 // EstimationHandler implements the ConnectRPC EstimationService
@@ -70,17 +70,17 @@ func (h *EstimationHandler) ResetRound(
 	return connect.NewResponse(&esteemedv1.ResetRoundResponse{}), nil
 }
 
-// SetTopic sets the current topic
-func (h *EstimationHandler) SetTopic(
+// StartRound begins a new voting round
+func (h *EstimationHandler) StartRound(
 	ctx context.Context,
-	req *connect.Request[esteemedv1.SetTopicRequest],
-) (*connect.Response[esteemedv1.SetTopicResponse], error) {
-	err := h.service.SetTopic(ctx, req.Msg.RoomId, req.Msg.ParticipantId, req.Msg.SessionToken, req.Msg.Topic)
+	req *connect.Request[esteemedv1.StartRoundRequest],
+) (*connect.Response[esteemedv1.StartRoundResponse], error) {
+	err := h.service.StartRound(ctx, req.Msg.RoomId, req.Msg.ParticipantId, req.Msg.SessionToken)
 	if err != nil {
 		return nil, mapDomainError(err)
 	}
 
-	return connect.NewResponse(&esteemedv1.SetTopicResponse{}), nil
+	return connect.NewResponse(&esteemedv1.StartRoundResponse{}), nil
 }
 
 // WatchVotes streams vote events

@@ -37,7 +37,6 @@ func (s *RoomService) ListRooms(ctx context.Context) ([]*primary.RoomSummary, er
 			Name:             room.Name,
 			ParticipantCount: room.ParticipantCount(),
 			State:            room.GetState(),
-			CurrentTopic:     room.CurrentTopic,
 			CreatedAt:        room.CreatedAt.Unix(),
 		})
 	}

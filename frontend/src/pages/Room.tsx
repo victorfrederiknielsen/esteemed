@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { RoomState, useRoom } from "@/hooks/useRoom";
 import { useVoting } from "@/hooks/useVoting";
-import { Copy, LogOut, Users } from "lucide-react";
+import { Copy, LogOut, Play, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -15,7 +15,6 @@ export function RoomPage() {
   const { roomId } = useParams<{ roomId: string }>();
   const navigate = useNavigate();
   const [joinName, setJoinName] = useState("");
-  const [topic, setTopic] = useState("");
   const [copied, setCopied] = useState(false);
 
   const {
@@ -29,7 +28,7 @@ export function RoomPage() {
     error: roomError,
     joinRoom,
     leaveRoom,
-    setTopic: updateTopic,
+    startRound,
   } = useRoom(roomId);
 
   const {
@@ -59,13 +58,6 @@ export function RoomPage() {
   const handleLeave = async () => {
     await leaveRoom();
     navigate("/");
-  };
-
-  const handleSetTopic = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!topic.trim()) return;
-    await updateTopic(topic.trim());
-    setTopic("");
   };
 
   const copyRoomLink = () => {
@@ -118,6 +110,7 @@ export function RoomPage() {
     );
   }
 
+  const isWaiting = room?.state === RoomState.WAITING;
   const isVoting = room?.state === RoomState.VOTING;
   const votedCount = voteStatuses.filter((v) => v.hasVoted).length;
   const totalParticipants = participants.length;
@@ -155,32 +148,33 @@ export function RoomPage() {
         <div className="grid gap-8 lg:grid-cols-3">
           {/* Main content */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Topic */}
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg">Current Topic</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {room?.currentTopic ? (
-                  <p className="text-lg font-medium">{room.currentTopic}</p>
-                ) : (
-                  <p className="text-slate-500 italic">No topic set</p>
-                )}
-
-                {isHost && (
-                  <form onSubmit={handleSetTopic} className="mt-4 flex gap-2">
-                    <Input
-                      placeholder="Set estimation topic..."
-                      value={topic}
-                      onChange={(e) => setTopic(e.target.value)}
-                    />
-                    <Button type="submit" disabled={!topic.trim()}>
-                      Set Topic
-                    </Button>
-                  </form>
-                )}
-              </CardContent>
-            </Card>
+            {/* Waiting state - Show start round button for host */}
+            {isWaiting && (
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-lg">Ready to Estimate?</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {isHost ? (
+                    <div className="text-center space-y-4">
+                      <p className="text-slate-600">
+                        {totalParticipants === 1
+                          ? "Waiting for participants to join..."
+                          : `${totalParticipants} participants ready`}
+                      </p>
+                      <Button size="lg" onClick={startRound} className="gap-2">
+                        <Play className="h-5 w-5" />
+                        Start Round
+                      </Button>
+                    </div>
+                  ) : (
+                    <p className="text-slate-500 text-center">
+                      Waiting for the host to start the round...
+                    </p>
+                  )}
+                </CardContent>
+              </Card>
+            )}
 
             {/* Voting status or results */}
             {isRevealed && summary ? (
@@ -189,38 +183,40 @@ export function RoomPage() {
                 onReset={isHost ? resetRound : undefined}
               />
             ) : (
-              <>
-                {/* Vote progress */}
-                <Card>
-                  <CardContent className="pt-6">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium text-slate-600">
-                        Votes: {votedCount} / {totalParticipants}
-                      </span>
-                      {isHost && votedCount > 0 && (
-                        <Button onClick={revealVotes} disabled={voteLoading}>
-                          Reveal Votes
-                        </Button>
-                      )}
-                    </div>
-                    <div className="w-full bg-slate-200 rounded-full h-2">
-                      <div
-                        className="bg-primary h-2 rounded-full transition-all duration-300"
-                        style={{
-                          width: `${(votedCount / Math.max(totalParticipants, 1)) * 100}%`,
-                        }}
-                      />
-                    </div>
-                  </CardContent>
-                </Card>
+              isVoting && (
+                <>
+                  {/* Vote progress */}
+                  <Card>
+                    <CardContent className="pt-6">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm font-medium text-slate-600">
+                          Votes: {votedCount} / {totalParticipants}
+                        </span>
+                        {isHost && votedCount > 0 && (
+                          <Button onClick={revealVotes} disabled={voteLoading}>
+                            Reveal Votes
+                          </Button>
+                        )}
+                      </div>
+                      <div className="w-full bg-slate-200 rounded-full h-2">
+                        <div
+                          className="bg-primary h-2 rounded-full transition-all duration-300"
+                          style={{
+                            width: `${(votedCount / Math.max(totalParticipants, 1)) * 100}%`,
+                          }}
+                        />
+                      </div>
+                    </CardContent>
+                  </Card>
 
-                {/* Voting cards */}
-                <VotingCards
-                  selectedValue={currentVote}
-                  onSelect={castVote}
-                  disabled={!isVoting || isRevealed}
-                />
-              </>
+                  {/* Voting cards */}
+                  <VotingCards
+                    selectedValue={currentVote}
+                    onSelect={castVote}
+                    disabled={!isVoting || isRevealed}
+                  />
+                </>
+              )
             )}
           </div>
 

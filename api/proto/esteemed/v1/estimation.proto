@@ -15,8 +15,8 @@ service EstimationService {
   // ResetRound clears all votes and starts a new round
   rpc ResetRound(ResetRoundRequest) returns (ResetRoundResponse);
 
-  // SetTopic sets the current item being estimated
-  rpc SetTopic(SetTopicRequest) returns (SetTopicResponse);
+  // StartRound begins a new voting round (host only)
+  rpc StartRound(StartRoundRequest) returns (StartRoundResponse);
 
   // WatchVotes streams real-time vote status and results
   rpc WatchVotes(WatchVotesRequest) returns (stream VoteEvent);
@@ -82,15 +82,14 @@ message ResetRoundRequest {
 
 message ResetRoundResponse {}
 
-// SetTopicRequest sets the current estimation topic
-message SetTopicRequest {
+// StartRoundRequest begins a new voting round
+message StartRoundRequest {
   string room_id = 1;
   string participant_id = 2;   // Must be host
   string session_token = 3;
-  string topic = 4;
 }
 
-message SetTopicResponse {}
+message StartRoundResponse {}
 
 // WatchVotesRequest subscribes to vote updates
 message WatchVotesRequest {

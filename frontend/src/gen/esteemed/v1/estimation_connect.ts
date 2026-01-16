@@ -3,7 +3,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import { CastVoteRequest, CastVoteResponse, ResetRoundRequest, ResetRoundResponse, RevealVotesRequest, RevealVotesResponse, SetTopicRequest, SetTopicResponse, VoteEvent, WatchVotesRequest } from "./estimation_pb.js";
+import { CastVoteRequest, CastVoteResponse, ResetRoundRequest, ResetRoundResponse, RevealVotesRequest, RevealVotesResponse, StartRoundRequest, StartRoundResponse, VoteEvent, WatchVotesRequest } from "./estimation_pb.js";
 import { MethodKind } from "@bufbuild/protobuf";
 
 /**
@@ -48,14 +48,14 @@ export const EstimationService = {
       kind: MethodKind.Unary,
     },
     /**
-     * SetTopic sets the current item being estimated
+     * StartRound begins a new voting round (host only)
      *
-     * @generated from rpc esteemed.v1.EstimationService.SetTopic
+     * @generated from rpc esteemed.v1.EstimationService.StartRound
      */
-    setTopic: {
-      name: "SetTopic",
-      I: SetTopicRequest,
-      O: SetTopicResponse,
+    startRound: {
+      name: "StartRound",
+      I: StartRoundRequest,
+      O: StartRoundResponse,
       kind: MethodKind.Unary,
     },
     /**

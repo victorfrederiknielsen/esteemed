@@ -8,12 +8,12 @@ import (
 
 // Errors
 var (
-	ErrRoomNotFound       = errors.New("room not found")
-	ErrParticipantExists  = errors.New("participant already exists")
+	ErrRoomNotFound        = errors.New("room not found")
+	ErrParticipantExists   = errors.New("participant already exists")
 	ErrParticipantNotFound = errors.New("participant not found")
-	ErrNotHost            = errors.New("only the host can perform this action")
-	ErrInvalidState       = errors.New("invalid room state for this action")
-	ErrInvalidToken       = errors.New("invalid session token")
+	ErrNotHost             = errors.New("only the host can perform this action")
+	ErrInvalidState        = errors.New("invalid room state for this action")
+	ErrInvalidToken        = errors.New("invalid session token")
 )
 
 // RoomState represents the current phase of estimation
@@ -33,7 +33,6 @@ type Room struct {
 	Name         string
 	Participants map[string]*Participant
 	State        RoomState
-	CurrentTopic string
 	CreatedAt    time.Time
 	Votes        map[string]*Vote
 }
@@ -154,13 +153,6 @@ func (r *Room) ValidateToken(participantID, token string) error {
 		return ErrInvalidToken
 	}
 	return nil
-}
-
-// SetTopic sets the current estimation topic
-func (r *Room) SetTopic(topic string) {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-	r.CurrentTopic = topic
 }
 
 // SetState changes the room state

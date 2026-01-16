@@ -24,7 +24,7 @@ interface UseRoomActions {
   createRoom: (hostName: string) => Promise<string>;
   joinRoom: (roomId: string, participantName: string) => Promise<void>;
   leaveRoom: () => Promise<void>;
-  setTopic: (topic: string) => Promise<void>;
+  startRound: () => Promise<void>;
 }
 
 export function useRoom(roomId?: string): UseRoomState & UseRoomActions {
@@ -92,13 +92,6 @@ export function useRoom(roomId?: string): UseRoomState & UseRoomActions {
             setState((prev) => {
               if (!prev.room) return prev;
               prev.room.state = newState;
-              return { ...prev };
-            });
-          } else if (event.event?.case === "topicChanged") {
-            const topic = event.event.value.topic;
-            setState((prev) => {
-              if (!prev.room) return prev;
-              prev.room.currentTopic = topic;
               return { ...prev };
             });
           } else if (event.event?.case === "roomClosed") {
@@ -243,45 +236,36 @@ export function useRoom(roomId?: string): UseRoomState & UseRoomActions {
     }
   }, [state.room?.id, state.currentParticipantId, state.sessionToken]);
 
-  const setTopic = useCallback(
-    async (topic: string): Promise<void> => {
-      if (
-        !state.room?.id ||
-        !state.currentParticipantId ||
-        !state.sessionToken
-      ) {
-        return;
-      }
+  const startRound = useCallback(async (): Promise<void> => {
+    if (!state.room?.id || !state.currentParticipantId || !state.sessionToken) {
+      return;
+    }
 
-      try {
-        await estimationClient.setTopic({
-          roomId: state.room.id,
-          participantId: state.currentParticipantId,
-          sessionToken: state.sessionToken,
-          topic,
-        });
-        // Optimistically update local state since streaming might not work
-        setState((prev) => {
-          if (!prev.room) return prev;
-          prev.room.currentTopic = topic;
-          prev.room.state = RoomState.VOTING;
-          return { ...prev };
-        });
-      } catch (err) {
-        const error =
-          err instanceof Error ? err.message : "Failed to set topic";
-        setState((prev) => ({ ...prev, error }));
-      }
-    },
-    [state.room?.id, state.currentParticipantId, state.sessionToken],
-  );
+    try {
+      await estimationClient.startRound({
+        roomId: state.room.id,
+        participantId: state.currentParticipantId,
+        sessionToken: state.sessionToken,
+      });
+      // Optimistically update local state
+      setState((prev) => {
+        if (!prev.room) return prev;
+        prev.room.state = RoomState.VOTING;
+        return { ...prev };
+      });
+    } catch (err) {
+      const error =
+        err instanceof Error ? err.message : "Failed to start round";
+      setState((prev) => ({ ...prev, error }));
+    }
+  }, [state.room?.id, state.currentParticipantId, state.sessionToken]);
 
   return {
     ...state,
     createRoom,
     joinRoom,
     leaveRoom,
-    setTopic,
+    startRound,
   };
 }
 

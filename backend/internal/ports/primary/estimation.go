@@ -17,8 +17,8 @@ type EstimationService interface {
 	// ResetRound clears all votes and starts a new round
 	ResetRound(ctx context.Context, roomID, participantID, sessionToken string) error
 
-	// SetTopic sets the current estimation topic
-	SetTopic(ctx context.Context, roomID, participantID, sessionToken, topic string) error
+	// StartRound begins a new voting round (host only)
+	StartRound(ctx context.Context, roomID, participantID, sessionToken string) error
 
 	// WatchVotes returns a channel for vote events
 	WatchVotes(ctx context.Context, roomID, sessionToken string) (<-chan VoteEvent, error)

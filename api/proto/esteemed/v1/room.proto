@@ -31,8 +31,7 @@ message Room {
   string name = 2;
   repeated Participant participants = 3;
   RoomState state = 4;
-  string current_topic = 5;
-  int64 created_at = 6;
+  int64 created_at = 5;
 }
 
 // Participant in a room
@@ -47,7 +46,7 @@ message Participant {
 // RoomState represents the current phase of estimation
 enum RoomState {
   ROOM_STATE_UNSPECIFIED = 0;
-  ROOM_STATE_WAITING = 1;      // Waiting for participants
+  ROOM_STATE_WAITING = 1;      // Waiting for host to start round
   ROOM_STATE_VOTING = 2;       // Voting in progress
   ROOM_STATE_REVEALED = 3;     // Votes have been revealed
 }
@@ -98,8 +97,7 @@ message RoomSummary {
   string name = 2;
   int32 participant_count = 3;
   RoomState state = 4;
-  string current_topic = 5;
-  int64 created_at = 6;
+  int64 created_at = 5;
 }
 
 // GetRoomRequest gets current room state
@@ -123,8 +121,7 @@ message RoomEvent {
     ParticipantJoined participant_joined = 1;
     ParticipantLeft participant_left = 2;
     RoomStateChanged state_changed = 3;
-    TopicChanged topic_changed = 4;
-    RoomClosed room_closed = 5;
+    RoomClosed room_closed = 4;
   }
 }
 
@@ -138,10 +135,6 @@ message ParticipantLeft {
 
 message RoomStateChanged {
   RoomState new_state = 1;
-}
-
-message TopicChanged {
-  string topic = 1;
 }
 
 message RoomClosed {

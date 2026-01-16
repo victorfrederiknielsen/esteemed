@@ -139,8 +139,8 @@ func (s *EstimationService) ResetRound(ctx context.Context, roomID, participantI
 	return nil
 }
 
-// SetTopic sets the current estimation topic
-func (s *EstimationService) SetTopic(ctx context.Context, roomID, participantID, sessionToken, topic string) error {
+// StartRound begins a new voting round (host only)
+func (s *EstimationService) StartRound(ctx context.Context, roomID, participantID, sessionToken string) error {
 	room, err := s.repo.FindByID(ctx, roomID)
 	if err != nil {
 		return err
@@ -156,33 +156,22 @@ func (s *EstimationService) SetTopic(ctx context.Context, roomID, participantID,
 		return domain.ErrNotHost
 	}
 
-	// Set topic
-	room.SetTopic(topic)
-
 	// Start voting if in waiting state
-	startedVoting := false
-	if room.GetState() == domain.RoomStateWaiting {
-		room.StartVoting()
-		startedVoting = true
+	if room.GetState() != domain.RoomStateWaiting {
+		return domain.ErrInvalidState
 	}
+
+	room.StartVoting()
 
 	if err := s.repo.Save(ctx, room); err != nil {
 		return err
 	}
 
-	// Publish topic change event
+	// Publish state change event
 	s.publisher.PublishRoomEvent(ctx, room.ID, primary.RoomEvent{
-		Type:  primary.RoomEventTopicChanged,
-		Topic: topic,
+		Type:     primary.RoomEventStateChanged,
+		NewState: domain.RoomStateVoting,
 	})
-
-	// Publish state change if we started voting
-	if startedVoting {
-		s.publisher.PublishRoomEvent(ctx, room.ID, primary.RoomEvent{
-			Type:     primary.RoomEventStateChanged,
-			NewState: domain.RoomStateVoting,
-		})
-	}
 
 	return nil
 }

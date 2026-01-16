@@ -42,9 +42,9 @@ const (
 	// EstimationServiceResetRoundProcedure is the fully-qualified name of the EstimationService's
 	// ResetRound RPC.
 	EstimationServiceResetRoundProcedure = "/esteemed.v1.EstimationService/ResetRound"
-	// EstimationServiceSetTopicProcedure is the fully-qualified name of the EstimationService's
-	// SetTopic RPC.
-	EstimationServiceSetTopicProcedure = "/esteemed.v1.EstimationService/SetTopic"
+	// EstimationServiceStartRoundProcedure is the fully-qualified name of the EstimationService's
+	// StartRound RPC.
+	EstimationServiceStartRoundProcedure = "/esteemed.v1.EstimationService/StartRound"
 	// EstimationServiceWatchVotesProcedure is the fully-qualified name of the EstimationService's
 	// WatchVotes RPC.
 	EstimationServiceWatchVotesProcedure = "/esteemed.v1.EstimationService/WatchVotes"
@@ -58,8 +58,8 @@ type EstimationServiceClient interface {
 	RevealVotes(context.Context, *connect.Request[v1.RevealVotesRequest]) (*connect.Response[v1.RevealVotesResponse], error)
 	// ResetRound clears all votes and starts a new round
 	ResetRound(context.Context, *connect.Request[v1.ResetRoundRequest]) (*connect.Response[v1.ResetRoundResponse], error)
-	// SetTopic sets the current item being estimated
-	SetTopic(context.Context, *connect.Request[v1.SetTopicRequest]) (*connect.Response[v1.SetTopicResponse], error)
+	// StartRound begins a new voting round (host only)
+	StartRound(context.Context, *connect.Request[v1.StartRoundRequest]) (*connect.Response[v1.StartRoundResponse], error)
 	// WatchVotes streams real-time vote status and results
 	WatchVotes(context.Context, *connect.Request[v1.WatchVotesRequest]) (*connect.ServerStreamForClient[v1.VoteEvent], error)
 }
@@ -93,10 +93,10 @@ func NewEstimationServiceClient(httpClient connect.HTTPClient, baseURL string, o
 			connect.WithSchema(estimationServiceMethods.ByName("ResetRound")),
 			connect.WithClientOptions(opts...),
 		),
-		setTopic: connect.NewClient[v1.SetTopicRequest, v1.SetTopicResponse](
+		startRound: connect.NewClient[v1.StartRoundRequest, v1.StartRoundResponse](
 			httpClient,
-			baseURL+EstimationServiceSetTopicProcedure,
-			connect.WithSchema(estimationServiceMethods.ByName("SetTopic")),
+			baseURL+EstimationServiceStartRoundProcedure,
+			connect.WithSchema(estimationServiceMethods.ByName("StartRound")),
 			connect.WithClientOptions(opts...),
 		),
 		watchVotes: connect.NewClient[v1.WatchVotesRequest, v1.VoteEvent](
@@ -113,7 +113,7 @@ type estimationServiceClient struct {
 	castVote    *connect.Client[v1.CastVoteRequest, v1.CastVoteResponse]
 	revealVotes *connect.Client[v1.RevealVotesRequest, v1.RevealVotesResponse]
 	resetRound  *connect.Client[v1.ResetRoundRequest, v1.ResetRoundResponse]
-	setTopic    *connect.Client[v1.SetTopicRequest, v1.SetTopicResponse]
+	startRound  *connect.Client[v1.StartRoundRequest, v1.StartRoundResponse]
 	watchVotes  *connect.Client[v1.WatchVotesRequest, v1.VoteEvent]
 }
 
@@ -132,9 +132,9 @@ func (c *estimationServiceClient) ResetRound(ctx context.Context, req *connect.R
 	return c.resetRound.CallUnary(ctx, req)
 }
 
-// SetTopic calls esteemed.v1.EstimationService.SetTopic.
-func (c *estimationServiceClient) SetTopic(ctx context.Context, req *connect.Request[v1.SetTopicRequest]) (*connect.Response[v1.SetTopicResponse], error) {
-	return c.setTopic.CallUnary(ctx, req)
+// StartRound calls esteemed.v1.EstimationService.StartRound.
+func (c *estimationServiceClient) StartRound(ctx context.Context, req *connect.Request[v1.StartRoundRequest]) (*connect.Response[v1.StartRoundResponse], error) {
+	return c.startRound.CallUnary(ctx, req)
 }
 
 // WatchVotes calls esteemed.v1.EstimationService.WatchVotes.
@@ -150,8 +150,8 @@ type EstimationServiceHandler interface {
 	RevealVotes(context.Context, *connect.Request[v1.RevealVotesRequest]) (*connect.Response[v1.RevealVotesResponse], error)
 	// ResetRound clears all votes and starts a new round
 	ResetRound(context.Context, *connect.Request[v1.ResetRoundRequest]) (*connect.Response[v1.ResetRoundResponse], error)
-	// SetTopic sets the current item being estimated
-	SetTopic(context.Context, *connect.Request[v1.SetTopicRequest]) (*connect.Response[v1.SetTopicResponse], error)
+	// StartRound begins a new voting round (host only)
+	StartRound(context.Context, *connect.Request[v1.StartRoundRequest]) (*connect.Response[v1.StartRoundResponse], error)
 	// WatchVotes streams real-time vote status and results
 	WatchVotes(context.Context, *connect.Request[v1.WatchVotesRequest], *connect.ServerStream[v1.VoteEvent]) error
 }
@@ -181,10 +181,10 @@ func NewEstimationServiceHandler(svc EstimationServiceHandler, opts ...connect.H
 		connect.WithSchema(estimationServiceMethods.ByName("ResetRound")),
 		connect.WithHandlerOptions(opts...),
 	)
-	estimationServiceSetTopicHandler := connect.NewUnaryHandler(
-		EstimationServiceSetTopicProcedure,
-		svc.SetTopic,
-		connect.WithSchema(estimationServiceMethods.ByName("SetTopic")),
+	estimationServiceStartRoundHandler := connect.NewUnaryHandler(
+		EstimationServiceStartRoundProcedure,
+		svc.StartRound,
+		connect.WithSchema(estimationServiceMethods.ByName("StartRound")),
 		connect.WithHandlerOptions(opts...),
 	)
 	estimationServiceWatchVotesHandler := connect.NewServerStreamHandler(
@@ -201,8 +201,8 @@ func NewEstimationServiceHandler(svc EstimationServiceHandler, opts ...connect.H
 			estimationServiceRevealVotesHandler.ServeHTTP(w, r)
 		case EstimationServiceResetRoundProcedure:
 			estimationServiceResetRoundHandler.ServeHTTP(w, r)
-		case EstimationServiceSetTopicProcedure:
-			estimationServiceSetTopicHandler.ServeHTTP(w, r)
+		case EstimationServiceStartRoundProcedure:
+			estimationServiceStartRoundHandler.ServeHTTP(w, r)
 		case EstimationServiceWatchVotesProcedure:
 			estimationServiceWatchVotesHandler.ServeHTTP(w, r)
 		default:
@@ -226,8 +226,8 @@ func (UnimplementedEstimationServiceHandler) ResetRound(context.Context, *connec
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("esteemed.v1.EstimationService.ResetRound is not implemented"))
 }
 
-func (UnimplementedEstimationServiceHandler) SetTopic(context.Context, *connect.Request[v1.SetTopicRequest]) (*connect.Response[v1.SetTopicResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("esteemed.v1.EstimationService.SetTopic is not implemented"))
+func (UnimplementedEstimationServiceHandler) StartRound(context.Context, *connect.Request[v1.StartRoundRequest]) (*connect.Response[v1.StartRoundResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("esteemed.v1.EstimationService.StartRound is not implemented"))
 }
 
 func (UnimplementedEstimationServiceHandler) WatchVotes(context.Context, *connect.Request[v1.WatchVotesRequest], *connect.ServerStream[v1.VoteEvent]) error {

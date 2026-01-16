@@ -250,16 +250,9 @@ export function HomePage() {
                         setMode("join");
                       }}
                     >
-                      <div>
-                        <p className="font-mono font-medium text-sm">
-                          {room.name}
-                        </p>
-                        {room.currentTopic && (
-                          <p className="text-xs text-slate-500 truncate max-w-[150px]">
-                            {room.currentTopic}
-                          </p>
-                        )}
-                      </div>
+                      <p className="font-mono font-medium text-sm">
+                        {room.name}
+                      </p>
                       <div className="flex items-center gap-2">
                         <div className="flex items-center gap-1 text-slate-500">
                           <Users className="h-3.5 w-3.5" />

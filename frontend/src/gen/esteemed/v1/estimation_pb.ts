@@ -465,11 +465,11 @@ export class ResetRoundResponse extends Message<ResetRoundResponse> {
 }
 
 /**
- * SetTopicRequest sets the current estimation topic
+ * StartRoundRequest begins a new voting round
  *
- * @generated from message esteemed.v1.SetTopicRequest
+ * @generated from message esteemed.v1.StartRoundRequest
  */
-export class SetTopicRequest extends Message<SetTopicRequest> {
+export class StartRoundRequest extends Message<StartRoundRequest> {
   /**
    * @generated from field: string room_id = 1;
    */
@@ -487,70 +487,64 @@ export class SetTopicRequest extends Message<SetTopicRequest> {
    */
   sessionToken = "";
 
-  /**
-   * @generated from field: string topic = 4;
-   */
-  topic = "";
-
-  constructor(data?: PartialMessage<SetTopicRequest>) {
+  constructor(data?: PartialMessage<StartRoundRequest>) {
     super();
     proto3.util.initPartial(data, this);
   }
 
   static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "esteemed.v1.SetTopicRequest";
+  static readonly typeName = "esteemed.v1.StartRoundRequest";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
     { no: 1, name: "room_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 2, name: "participant_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 3, name: "session_token", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 4, name: "topic", kind: "scalar", T: 9 /* ScalarType.STRING */ },
   ]);
 
-  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): SetTopicRequest {
-    return new SetTopicRequest().fromBinary(bytes, options);
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): StartRoundRequest {
+    return new StartRoundRequest().fromBinary(bytes, options);
   }
 
-  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): SetTopicRequest {
-    return new SetTopicRequest().fromJson(jsonValue, options);
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): StartRoundRequest {
+    return new StartRoundRequest().fromJson(jsonValue, options);
   }
 
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): SetTopicRequest {
-    return new SetTopicRequest().fromJsonString(jsonString, options);
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): StartRoundRequest {
+    return new StartRoundRequest().fromJsonString(jsonString, options);
   }
 
-  static equals(a: SetTopicRequest | PlainMessage<SetTopicRequest> | undefined, b: SetTopicRequest | PlainMessage<SetTopicRequest> | undefined): boolean {
-    return proto3.util.equals(SetTopicRequest, a, b);
+  static equals(a: StartRoundRequest | PlainMessage<StartRoundRequest> | undefined, b: StartRoundRequest | PlainMessage<StartRoundRequest> | undefined): boolean {
+    return proto3.util.equals(StartRoundRequest, a, b);
   }
 }
 
 /**
- * @generated from message esteemed.v1.SetTopicResponse
+ * @generated from message esteemed.v1.StartRoundResponse
  */
-export class SetTopicResponse extends Message<SetTopicResponse> {
-  constructor(data?: PartialMessage<SetTopicResponse>) {
+export class StartRoundResponse extends Message<StartRoundResponse> {
+  constructor(data?: PartialMessage<StartRoundResponse>) {
     super();
     proto3.util.initPartial(data, this);
   }
 
   static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "esteemed.v1.SetTopicResponse";
+  static readonly typeName = "esteemed.v1.StartRoundResponse";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
   ]);
 
-  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): SetTopicResponse {
-    return new SetTopicResponse().fromBinary(bytes, options);
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): StartRoundResponse {
+    return new StartRoundResponse().fromBinary(bytes, options);
   }
 
-  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): SetTopicResponse {
-    return new SetTopicResponse().fromJson(jsonValue, options);
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): StartRoundResponse {
+    return new StartRoundResponse().fromJson(jsonValue, options);
   }
 
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): SetTopicResponse {
-    return new SetTopicResponse().fromJsonString(jsonString, options);
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): StartRoundResponse {
+    return new StartRoundResponse().fromJsonString(jsonString, options);
   }
 
-  static equals(a: SetTopicResponse | PlainMessage<SetTopicResponse> | undefined, b: SetTopicResponse | PlainMessage<SetTopicResponse> | undefined): boolean {
-    return proto3.util.equals(SetTopicResponse, a, b);
+  static equals(a: StartRoundResponse | PlainMessage<StartRoundResponse> | undefined, b: StartRoundResponse | PlainMessage<StartRoundResponse> | undefined): boolean {
+    return proto3.util.equals(StartRoundResponse, a, b);
   }
 }
 

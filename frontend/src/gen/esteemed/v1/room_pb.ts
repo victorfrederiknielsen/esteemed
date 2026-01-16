@@ -18,7 +18,7 @@ export enum RoomState {
   UNSPECIFIED = 0,
 
   /**
-   * Waiting for participants
+   * Waiting for host to start round
    *
    * @generated from enum value: ROOM_STATE_WAITING = 1;
    */
@@ -73,12 +73,7 @@ export class Room extends Message<Room> {
   state = RoomState.UNSPECIFIED;
 
   /**
-   * @generated from field: string current_topic = 5;
-   */
-  currentTopic = "";
-
-  /**
-   * @generated from field: int64 created_at = 6;
+   * @generated from field: int64 created_at = 5;
    */
   createdAt = protoInt64.zero;
 
@@ -94,8 +89,7 @@ export class Room extends Message<Room> {
     { no: 2, name: "name", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 3, name: "participants", kind: "message", T: Participant, repeated: true },
     { no: 4, name: "state", kind: "enum", T: proto3.getEnumType(RoomState) },
-    { no: 5, name: "current_topic", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 6, name: "created_at", kind: "scalar", T: 3 /* ScalarType.INT64 */ },
+    { no: 5, name: "created_at", kind: "scalar", T: 3 /* ScalarType.INT64 */ },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Room {
@@ -553,12 +547,7 @@ export class RoomSummary extends Message<RoomSummary> {
   state = RoomState.UNSPECIFIED;
 
   /**
-   * @generated from field: string current_topic = 5;
-   */
-  currentTopic = "";
-
-  /**
-   * @generated from field: int64 created_at = 6;
+   * @generated from field: int64 created_at = 5;
    */
   createdAt = protoInt64.zero;
 
@@ -574,8 +563,7 @@ export class RoomSummary extends Message<RoomSummary> {
     { no: 2, name: "name", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 3, name: "participant_count", kind: "scalar", T: 5 /* ScalarType.INT32 */ },
     { no: 4, name: "state", kind: "enum", T: proto3.getEnumType(RoomState) },
-    { no: 5, name: "current_topic", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 6, name: "created_at", kind: "scalar", T: 3 /* ScalarType.INT64 */ },
+    { no: 5, name: "created_at", kind: "scalar", T: 3 /* ScalarType.INT64 */ },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): RoomSummary {
@@ -745,13 +733,7 @@ export class RoomEvent extends Message<RoomEvent> {
     case: "stateChanged";
   } | {
     /**
-     * @generated from field: esteemed.v1.TopicChanged topic_changed = 4;
-     */
-    value: TopicChanged;
-    case: "topicChanged";
-  } | {
-    /**
-     * @generated from field: esteemed.v1.RoomClosed room_closed = 5;
+     * @generated from field: esteemed.v1.RoomClosed room_closed = 4;
      */
     value: RoomClosed;
     case: "roomClosed";
@@ -768,8 +750,7 @@ export class RoomEvent extends Message<RoomEvent> {
     { no: 1, name: "participant_joined", kind: "message", T: ParticipantJoined, oneof: "event" },
     { no: 2, name: "participant_left", kind: "message", T: ParticipantLeft, oneof: "event" },
     { no: 3, name: "state_changed", kind: "message", T: RoomStateChanged, oneof: "event" },
-    { no: 4, name: "topic_changed", kind: "message", T: TopicChanged, oneof: "event" },
-    { no: 5, name: "room_closed", kind: "message", T: RoomClosed, oneof: "event" },
+    { no: 4, name: "room_closed", kind: "message", T: RoomClosed, oneof: "event" },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): RoomEvent {
@@ -897,43 +878,6 @@ export class RoomStateChanged extends Message<RoomStateChanged> {
 
   static equals(a: RoomStateChanged | PlainMessage<RoomStateChanged> | undefined, b: RoomStateChanged | PlainMessage<RoomStateChanged> | undefined): boolean {
     return proto3.util.equals(RoomStateChanged, a, b);
-  }
-}
-
-/**
- * @generated from message esteemed.v1.TopicChanged
- */
-export class TopicChanged extends Message<TopicChanged> {
-  /**
-   * @generated from field: string topic = 1;
-   */
-  topic = "";
-
-  constructor(data?: PartialMessage<TopicChanged>) {
-    super();
-    proto3.util.initPartial(data, this);
-  }
-
-  static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "esteemed.v1.TopicChanged";
-  static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "topic", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-  ]);
-
-  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): TopicChanged {
-    return new TopicChanged().fromBinary(bytes, options);
-  }
-
-  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): TopicChanged {
-    return new TopicChanged().fromJson(jsonValue, options);
-  }
-
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): TopicChanged {
-    return new TopicChanged().fromJsonString(jsonString, options);
-  }
-
-  static equals(a: TopicChanged | PlainMessage<TopicChanged> | undefined, b: TopicChanged | PlainMessage<TopicChanged> | undefined): boolean {
-    return proto3.util.equals(TopicChanged, a, b);
   }
 }
 

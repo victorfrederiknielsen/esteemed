@@ -6,10 +6,10 @@ import (
 
 	"connectrpc.com/connect"
 
-	"github.com/vicmanager/esteemed/backend/internal/domain"
-	"github.com/vicmanager/esteemed/backend/internal/ports/primary"
 	esteemedv1 "github.com/vicmanager/esteemed/backend/gen/esteemed/v1"
 	"github.com/vicmanager/esteemed/backend/gen/esteemed/v1/esteemedv1connect"
+	"github.com/vicmanager/esteemed/backend/internal/domain"
+	"github.com/vicmanager/esteemed/backend/internal/ports/primary"
 )
 
 // RoomHandler implements the ConnectRPC RoomService
@@ -44,7 +44,6 @@ func (h *RoomHandler) ListRooms(
 			Name:             s.Name,
 			ParticipantCount: int32(s.ParticipantCount),
 			State:            domainStateToProto(s.State),
-			CurrentTopic:     s.CurrentTopic,
 			CreatedAt:        s.CreatedAt,
 		})
 	}
@@ -178,7 +177,6 @@ func domainRoomToProto(room *domain.Room) *esteemedv1.Room {
 		Name:         room.Name,
 		Participants: participants,
 		State:        domainStateToProto(room.GetState()),
-		CurrentTopic: room.CurrentTopic,
 		CreatedAt:    room.CreatedAt.Unix(),
 	}
 }
@@ -222,12 +220,6 @@ func domainRoomEventToProto(event primary.RoomEvent) *esteemedv1.RoomEvent {
 		protoEvent.Event = &esteemedv1.RoomEvent_StateChanged{
 			StateChanged: &esteemedv1.RoomStateChanged{
 				NewState: domainStateToProto(event.NewState),
-			},
-		}
-	case primary.RoomEventTopicChanged:
-		protoEvent.Event = &esteemedv1.RoomEvent_TopicChanged{
-			TopicChanged: &esteemedv1.TopicChanged{
-				Topic: event.Topic,
 			},
 		}
 	case primary.RoomEventClosed:

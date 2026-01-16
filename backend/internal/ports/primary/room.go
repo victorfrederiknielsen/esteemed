@@ -33,7 +33,6 @@ type RoomSummary struct {
 	Name             string
 	ParticipantCount int
 	State            domain.RoomState
-	CurrentTopic     string
 	CreatedAt        int64
 }
 
@@ -58,7 +57,6 @@ const (
 	RoomEventParticipantJoined RoomEventType = iota
 	RoomEventParticipantLeft
 	RoomEventStateChanged
-	RoomEventTopicChanged
 	RoomEventClosed
 )
 
@@ -68,6 +66,5 @@ type RoomEvent struct {
 	Participant   *domain.Participant
 	ParticipantID string
 	NewState      domain.RoomState
-	Topic         string
 	Reason        string
 }
