@@ -79,16 +79,18 @@ export function useRoom(roomId?: string): UseRoomState & UseRoomActions {
             }));
           } else if (event.event?.case === "stateChanged") {
             const newState = event.event.value.newState;
-            setState((prev) => ({
-              ...prev,
-              room: prev.room ? { ...prev.room, state: newState } : null,
-            }));
+            setState((prev) => {
+              if (!prev.room) return prev;
+              prev.room.state = newState;
+              return { ...prev };
+            });
           } else if (event.event?.case === "topicChanged") {
             const topic = event.event.value.topic;
-            setState((prev) => ({
-              ...prev,
-              room: prev.room ? { ...prev.room, currentTopic: topic } : null,
-            }));
+            setState((prev) => {
+              if (!prev.room) return prev;
+              prev.room.currentTopic = topic;
+              return { ...prev };
+            });
           } else if (event.event?.case === "roomClosed") {
             const reason = event.event.value.reason;
             clearSession();
@@ -243,14 +245,12 @@ export function useRoom(roomId?: string): UseRoomState & UseRoomActions {
         topic,
       });
       // Optimistically update local state since streaming might not work
-      setState((prev) => ({
-        ...prev,
-        room: prev.room ? {
-          ...prev.room,
-          currentTopic: topic,
-          state: RoomState.VOTING
-        } : null,
-      }));
+      setState((prev) => {
+        if (!prev.room) return prev;
+        prev.room.currentTopic = topic;
+        prev.room.state = RoomState.VOTING;
+        return { ...prev };
+      });
     } catch (err) {
       const error = err instanceof Error ? err.message : "Failed to set topic";
       setState((prev) => ({ ...prev, error }));

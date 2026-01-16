@@ -23,7 +23,7 @@ export function HomePage() {
   const fetchRooms = async () => {
     try {
       setLoadingRooms(true);
-      const response = await roomClient.listRooms();
+      const response = await roomClient.listRooms({});
       setRooms(response.rooms);
     } catch (err) {
       console.error("Failed to fetch rooms:", err);

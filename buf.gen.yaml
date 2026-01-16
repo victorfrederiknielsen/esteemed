@@ -1,18 +1,18 @@
 version: v2
 plugins:
   # Go protobuf
-  - remote: buf.build/protocolbuffers/go
+  - remote: buf.build/protocolbuffers/go:v1.36.2
     out: backend/gen
     opt: paths=source_relative
   # Connect-Go
-  - remote: buf.build/connectrpc/go
+  - remote: buf.build/connectrpc/go:v1.18.1
     out: backend/gen
     opt: paths=source_relative
-  # TypeScript/ES (connect-es)
-  - remote: buf.build/bufbuild/es
+  # TypeScript/ES protobuf (v1.x for @bufbuild/protobuf@1.x)
+  - remote: buf.build/bufbuild/es:v1.10.0
     out: frontend/src/gen
     opt: target=ts
-  # Connect-ES
-  - remote: buf.build/connectrpc/es
+  # Connect-ES (v1.x for @connectrpc/connect@1.x)
+  - remote: buf.build/connectrpc/es:v1.6.1
     out: frontend/src/gen
     opt: target=ts
