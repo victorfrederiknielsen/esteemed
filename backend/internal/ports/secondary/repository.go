@@ -22,4 +22,7 @@ type RoomRepository interface {
 
 	// Exists checks if a room exists
 	Exists(ctx context.Context, id string) (bool, error)
+
+	// ListAll returns all rooms
+	ListAll(ctx context.Context) ([]*domain.Room, error)
 }

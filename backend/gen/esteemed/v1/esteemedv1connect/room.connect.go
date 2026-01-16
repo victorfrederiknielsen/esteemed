@@ -33,6 +33,8 @@ const (
 // reflection-formatted method names, remove the leading slash and convert the remaining slash to a
 // period.
 const (
+	// RoomServiceListRoomsProcedure is the fully-qualified name of the RoomService's ListRooms RPC.
+	RoomServiceListRoomsProcedure = "/esteemed.v1.RoomService/ListRooms"
 	// RoomServiceCreateRoomProcedure is the fully-qualified name of the RoomService's CreateRoom RPC.
 	RoomServiceCreateRoomProcedure = "/esteemed.v1.RoomService/CreateRoom"
 	// RoomServiceJoinRoomProcedure is the fully-qualified name of the RoomService's JoinRoom RPC.
@@ -47,6 +49,8 @@ const (
 
 // RoomServiceClient is a client for the esteemed.v1.RoomService service.
 type RoomServiceClient interface {
+	// ListRooms returns all active rooms
+	ListRooms(context.Context, *connect.Request[v1.ListRoomsRequest]) (*connect.Response[v1.ListRoomsResponse], error)
 	// CreateRoom generates a new room with a fun name (e.g., brave-falcon-42)
 	CreateRoom(context.Context, *connect.Request[v1.CreateRoomRequest]) (*connect.Response[v1.CreateRoomResponse], error)
 	// JoinRoom adds a participant to an existing room
@@ -70,6 +74,12 @@ func NewRoomServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 	baseURL = strings.TrimRight(baseURL, "/")
 	roomServiceMethods := v1.File_esteemed_v1_room_proto.Services().ByName("RoomService").Methods()
 	return &roomServiceClient{
+		listRooms: connect.NewClient[v1.ListRoomsRequest, v1.ListRoomsResponse](
+			httpClient,
+			baseURL+RoomServiceListRoomsProcedure,
+			connect.WithSchema(roomServiceMethods.ByName("ListRooms")),
+			connect.WithClientOptions(opts...),
+		),
 		createRoom: connect.NewClient[v1.CreateRoomRequest, v1.CreateRoomResponse](
 			httpClient,
 			baseURL+RoomServiceCreateRoomProcedure,
@@ -105,11 +115,17 @@ func NewRoomServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 
 // roomServiceClient implements RoomServiceClient.
 type roomServiceClient struct {
+	listRooms  *connect.Client[v1.ListRoomsRequest, v1.ListRoomsResponse]
 	createRoom *connect.Client[v1.CreateRoomRequest, v1.CreateRoomResponse]
 	joinRoom   *connect.Client[v1.JoinRoomRequest, v1.JoinRoomResponse]
 	leaveRoom  *connect.Client[v1.LeaveRoomRequest, v1.LeaveRoomResponse]
 	getRoom    *connect.Client[v1.GetRoomRequest, v1.GetRoomResponse]
 	watchRoom  *connect.Client[v1.WatchRoomRequest, v1.RoomEvent]
+}
+
+// ListRooms calls esteemed.v1.RoomService.ListRooms.
+func (c *roomServiceClient) ListRooms(ctx context.Context, req *connect.Request[v1.ListRoomsRequest]) (*connect.Response[v1.ListRoomsResponse], error) {
+	return c.listRooms.CallUnary(ctx, req)
 }
 
 // CreateRoom calls esteemed.v1.RoomService.CreateRoom.
@@ -139,6 +155,8 @@ func (c *roomServiceClient) WatchRoom(ctx context.Context, req *connect.Request[
 
 // RoomServiceHandler is an implementation of the esteemed.v1.RoomService service.
 type RoomServiceHandler interface {
+	// ListRooms returns all active rooms
+	ListRooms(context.Context, *connect.Request[v1.ListRoomsRequest]) (*connect.Response[v1.ListRoomsResponse], error)
 	// CreateRoom generates a new room with a fun name (e.g., brave-falcon-42)
 	CreateRoom(context.Context, *connect.Request[v1.CreateRoomRequest]) (*connect.Response[v1.CreateRoomResponse], error)
 	// JoinRoom adds a participant to an existing room
@@ -158,6 +176,12 @@ type RoomServiceHandler interface {
 // and JSON codecs. They also support gzip compression.
 func NewRoomServiceHandler(svc RoomServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
 	roomServiceMethods := v1.File_esteemed_v1_room_proto.Services().ByName("RoomService").Methods()
+	roomServiceListRoomsHandler := connect.NewUnaryHandler(
+		RoomServiceListRoomsProcedure,
+		svc.ListRooms,
+		connect.WithSchema(roomServiceMethods.ByName("ListRooms")),
+		connect.WithHandlerOptions(opts...),
+	)
 	roomServiceCreateRoomHandler := connect.NewUnaryHandler(
 		RoomServiceCreateRoomProcedure,
 		svc.CreateRoom,
@@ -190,6 +214,8 @@ func NewRoomServiceHandler(svc RoomServiceHandler, opts ...connect.HandlerOption
 	)
 	return "/esteemed.v1.RoomService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
+		case RoomServiceListRoomsProcedure:
+			roomServiceListRoomsHandler.ServeHTTP(w, r)
 		case RoomServiceCreateRoomProcedure:
 			roomServiceCreateRoomHandler.ServeHTTP(w, r)
 		case RoomServiceJoinRoomProcedure:
@@ -208,6 +234,10 @@ func NewRoomServiceHandler(svc RoomServiceHandler, opts ...connect.HandlerOption
 
 // UnimplementedRoomServiceHandler returns CodeUnimplemented from all methods.
 type UnimplementedRoomServiceHandler struct{}
+
+func (UnimplementedRoomServiceHandler) ListRooms(context.Context, *connect.Request[v1.ListRoomsRequest]) (*connect.Response[v1.ListRoomsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("esteemed.v1.RoomService.ListRooms is not implemented"))
+}
 
 func (UnimplementedRoomServiceHandler) CreateRoom(context.Context, *connect.Request[v1.CreateRoomRequest]) (*connect.Response[v1.CreateRoomResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("esteemed.v1.RoomService.CreateRoom is not implemented"))

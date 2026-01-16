@@ -3,7 +3,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import { CreateRoomRequest, CreateRoomResponse, GetRoomRequest, GetRoomResponse, JoinRoomRequest, JoinRoomResponse, LeaveRoomRequest, LeaveRoomResponse, RoomEvent, WatchRoomRequest } from "./room_pb.js";
+import { CreateRoomRequest, CreateRoomResponse, GetRoomRequest, GetRoomResponse, JoinRoomRequest, JoinRoomResponse, LeaveRoomRequest, LeaveRoomResponse, ListRoomsRequest, ListRoomsResponse, RoomEvent, WatchRoomRequest } from "./room_pb.js";
 import { MethodKind } from "@bufbuild/protobuf";
 
 /**
@@ -14,6 +14,17 @@ import { MethodKind } from "@bufbuild/protobuf";
 export const RoomService = {
   typeName: "esteemed.v1.RoomService",
   methods: {
+    /**
+     * ListRooms returns all active rooms
+     *
+     * @generated from rpc esteemed.v1.RoomService.ListRooms
+     */
+    listRooms: {
+      name: "ListRooms",
+      I: ListRoomsRequest,
+      O: ListRoomsResponse,
+      kind: MethodKind.Unary,
+    },
     /**
      * CreateRoom generates a new room with a fun name (e.g., brave-falcon-42)
      *

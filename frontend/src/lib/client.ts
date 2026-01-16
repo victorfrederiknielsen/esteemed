@@ -1,4 +1,6 @@
 import type {
+  ListRoomsRequest,
+  ListRoomsResponse,
   CreateRoomRequest,
   CreateRoomResponse,
   JoinRoomRequest,
@@ -26,6 +28,7 @@ import type {
 
 import { fromJson, type DescMessage } from "@bufbuild/protobuf";
 import {
+  ListRoomsResponseSchema,
   CreateRoomResponseSchema,
   JoinRoomResponseSchema,
   LeaveRoomResponseSchema,
@@ -124,6 +127,14 @@ async function* streamServerSide<Res>(
 
 // Room Service Client
 export const roomClient = {
+  listRooms: (request: Partial<ListRoomsRequest> = {}) =>
+    callUnary<ListRoomsResponse>(
+      "esteemed.v1.RoomService",
+      "ListRooms",
+      request,
+      ListRoomsResponseSchema
+    ),
+
   createRoom: (request: Partial<CreateRoomRequest>) =>
     callUnary<CreateRoomResponse>(
       "esteemed.v1.RoomService",

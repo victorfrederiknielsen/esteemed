@@ -27,6 +27,33 @@ func (h *RoomHandler) Handler() (string, http.Handler) {
 	return esteemedv1connect.NewRoomServiceHandler(h)
 }
 
+// ListRooms returns all active rooms
+func (h *RoomHandler) ListRooms(
+	ctx context.Context,
+	req *connect.Request[esteemedv1.ListRoomsRequest],
+) (*connect.Response[esteemedv1.ListRoomsResponse], error) {
+	summaries, err := h.service.ListRooms(ctx)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+
+	protoSummaries := make([]*esteemedv1.RoomSummary, 0, len(summaries))
+	for _, s := range summaries {
+		protoSummaries = append(protoSummaries, &esteemedv1.RoomSummary{
+			Id:               s.ID,
+			Name:             s.Name,
+			ParticipantCount: int32(s.ParticipantCount),
+			State:            domainStateToProto(s.State),
+			CurrentTopic:     s.CurrentTopic,
+			CreatedAt:        s.CreatedAt,
+		})
+	}
+
+	return connect.NewResponse(&esteemedv1.ListRoomsResponse{
+		Rooms: protoSummaries,
+	}), nil
+}
+
 // CreateRoom creates a new room
 func (h *RoomHandler) CreateRoom(
 	ctx context.Context,

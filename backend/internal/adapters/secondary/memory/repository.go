@@ -92,8 +92,8 @@ func (r *RoomRepository) Count() int {
 	return len(r.rooms)
 }
 
-// All returns all rooms (for debugging/testing)
-func (r *RoomRepository) All() []*domain.Room {
+// ListAll returns all rooms
+func (r *RoomRepository) ListAll(ctx context.Context) ([]*domain.Room, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 
@@ -101,5 +101,5 @@ func (r *RoomRepository) All() []*domain.Room {
 	for _, room := range r.rooms {
 		rooms = append(rooms, room)
 	}
-	return rooms
+	return rooms, nil
 }

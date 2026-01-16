@@ -242,6 +242,15 @@ export function useRoom(roomId?: string): UseRoomState & UseRoomActions {
         sessionToken: state.sessionToken,
         topic,
       });
+      // Optimistically update local state since streaming might not work
+      setState((prev) => ({
+        ...prev,
+        room: prev.room ? {
+          ...prev.room,
+          currentTopic: topic,
+          state: RoomState.VOTING
+        } : null,
+      }));
     } catch (err) {
       const error = err instanceof Error ? err.message : "Failed to set topic";
       setState((prev) => ({ ...prev, error }));

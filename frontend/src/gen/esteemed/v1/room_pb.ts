@@ -10,7 +10,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file esteemed/v1/room.proto.
  */
 export const file_esteemed_v1_room: GenFile = /*@__PURE__*/
-  fileDesc("ChZlc3RlZW1lZC92MS9yb29tLnByb3RvEgtlc3RlZW1lZC52MSKiAQoEUm9vbRIKCgJpZBgBIAEoCRIMCgRuYW1lGAIgASgJEi4KDHBhcnRpY2lwYW50cxgDIAMoCzIYLmVzdGVlbWVkLnYxLlBhcnRpY2lwYW50EiUKBXN0YXRlGAQgASgOMhYuZXN0ZWVtZWQudjEuUm9vbVN0YXRlEhUKDWN1cnJlbnRfdG9waWMYBSABKAkSEgoKY3JlYXRlZF9hdBgGIAEoAyJhCgtQYXJ0aWNpcGFudBIKCgJpZBgBIAEoCRIMCgRuYW1lGAIgASgJEg8KB2lzX2hvc3QYAyABKAgSFAoMaXNfY29ubmVjdGVkGAQgASgIEhEKCWpvaW5lZF9hdBgFIAEoAyImChFDcmVhdGVSb29tUmVxdWVzdBIRCglob3N0X25hbWUYASABKAkiZAoSQ3JlYXRlUm9vbVJlc3BvbnNlEh8KBHJvb20YASABKAsyES5lc3RlZW1lZC52MS5Sb29tEhUKDXNlc3Npb25fdG9rZW4YAiABKAkSFgoOcGFydGljaXBhbnRfaWQYAyABKAkiUwoPSm9pblJvb21SZXF1ZXN0Eg8KB3Jvb21faWQYASABKAkSGAoQcGFydGljaXBhbnRfbmFtZRgCIAEoCRIVCg1zZXNzaW9uX3Rva2VuGAMgASgJImIKEEpvaW5Sb29tUmVzcG9uc2USHwoEcm9vbRgBIAEoCzIRLmVzdGVlbWVkLnYxLlJvb20SFQoNc2Vzc2lvbl90b2tlbhgCIAEoCRIWCg5wYXJ0aWNpcGFudF9pZBgDIAEoCSJSChBMZWF2ZVJvb21SZXF1ZXN0Eg8KB3Jvb21faWQYASABKAkSFgoOcGFydGljaXBhbnRfaWQYAiABKAkSFQoNc2Vzc2lvbl90b2tlbhgDIAEoCSITChFMZWF2ZVJvb21SZXNwb25zZSIhCg5HZXRSb29tUmVxdWVzdBIPCgdyb29tX2lkGAEgASgJIjIKD0dldFJvb21SZXNwb25zZRIfCgRyb29tGAEgASgLMhEuZXN0ZWVtZWQudjEuUm9vbSI6ChBXYXRjaFJvb21SZXF1ZXN0Eg8KB3Jvb21faWQYASABKAkSFQoNc2Vzc2lvbl90b2tlbhgCIAEoCSKoAgoJUm9vbUV2ZW50EjwKEnBhcnRpY2lwYW50X2pvaW5lZBgBIAEoCzIeLmVzdGVlbWVkLnYxLlBhcnRpY2lwYW50Sm9pbmVkSAASOAoQcGFydGljaXBhbnRfbGVmdBgCIAEoCzIcLmVzdGVlbWVkLnYxLlBhcnRpY2lwYW50TGVmdEgAEjYKDXN0YXRlX2NoYW5nZWQYAyABKAsyHS5lc3RlZW1lZC52MS5Sb29tU3RhdGVDaGFuZ2VkSAASMgoNdG9waWNfY2hhbmdlZBgEIAEoCzIZLmVzdGVlbWVkLnYxLlRvcGljQ2hhbmdlZEgAEi4KC3Jvb21fY2xvc2VkGAUgASgLMhcuZXN0ZWVtZWQudjEuUm9vbUNsb3NlZEgAQgcKBWV2ZW50IkIKEVBhcnRpY2lwYW50Sm9pbmVkEi0KC3BhcnRpY2lwYW50GAEgASgLMhguZXN0ZWVtZWQudjEuUGFydGljaXBhbnQiKQoPUGFydGljaXBhbnRMZWZ0EhYKDnBhcnRpY2lwYW50X2lkGAEgASgJIj0KEFJvb21TdGF0ZUNoYW5nZWQSKQoJbmV3X3N0YXRlGAEgASgOMhYuZXN0ZWVtZWQudjEuUm9vbVN0YXRlIh0KDFRvcGljQ2hhbmdlZBINCgV0b3BpYxgBIAEoCSIcCgpSb29tQ2xvc2VkEg4KBnJlYXNvbhgBIAEoCSpvCglSb29tU3RhdGUSGgoWUk9PTV9TVEFURV9VTlNQRUNJRklFRBAAEhYKElJPT01fU1RBVEVfV0FJVElORxABEhUKEVJPT01fU1RBVEVfVk9USU5HEAISFwoTUk9PTV9TVEFURV9SRVZFQUxFRBADMv0CCgtSb29tU2VydmljZRJNCgpDcmVhdGVSb29tEh4uZXN0ZWVtZWQudjEuQ3JlYXRlUm9vbVJlcXVlc3QaHy5lc3RlZW1lZC52MS5DcmVhdGVSb29tUmVzcG9uc2USRwoISm9pblJvb20SHC5lc3RlZW1lZC52MS5Kb2luUm9vbVJlcXVlc3QaHS5lc3RlZW1lZC52MS5Kb2luUm9vbVJlc3BvbnNlEkoKCUxlYXZlUm9vbRIdLmVzdGVlbWVkLnYxLkxlYXZlUm9vbVJlcXVlc3QaHi5lc3RlZW1lZC52MS5MZWF2ZVJvb21SZXNwb25zZRJECgdHZXRSb29tEhsuZXN0ZWVtZWQudjEuR2V0Um9vbVJlcXVlc3QaHC5lc3RlZW1lZC52MS5HZXRSb29tUmVzcG9uc2USRAoJV2F0Y2hSb29tEh0uZXN0ZWVtZWQudjEuV2F0Y2hSb29tUmVxdWVzdBoWLmVzdGVlbWVkLnYxLlJvb21FdmVudDABQkNaQWdpdGh1Yi5jb20vdmljbWFuYWdlci9lc3RlZW1lZC9iYWNrZW5kL2dlbi9lc3RlZW1lZC92MTtlc3RlZW1lZHYxYgZwcm90bzM");
+  fileDesc("ChZlc3RlZW1lZC92MS9yb29tLnByb3RvEgtlc3RlZW1lZC52MSKiAQoEUm9vbRIKCgJpZBgBIAEoCRIMCgRuYW1lGAIgASgJEi4KDHBhcnRpY2lwYW50cxgDIAMoCzIYLmVzdGVlbWVkLnYxLlBhcnRpY2lwYW50EiUKBXN0YXRlGAQgASgOMhYuZXN0ZWVtZWQudjEuUm9vbVN0YXRlEhUKDWN1cnJlbnRfdG9waWMYBSABKAkSEgoKY3JlYXRlZF9hdBgGIAEoAyJhCgtQYXJ0aWNpcGFudBIKCgJpZBgBIAEoCRIMCgRuYW1lGAIgASgJEg8KB2lzX2hvc3QYAyABKAgSFAoMaXNfY29ubmVjdGVkGAQgASgIEhEKCWpvaW5lZF9hdBgFIAEoAyImChFDcmVhdGVSb29tUmVxdWVzdBIRCglob3N0X25hbWUYASABKAkiZAoSQ3JlYXRlUm9vbVJlc3BvbnNlEh8KBHJvb20YASABKAsyES5lc3RlZW1lZC52MS5Sb29tEhUKDXNlc3Npb25fdG9rZW4YAiABKAkSFgoOcGFydGljaXBhbnRfaWQYAyABKAkiUwoPSm9pblJvb21SZXF1ZXN0Eg8KB3Jvb21faWQYASABKAkSGAoQcGFydGljaXBhbnRfbmFtZRgCIAEoCRIVCg1zZXNzaW9uX3Rva2VuGAMgASgJImIKEEpvaW5Sb29tUmVzcG9uc2USHwoEcm9vbRgBIAEoCzIRLmVzdGVlbWVkLnYxLlJvb20SFQoNc2Vzc2lvbl90b2tlbhgCIAEoCRIWCg5wYXJ0aWNpcGFudF9pZBgDIAEoCSJSChBMZWF2ZVJvb21SZXF1ZXN0Eg8KB3Jvb21faWQYASABKAkSFgoOcGFydGljaXBhbnRfaWQYAiABKAkSFQoNc2Vzc2lvbl90b2tlbhgDIAEoCSITChFMZWF2ZVJvb21SZXNwb25zZSISChBMaXN0Um9vbXNSZXF1ZXN0IjwKEUxpc3RSb29tc1Jlc3BvbnNlEicKBXJvb21zGAEgAygLMhguZXN0ZWVtZWQudjEuUm9vbVN1bW1hcnkilAEKC1Jvb21TdW1tYXJ5EgoKAmlkGAEgASgJEgwKBG5hbWUYAiABKAkSGQoRcGFydGljaXBhbnRfY291bnQYAyABKAUSJQoFc3RhdGUYBCABKA4yFi5lc3RlZW1lZC52MS5Sb29tU3RhdGUSFQoNY3VycmVudF90b3BpYxgFIAEoCRISCgpjcmVhdGVkX2F0GAYgASgDIiEKDkdldFJvb21SZXF1ZXN0Eg8KB3Jvb21faWQYASABKAkiMgoPR2V0Um9vbVJlc3BvbnNlEh8KBHJvb20YASABKAsyES5lc3RlZW1lZC52MS5Sb29tIjoKEFdhdGNoUm9vbVJlcXVlc3QSDwoHcm9vbV9pZBgBIAEoCRIVCg1zZXNzaW9uX3Rva2VuGAIgASgJIqgCCglSb29tRXZlbnQSPAoScGFydGljaXBhbnRfam9pbmVkGAEgASgLMh4uZXN0ZWVtZWQudjEuUGFydGljaXBhbnRKb2luZWRIABI4ChBwYXJ0aWNpcGFudF9sZWZ0GAIgASgLMhwuZXN0ZWVtZWQudjEuUGFydGljaXBhbnRMZWZ0SAASNgoNc3RhdGVfY2hhbmdlZBgDIAEoCzIdLmVzdGVlbWVkLnYxLlJvb21TdGF0ZUNoYW5nZWRIABIyCg10b3BpY19jaGFuZ2VkGAQgASgLMhkuZXN0ZWVtZWQudjEuVG9waWNDaGFuZ2VkSAASLgoLcm9vbV9jbG9zZWQYBSABKAsyFy5lc3RlZW1lZC52MS5Sb29tQ2xvc2VkSABCBwoFZXZlbnQiQgoRUGFydGljaXBhbnRKb2luZWQSLQoLcGFydGljaXBhbnQYASABKAsyGC5lc3RlZW1lZC52MS5QYXJ0aWNpcGFudCIpCg9QYXJ0aWNpcGFudExlZnQSFgoOcGFydGljaXBhbnRfaWQYASABKAkiPQoQUm9vbVN0YXRlQ2hhbmdlZBIpCgluZXdfc3RhdGUYASABKA4yFi5lc3RlZW1lZC52MS5Sb29tU3RhdGUiHQoMVG9waWNDaGFuZ2VkEg0KBXRvcGljGAEgASgJIhwKClJvb21DbG9zZWQSDgoGcmVhc29uGAEgASgJKm8KCVJvb21TdGF0ZRIaChZST09NX1NUQVRFX1VOU1BFQ0lGSUVEEAASFgoSUk9PTV9TVEFURV9XQUlUSU5HEAESFQoRUk9PTV9TVEFURV9WT1RJTkcQAhIXChNST09NX1NUQVRFX1JFVkVBTEVEEAMyyQMKC1Jvb21TZXJ2aWNlEkoKCUxpc3RSb29tcxIdLmVzdGVlbWVkLnYxLkxpc3RSb29tc1JlcXVlc3QaHi5lc3RlZW1lZC52MS5MaXN0Um9vbXNSZXNwb25zZRJNCgpDcmVhdGVSb29tEh4uZXN0ZWVtZWQudjEuQ3JlYXRlUm9vbVJlcXVlc3QaHy5lc3RlZW1lZC52MS5DcmVhdGVSb29tUmVzcG9uc2USRwoISm9pblJvb20SHC5lc3RlZW1lZC52MS5Kb2luUm9vbVJlcXVlc3QaHS5lc3RlZW1lZC52MS5Kb2luUm9vbVJlc3BvbnNlEkoKCUxlYXZlUm9vbRIdLmVzdGVlbWVkLnYxLkxlYXZlUm9vbVJlcXVlc3QaHi5lc3RlZW1lZC52MS5MZWF2ZVJvb21SZXNwb25zZRJECgdHZXRSb29tEhsuZXN0ZWVtZWQudjEuR2V0Um9vbVJlcXVlc3QaHC5lc3RlZW1lZC52MS5HZXRSb29tUmVzcG9uc2USRAoJV2F0Y2hSb29tEh0uZXN0ZWVtZWQudjEuV2F0Y2hSb29tUmVxdWVzdBoWLmVzdGVlbWVkLnYxLlJvb21FdmVudDABQkNaQWdpdGh1Yi5jb20vdmljbWFuYWdlci9lc3RlZW1lZC9iYWNrZW5kL2dlbi9lc3RlZW1lZC92MTtlc3RlZW1lZHYxYgZwcm90bzM");
 
 /**
  * Room represents a planning poker room
@@ -248,6 +248,82 @@ export const LeaveRoomResponseSchema: GenMessage<LeaveRoomResponse> = /*@__PURE_
   messageDesc(file_esteemed_v1_room, 7);
 
 /**
+ * ListRoomsRequest gets all active rooms
+ *
+ * @generated from message esteemed.v1.ListRoomsRequest
+ */
+export type ListRoomsRequest = Message<"esteemed.v1.ListRoomsRequest"> & {
+};
+
+/**
+ * Describes the message esteemed.v1.ListRoomsRequest.
+ * Use `create(ListRoomsRequestSchema)` to create a new message.
+ */
+export const ListRoomsRequestSchema: GenMessage<ListRoomsRequest> = /*@__PURE__*/
+  messageDesc(file_esteemed_v1_room, 8);
+
+/**
+ * @generated from message esteemed.v1.ListRoomsResponse
+ */
+export type ListRoomsResponse = Message<"esteemed.v1.ListRoomsResponse"> & {
+  /**
+   * @generated from field: repeated esteemed.v1.RoomSummary rooms = 1;
+   */
+  rooms: RoomSummary[];
+};
+
+/**
+ * Describes the message esteemed.v1.ListRoomsResponse.
+ * Use `create(ListRoomsResponseSchema)` to create a new message.
+ */
+export const ListRoomsResponseSchema: GenMessage<ListRoomsResponse> = /*@__PURE__*/
+  messageDesc(file_esteemed_v1_room, 9);
+
+/**
+ * RoomSummary is a brief view of a room for listing
+ *
+ * @generated from message esteemed.v1.RoomSummary
+ */
+export type RoomSummary = Message<"esteemed.v1.RoomSummary"> & {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id: string;
+
+  /**
+   * @generated from field: string name = 2;
+   */
+  name: string;
+
+  /**
+   * @generated from field: int32 participant_count = 3;
+   */
+  participantCount: number;
+
+  /**
+   * @generated from field: esteemed.v1.RoomState state = 4;
+   */
+  state: RoomState;
+
+  /**
+   * @generated from field: string current_topic = 5;
+   */
+  currentTopic: string;
+
+  /**
+   * @generated from field: int64 created_at = 6;
+   */
+  createdAt: bigint;
+};
+
+/**
+ * Describes the message esteemed.v1.RoomSummary.
+ * Use `create(RoomSummarySchema)` to create a new message.
+ */
+export const RoomSummarySchema: GenMessage<RoomSummary> = /*@__PURE__*/
+  messageDesc(file_esteemed_v1_room, 10);
+
+/**
  * GetRoomRequest gets current room state
  *
  * @generated from message esteemed.v1.GetRoomRequest
@@ -264,7 +340,7 @@ export type GetRoomRequest = Message<"esteemed.v1.GetRoomRequest"> & {
  * Use `create(GetRoomRequestSchema)` to create a new message.
  */
 export const GetRoomRequestSchema: GenMessage<GetRoomRequest> = /*@__PURE__*/
-  messageDesc(file_esteemed_v1_room, 8);
+  messageDesc(file_esteemed_v1_room, 11);
 
 /**
  * @generated from message esteemed.v1.GetRoomResponse
@@ -281,7 +357,7 @@ export type GetRoomResponse = Message<"esteemed.v1.GetRoomResponse"> & {
  * Use `create(GetRoomResponseSchema)` to create a new message.
  */
 export const GetRoomResponseSchema: GenMessage<GetRoomResponse> = /*@__PURE__*/
-  messageDesc(file_esteemed_v1_room, 9);
+  messageDesc(file_esteemed_v1_room, 12);
 
 /**
  * WatchRoomRequest subscribes to room updates
@@ -305,7 +381,7 @@ export type WatchRoomRequest = Message<"esteemed.v1.WatchRoomRequest"> & {
  * Use `create(WatchRoomRequestSchema)` to create a new message.
  */
 export const WatchRoomRequestSchema: GenMessage<WatchRoomRequest> = /*@__PURE__*/
-  messageDesc(file_esteemed_v1_room, 10);
+  messageDesc(file_esteemed_v1_room, 13);
 
 /**
  * RoomEvent is sent when room state changes
@@ -354,7 +430,7 @@ export type RoomEvent = Message<"esteemed.v1.RoomEvent"> & {
  * Use `create(RoomEventSchema)` to create a new message.
  */
 export const RoomEventSchema: GenMessage<RoomEvent> = /*@__PURE__*/
-  messageDesc(file_esteemed_v1_room, 11);
+  messageDesc(file_esteemed_v1_room, 14);
 
 /**
  * @generated from message esteemed.v1.ParticipantJoined
@@ -371,7 +447,7 @@ export type ParticipantJoined = Message<"esteemed.v1.ParticipantJoined"> & {
  * Use `create(ParticipantJoinedSchema)` to create a new message.
  */
 export const ParticipantJoinedSchema: GenMessage<ParticipantJoined> = /*@__PURE__*/
-  messageDesc(file_esteemed_v1_room, 12);
+  messageDesc(file_esteemed_v1_room, 15);
 
 /**
  * @generated from message esteemed.v1.ParticipantLeft
@@ -388,7 +464,7 @@ export type ParticipantLeft = Message<"esteemed.v1.ParticipantLeft"> & {
  * Use `create(ParticipantLeftSchema)` to create a new message.
  */
 export const ParticipantLeftSchema: GenMessage<ParticipantLeft> = /*@__PURE__*/
-  messageDesc(file_esteemed_v1_room, 13);
+  messageDesc(file_esteemed_v1_room, 16);
 
 /**
  * @generated from message esteemed.v1.RoomStateChanged
@@ -405,7 +481,7 @@ export type RoomStateChanged = Message<"esteemed.v1.RoomStateChanged"> & {
  * Use `create(RoomStateChangedSchema)` to create a new message.
  */
 export const RoomStateChangedSchema: GenMessage<RoomStateChanged> = /*@__PURE__*/
-  messageDesc(file_esteemed_v1_room, 14);
+  messageDesc(file_esteemed_v1_room, 17);
 
 /**
  * @generated from message esteemed.v1.TopicChanged
@@ -422,7 +498,7 @@ export type TopicChanged = Message<"esteemed.v1.TopicChanged"> & {
  * Use `create(TopicChangedSchema)` to create a new message.
  */
 export const TopicChangedSchema: GenMessage<TopicChanged> = /*@__PURE__*/
-  messageDesc(file_esteemed_v1_room, 15);
+  messageDesc(file_esteemed_v1_room, 18);
 
 /**
  * @generated from message esteemed.v1.RoomClosed
@@ -439,7 +515,7 @@ export type RoomClosed = Message<"esteemed.v1.RoomClosed"> & {
  * Use `create(RoomClosedSchema)` to create a new message.
  */
 export const RoomClosedSchema: GenMessage<RoomClosed> = /*@__PURE__*/
-  messageDesc(file_esteemed_v1_room, 16);
+  messageDesc(file_esteemed_v1_room, 19);
 
 /**
  * RoomState represents the current phase of estimation
@@ -486,6 +562,16 @@ export const RoomStateSchema: GenEnum<RoomState> = /*@__PURE__*/
  * @generated from service esteemed.v1.RoomService
  */
 export const RoomService: GenService<{
+  /**
+   * ListRooms returns all active rooms
+   *
+   * @generated from rpc esteemed.v1.RoomService.ListRooms
+   */
+  listRooms: {
+    methodKind: "unary";
+    input: typeof ListRoomsRequestSchema;
+    output: typeof ListRoomsResponseSchema;
+  },
   /**
    * CreateRoom generates a new room with a fun name (e.g., brave-falcon-42)
    *

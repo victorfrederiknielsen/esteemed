@@ -23,6 +23,28 @@ func NewRoomService(repo secondary.RoomRepository, publisher secondary.EventPubl
 	}
 }
 
+// ListRooms returns all active rooms
+func (s *RoomService) ListRooms(ctx context.Context) ([]*primary.RoomSummary, error) {
+	rooms, err := s.repo.ListAll(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	summaries := make([]*primary.RoomSummary, 0, len(rooms))
+	for _, room := range rooms {
+		summaries = append(summaries, &primary.RoomSummary{
+			ID:               room.ID,
+			Name:             room.Name,
+			ParticipantCount: room.ParticipantCount(),
+			State:            room.GetState(),
+			CurrentTopic:     room.CurrentTopic,
+			CreatedAt:        room.CreatedAt.Unix(),
+		})
+	}
+
+	return summaries, nil
+}
+
 // CreateRoom creates a new room with a generated name
 func (s *RoomService) CreateRoom(ctx context.Context, hostName string) (*primary.CreateRoomResult, error) {
 	roomID := domain.GenerateID()

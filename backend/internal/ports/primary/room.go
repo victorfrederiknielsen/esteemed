@@ -8,6 +8,9 @@ import (
 
 // RoomService defines the primary port for room operations
 type RoomService interface {
+	// ListRooms returns all active rooms
+	ListRooms(ctx context.Context) ([]*RoomSummary, error)
+
 	// CreateRoom creates a new room with a generated name
 	CreateRoom(ctx context.Context, hostName string) (*CreateRoomResult, error)
 
@@ -22,6 +25,16 @@ type RoomService interface {
 
 	// WatchRoom returns a channel for room events
 	WatchRoom(ctx context.Context, roomID, sessionToken string) (<-chan RoomEvent, error)
+}
+
+// RoomSummary is a brief view of a room for listing
+type RoomSummary struct {
+	ID               string
+	Name             string
+	ParticipantCount int
+	State            domain.RoomState
+	CurrentTopic     string
+	CreatedAt        int64
 }
 
 // CreateRoomResult contains the result of creating a room

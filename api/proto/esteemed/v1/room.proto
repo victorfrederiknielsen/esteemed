@@ -6,6 +6,9 @@ option go_package = "github.com/vicmanager/esteemed/backend/gen/esteemed/v1;este
 
 // RoomService handles room creation, joining, and real-time updates
 service RoomService {
+  // ListRooms returns all active rooms
+  rpc ListRooms(ListRoomsRequest) returns (ListRoomsResponse);
+
   // CreateRoom generates a new room with a fun name (e.g., brave-falcon-42)
   rpc CreateRoom(CreateRoomRequest) returns (CreateRoomResponse);
 
@@ -81,6 +84,23 @@ message LeaveRoomRequest {
 }
 
 message LeaveRoomResponse {}
+
+// ListRoomsRequest gets all active rooms
+message ListRoomsRequest {}
+
+message ListRoomsResponse {
+  repeated RoomSummary rooms = 1;
+}
+
+// RoomSummary is a brief view of a room for listing
+message RoomSummary {
+  string id = 1;
+  string name = 2;
+  int32 participant_count = 3;
+  RoomState state = 4;
+  string current_topic = 5;
+  int64 created_at = 6;
+}
 
 // GetRoomRequest gets current room state
 message GetRoomRequest {
