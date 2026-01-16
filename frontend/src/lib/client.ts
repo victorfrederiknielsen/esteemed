@@ -1,7 +1,7 @@
+import { EstimationService } from "@/gen/esteemed/v1/estimation_connect";
+import { RoomService } from "@/gen/esteemed/v1/room_connect";
 import { createPromiseClient } from "@connectrpc/connect";
 import { createConnectTransport } from "@connectrpc/connect-web";
-import { RoomService } from "@/gen/esteemed/v1/room_connect";
-import { EstimationService } from "@/gen/esteemed/v1/estimation_connect";
 
 // Create transport for Connect protocol with JSON
 const transport = createConnectTransport({
@@ -11,7 +11,10 @@ const transport = createConnectTransport({
 
 // Create typed clients
 export const roomClient = createPromiseClient(RoomService, transport);
-export const estimationClient = createPromiseClient(EstimationService, transport);
+export const estimationClient = createPromiseClient(
+  EstimationService,
+  transport,
+);
 
 // Session storage helpers
 const SESSION_KEY = "esteemed_session";

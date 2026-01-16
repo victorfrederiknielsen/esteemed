@@ -1,7 +1,7 @@
-import { useState, useEffect, useCallback, useRef } from "react";
-import { estimationClient } from "@/lib/client";
 import type { VoteSummary } from "@/gen/esteemed/v1/estimation_pb";
 import { CardValue } from "@/gen/esteemed/v1/estimation_pb";
+import { estimationClient } from "@/lib/client";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 interface VoteStatus {
   participantId: string;
@@ -28,7 +28,7 @@ export function useVoting(
   roomId: string | null,
   participantId: string | null,
   sessionToken: string | null,
-  isHost: boolean
+  isHost: boolean,
 ): UseVotingState & UseVotingActions {
   const [state, setState] = useState<UseVotingState>({
     voteStatuses: [],
@@ -52,23 +52,22 @@ export function useVoting(
       try {
         const stream = estimationClient.watchVotes(
           { roomId, sessionToken },
-          { signal: controller.signal }
+          { signal: controller.signal },
         );
 
         for await (const event of stream) {
           if (event.event?.case === "voteCast") {
-            const { participantId: voterId, participantName } = event.event.value;
+            const { participantId: voterId, participantName } =
+              event.event.value;
             setState((prev) => {
               const existing = prev.voteStatuses.find(
-                (v) => v.participantId === voterId
+                (v) => v.participantId === voterId,
               );
               if (existing) {
                 return {
                   ...prev,
                   voteStatuses: prev.voteStatuses.map((v) =>
-                    v.participantId === voterId
-                      ? { ...v, hasVoted: true }
-                      : v
+                    v.participantId === voterId ? { ...v, hasVoted: true } : v,
                   ),
                 };
               }
@@ -94,7 +93,10 @@ export function useVoting(
           } else if (event.event?.case === "roundReset") {
             setState((prev) => ({
               ...prev,
-              voteStatuses: prev.voteStatuses.map((v) => ({ ...v, hasVoted: false })),
+              voteStatuses: prev.voteStatuses.map((v) => ({
+                ...v,
+                hasVoted: false,
+              })),
               summary: null,
               currentVote: null,
               isRevealed: false,
@@ -135,11 +137,12 @@ export function useVoting(
           isLoading: false,
         }));
       } catch (err) {
-        const error = err instanceof Error ? err.message : "Failed to cast vote";
+        const error =
+          err instanceof Error ? err.message : "Failed to cast vote";
         setState((prev) => ({ ...prev, isLoading: false, error }));
       }
     },
-    [roomId, participantId, sessionToken]
+    [roomId, participantId, sessionToken],
   );
 
   const revealVotes = useCallback(async (): Promise<void> => {
@@ -161,7 +164,8 @@ export function useVoting(
         isLoading: false,
       }));
     } catch (err) {
-      const error = err instanceof Error ? err.message : "Failed to reveal votes";
+      const error =
+        err instanceof Error ? err.message : "Failed to reveal votes";
       setState((prev) => ({ ...prev, isLoading: false, error }));
     }
   }, [roomId, participantId, sessionToken, isHost]);
@@ -187,7 +191,8 @@ export function useVoting(
         isLoading: false,
       }));
     } catch (err) {
-      const error = err instanceof Error ? err.message : "Failed to reset round";
+      const error =
+        err instanceof Error ? err.message : "Failed to reset round";
       setState((prev) => ({ ...prev, isLoading: false, error }));
     }
   }, [roomId, participantId, sessionToken, isHost]);

@@ -1,15 +1,15 @@
-import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { useRoom, RoomState } from "@/hooks/useRoom";
-import { useVoting } from "@/hooks/useVoting";
-import { VotingCards } from "@/components/room/VotingCards";
 import { ParticipantList } from "@/components/room/ParticipantList";
 import { VoteResults } from "@/components/room/VoteResults";
+import { VotingCards } from "@/components/room/VotingCards";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { RoomState, useRoom } from "@/hooks/useRoom";
+import { useVoting } from "@/hooks/useVoting";
 import { Copy, LogOut, Users } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
 export function RoomPage() {
   const { roomId } = useParams<{ roomId: string }>();
@@ -85,7 +85,10 @@ export function RoomPage() {
           <CardContent>
             <form onSubmit={handleJoin} className="space-y-4">
               <div>
-                <label htmlFor="joinName" className="block text-sm font-medium text-slate-700 mb-1">
+                <label
+                  htmlFor="joinName"
+                  className="block text-sm font-medium text-slate-700 mb-1"
+                >
                   Your Name
                 </label>
                 <Input
@@ -96,12 +99,18 @@ export function RoomPage() {
                   disabled={roomLoading}
                 />
               </div>
-              <Button type="submit" className="w-full" disabled={roomLoading || !joinName.trim()}>
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={roomLoading || !joinName.trim()}
+              >
                 {roomLoading ? "Joining..." : "Join Room"}
               </Button>
             </form>
             {roomError && (
-              <p className="mt-4 text-sm text-red-600 text-center">{roomError}</p>
+              <p className="mt-4 text-sm text-red-600 text-center">
+                {roomError}
+              </p>
             )}
           </CardContent>
         </Card>
@@ -131,7 +140,8 @@ export function RoomPage() {
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2 text-sm text-slate-600">
               <Users className="h-4 w-4" />
-              {totalParticipants} participant{totalParticipants !== 1 ? "s" : ""}
+              {totalParticipants} participant
+              {totalParticipants !== 1 ? "s" : ""}
             </div>
             <Button variant="outline" size="sm" onClick={handleLeave}>
               <LogOut className="h-4 w-4 mr-1" />
@@ -174,7 +184,10 @@ export function RoomPage() {
 
             {/* Voting status or results */}
             {isRevealed && summary ? (
-              <VoteResults summary={summary} onReset={isHost ? resetRound : undefined} />
+              <VoteResults
+                summary={summary}
+                onReset={isHost ? resetRound : undefined}
+              />
             ) : (
               <>
                 {/* Vote progress */}
@@ -193,7 +206,9 @@ export function RoomPage() {
                     <div className="w-full bg-slate-200 rounded-full h-2">
                       <div
                         className="bg-primary h-2 rounded-full transition-all duration-300"
-                        style={{ width: `${(votedCount / Math.max(totalParticipants, 1)) * 100}%` }}
+                        style={{
+                          width: `${(votedCount / Math.max(totalParticipants, 1)) * 100}%`,
+                        }}
                       />
                     </div>
                   </CardContent>

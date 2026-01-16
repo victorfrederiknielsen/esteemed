@@ -1,14 +1,20 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { useRoom } from "@/hooks/useRoom";
-import { roomClient } from "@/lib/client";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import type { RoomSummary } from "@/gen/esteemed/v1/room_pb";
 import { RoomState } from "@/gen/esteemed/v1/room_pb";
-import { Users, RefreshCw } from "lucide-react";
+import { useRoom } from "@/hooks/useRoom";
+import { roomClient } from "@/lib/client";
+import { RefreshCw, Users } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export function HomePage() {
   const navigate = useNavigate();
@@ -93,8 +99,12 @@ export function HomePage() {
     <div className="min-h-screen p-4 bg-gradient-to-br from-slate-50 to-slate-100">
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-8 pt-8">
-          <h1 className="text-4xl font-bold tracking-tight text-slate-900">Esteemed</h1>
-          <p className="mt-2 text-slate-600">Planning poker for engineering teams</p>
+          <h1 className="text-4xl font-bold tracking-tight text-slate-900">
+            Esteemed
+          </h1>
+          <p className="mt-2 text-slate-600">
+            Planning poker for engineering teams
+          </p>
         </div>
 
         <div className="grid md:grid-cols-2 gap-6">
@@ -130,7 +140,10 @@ export function HomePage() {
               {mode === "create" ? (
                 <form onSubmit={handleCreate} className="space-y-4">
                   <div>
-                    <label htmlFor="hostName" className="block text-sm font-medium text-slate-700 mb-1">
+                    <label
+                      htmlFor="hostName"
+                      className="block text-sm font-medium text-slate-700 mb-1"
+                    >
                       Your Name
                     </label>
                     <Input
@@ -141,14 +154,21 @@ export function HomePage() {
                       disabled={isLoading}
                     />
                   </div>
-                  <Button type="submit" className="w-full" disabled={isLoading || !hostName.trim()}>
+                  <Button
+                    type="submit"
+                    className="w-full"
+                    disabled={isLoading || !hostName.trim()}
+                  >
                     {isLoading ? "Creating..." : "Create Room"}
                   </Button>
                 </form>
               ) : (
                 <form onSubmit={handleJoin} className="space-y-4">
                   <div>
-                    <label htmlFor="roomCode" className="block text-sm font-medium text-slate-700 mb-1">
+                    <label
+                      htmlFor="roomCode"
+                      className="block text-sm font-medium text-slate-700 mb-1"
+                    >
                       Room Code
                     </label>
                     <Input
@@ -160,7 +180,10 @@ export function HomePage() {
                     />
                   </div>
                   <div>
-                    <label htmlFor="participantName" className="block text-sm font-medium text-slate-700 mb-1">
+                    <label
+                      htmlFor="participantName"
+                      className="block text-sm font-medium text-slate-700 mb-1"
+                    >
                       Your Name
                     </label>
                     <Input
@@ -174,7 +197,9 @@ export function HomePage() {
                   <Button
                     type="submit"
                     className="w-full"
-                    disabled={isLoading || !roomCode.trim() || !participantName.trim()}
+                    disabled={
+                      isLoading || !roomCode.trim() || !participantName.trim()
+                    }
                   >
                     {isLoading ? "Joining..." : "Join Room"}
                   </Button>
@@ -192,19 +217,28 @@ export function HomePage() {
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle>Active Rooms</CardTitle>
-                <Button variant="ghost" size="sm" onClick={fetchRooms} disabled={loadingRooms}>
-                  <RefreshCw className={`h-4 w-4 ${loadingRooms ? "animate-spin" : ""}`} />
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={fetchRooms}
+                  disabled={loadingRooms}
+                >
+                  <RefreshCw
+                    className={`h-4 w-4 ${loadingRooms ? "animate-spin" : ""}`}
+                  />
                 </Button>
               </div>
-              <CardDescription>
-                Join an existing session
-              </CardDescription>
+              <CardDescription>Join an existing session</CardDescription>
             </CardHeader>
             <CardContent>
               {loadingRooms && rooms.length === 0 ? (
-                <p className="text-sm text-slate-500 text-center py-4">Loading rooms...</p>
+                <p className="text-sm text-slate-500 text-center py-4">
+                  Loading rooms...
+                </p>
               ) : rooms.length === 0 ? (
-                <p className="text-sm text-slate-500 text-center py-4">No active rooms</p>
+                <p className="text-sm text-slate-500 text-center py-4">
+                  No active rooms
+                </p>
               ) : (
                 <div className="space-y-3">
                   {rooms.map((room) => (
@@ -217,7 +251,9 @@ export function HomePage() {
                       }}
                     >
                       <div>
-                        <p className="font-mono font-medium text-sm">{room.name}</p>
+                        <p className="font-mono font-medium text-sm">
+                          {room.name}
+                        </p>
                         {room.currentTopic && (
                           <p className="text-xs text-slate-500 truncate max-w-[150px]">
                             {room.currentTopic}
@@ -227,7 +263,9 @@ export function HomePage() {
                       <div className="flex items-center gap-2">
                         <div className="flex items-center gap-1 text-slate-500">
                           <Users className="h-3.5 w-3.5" />
-                          <span className="text-xs">{room.participantCount}</span>
+                          <span className="text-xs">
+                            {room.participantCount}
+                          </span>
                         </div>
                         <Badge variant={getRoomStateVariant(room.state)}>
                           {getRoomStateLabel(room.state)}

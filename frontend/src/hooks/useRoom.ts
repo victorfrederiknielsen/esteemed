@@ -1,7 +1,13 @@
-import { useState, useEffect, useCallback, useRef } from "react";
-import { roomClient, estimationClient, saveSession, loadSession, clearSession } from "@/lib/client";
-import type { Room, Participant } from "@/gen/esteemed/v1/room_pb";
+import type { Participant, Room } from "@/gen/esteemed/v1/room_pb";
 import { RoomState } from "@/gen/esteemed/v1/room_pb";
+import {
+  clearSession,
+  estimationClient,
+  loadSession,
+  roomClient,
+  saveSession,
+} from "@/lib/client";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 interface UseRoomState {
   room: Room | null;
@@ -57,24 +63,28 @@ export function useRoom(roomId?: string): UseRoomState & UseRoomActions {
       try {
         const stream = roomClient.watchRoom(
           { roomId: state.room!.id, sessionToken: state.sessionToken! },
-          { signal: controller.signal }
+          { signal: controller.signal },
         );
 
         for await (const event of stream) {
-          if (event.event?.case === "participantJoined" && event.event.value.participant) {
+          if (
+            event.event?.case === "participantJoined" &&
+            event.event.value.participant
+          ) {
             const participant = event.event.value.participant;
             setState((prev) => ({
               ...prev,
-              participants: [...prev.participants.filter(
-                (p) => p.id !== participant.id
-              ), participant],
+              participants: [
+                ...prev.participants.filter((p) => p.id !== participant.id),
+                participant,
+              ],
             }));
           } else if (event.event?.case === "participantLeft") {
             const participantId = event.event.value.participantId;
             setState((prev) => ({
               ...prev,
               participants: prev.participants.filter(
-                (p) => p.id !== participantId
+                (p) => p.id !== participantId,
               ),
             }));
           } else if (event.event?.case === "stateChanged") {
@@ -146,7 +156,8 @@ export function useRoom(roomId?: string): UseRoomState & UseRoomActions {
 
       throw new Error("Failed to create room");
     } catch (err) {
-      const error = err instanceof Error ? err.message : "Failed to create room";
+      const error =
+        err instanceof Error ? err.message : "Failed to create room";
       setState((prev) => ({ ...prev, isLoading: false, error }));
       throw err;
     }
@@ -155,7 +166,7 @@ export function useRoom(roomId?: string): UseRoomState & UseRoomActions {
   const joinRoomInternal = async (
     roomIdOrName: string,
     participantName: string,
-    existingToken?: string
+    existingToken?: string,
   ): Promise<void> => {
     setState((prev) => ({ ...prev, isLoading: true, error: null }));
 
@@ -174,7 +185,7 @@ export function useRoom(roomId?: string): UseRoomState & UseRoomActions {
         });
 
         const currentParticipant = response.room.participants.find(
-          (p) => p.id === response.participantId
+          (p) => p.id === response.participantId,
         );
 
         setState({
@@ -195,12 +206,12 @@ export function useRoom(roomId?: string): UseRoomState & UseRoomActions {
     }
   };
 
-  const joinRoom = useCallback(async (
-    roomIdOrName: string,
-    participantName: string
-  ): Promise<void> => {
-    return joinRoomInternal(roomIdOrName, participantName);
-  }, []);
+  const joinRoom = useCallback(
+    async (roomIdOrName: string, participantName: string): Promise<void> => {
+      return joinRoomInternal(roomIdOrName, participantName);
+    },
+    [],
+  );
 
   const leaveRoom = useCallback(async (): Promise<void> => {
     if (!state.room?.id || !state.currentParticipantId || !state.sessionToken) {
@@ -232,30 +243,38 @@ export function useRoom(roomId?: string): UseRoomState & UseRoomActions {
     }
   }, [state.room?.id, state.currentParticipantId, state.sessionToken]);
 
-  const setTopic = useCallback(async (topic: string): Promise<void> => {
-    if (!state.room?.id || !state.currentParticipantId || !state.sessionToken) {
-      return;
-    }
+  const setTopic = useCallback(
+    async (topic: string): Promise<void> => {
+      if (
+        !state.room?.id ||
+        !state.currentParticipantId ||
+        !state.sessionToken
+      ) {
+        return;
+      }
 
-    try {
-      await estimationClient.setTopic({
-        roomId: state.room.id,
-        participantId: state.currentParticipantId,
-        sessionToken: state.sessionToken,
-        topic,
-      });
-      // Optimistically update local state since streaming might not work
-      setState((prev) => {
-        if (!prev.room) return prev;
-        prev.room.currentTopic = topic;
-        prev.room.state = RoomState.VOTING;
-        return { ...prev };
-      });
-    } catch (err) {
-      const error = err instanceof Error ? err.message : "Failed to set topic";
-      setState((prev) => ({ ...prev, error }));
-    }
-  }, [state.room?.id, state.currentParticipantId, state.sessionToken]);
+      try {
+        await estimationClient.setTopic({
+          roomId: state.room.id,
+          participantId: state.currentParticipantId,
+          sessionToken: state.sessionToken,
+          topic,
+        });
+        // Optimistically update local state since streaming might not work
+        setState((prev) => {
+          if (!prev.room) return prev;
+          prev.room.currentTopic = topic;
+          prev.room.state = RoomState.VOTING;
+          return { ...prev };
+        });
+      } catch (err) {
+        const error =
+          err instanceof Error ? err.message : "Failed to set topic";
+        setState((prev) => ({ ...prev, error }));
+      }
+    },
+    [state.room?.id, state.currentParticipantId, state.sessionToken],
+  );
 
   return {
     ...state,

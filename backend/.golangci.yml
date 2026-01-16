@@ -1,0 +1,45 @@
+version: "2"
+
+run:
+  timeout: 5m
+  tests: true
+
+linters:
+  enable:
+    - errcheck      # Check for unchecked errors
+    - govet         # Vet examines Go source code
+    - ineffassign   # Detects unused variable assignments
+    - staticcheck   # Comprehensive static analysis (includes gosimple)
+    - unused        # Check for unused code
+    - misspell      # Find misspelled words
+    - unconvert     # Remove unnecessary type conversions
+    - gocritic      # Opinionated linter
+    - revive        # Fast, configurable linter (golint replacement)
+  settings:
+    gocritic:
+      enabled-tags:
+        - diagnostic
+        - style
+        - performance
+    revive:
+      rules:
+        - name: blank-imports
+        - name: context-as-argument
+        - name: error-return
+        - name: error-strings
+        - name: exported
+        - name: increment-decrement
+        - name: var-declaration
+
+formatters:
+  enable:
+    - gofmt
+    - goimports
+  settings:
+    goimports:
+      local-prefixes:
+        - github.com/victorfrederiknielsen/esteemed
+
+issues:
+  exclude-dirs:
+    - gen

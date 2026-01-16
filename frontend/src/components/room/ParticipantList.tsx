@@ -1,9 +1,9 @@
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
-import type { Participant, VoteSummary, CardValue } from "@/lib/types";
+import type { CardValue, Participant, VoteSummary } from "@/lib/types";
 import { cardValueToLabel } from "@/lib/types";
+import { cn } from "@/lib/utils";
 import { Check, Crown } from "lucide-react";
 
 interface VoteStatus {
@@ -37,7 +37,10 @@ export function ParticipantList({
   };
 
   const getVoteStatus = (participantId: string) => {
-    return voteStatuses.find((v) => v.participantId === participantId)?.hasVoted ?? false;
+    return (
+      voteStatuses.find((v) => v.participantId === participantId)?.hasVoted ??
+      false
+    );
   };
 
   const getVoteValue = (participantId: string): CardValue | null => {
@@ -62,14 +65,14 @@ export function ParticipantList({
               key={participant.id}
               className={cn(
                 "flex items-center gap-3 p-2 rounded-lg transition-colors",
-                isCurrentUser && "bg-slate-50"
+                isCurrentUser && "bg-slate-50",
               )}
             >
               <Avatar className="h-9 w-9">
                 <AvatarFallback
                   className={cn(
                     "text-xs font-medium",
-                    hasVoted && !isRevealed && "bg-success text-white"
+                    hasVoted && !isRevealed && "bg-success text-white",
                   )}
                 >
                   {isRevealed && voteValue !== null ? (
@@ -100,12 +103,12 @@ export function ParticipantList({
                   {!participant.isConnected
                     ? "Disconnected"
                     : isRevealed
-                    ? voteValue !== null
-                      ? `Voted ${cardValueToLabel(voteValue)}`
-                      : "No vote"
-                    : hasVoted
-                    ? "Voted"
-                    : "Waiting..."}
+                      ? voteValue !== null
+                        ? `Voted ${cardValueToLabel(voteValue)}`
+                        : "No vote"
+                      : hasVoted
+                        ? "Voted"
+                        : "Waiting..."}
                 </span>
               </div>
             </div>

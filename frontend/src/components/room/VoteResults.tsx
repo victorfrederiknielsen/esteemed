@@ -1,9 +1,9 @@
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import type { VoteSummary } from "@/lib/types";
-import { cardValueToLabel, CARD_VALUES } from "@/lib/types";
-import { RefreshCw, Trophy, TrendingUp, Users } from "lucide-react";
+import { CARD_VALUES, cardValueToLabel } from "@/lib/types";
+import { RefreshCw, TrendingUp, Trophy, Users } from "lucide-react";
 
 interface VoteResultsProps {
   summary: VoteSummary;
@@ -12,11 +12,14 @@ interface VoteResultsProps {
 
 export function VoteResults({ summary, onReset }: VoteResultsProps) {
   // Count votes by value
-  const voteCounts = summary.votes.reduce((acc, vote) => {
-    const label = cardValueToLabel(vote.value);
-    acc[label] = (acc[label] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
+  const voteCounts = summary.votes.reduce(
+    (acc, vote) => {
+      const label = cardValueToLabel(vote.value);
+      acc[label] = (acc[label] || 0) + 1;
+      return acc;
+    },
+    {} as Record<string, number>,
+  );
 
   // Find the max count for scaling the bars
   const maxCount = Math.max(...Object.values(voteCounts), 1);
@@ -79,7 +82,9 @@ export function VoteResults({ summary, onReset }: VoteResultsProps) {
 
         {/* Vote distribution */}
         <div>
-          <h4 className="text-sm font-medium text-slate-600 mb-3">Vote Distribution</h4>
+          <h4 className="text-sm font-medium text-slate-600 mb-3">
+            Vote Distribution
+          </h4>
           <div className="space-y-2">
             {CARD_VALUES.map((card) => {
               const count = voteCounts[card.label] || 0;
@@ -116,7 +121,9 @@ export function VoteResults({ summary, onReset }: VoteResultsProps) {
 
         {/* Individual votes */}
         <div>
-          <h4 className="text-sm font-medium text-slate-600 mb-3">Individual Votes</h4>
+          <h4 className="text-sm font-medium text-slate-600 mb-3">
+            Individual Votes
+          </h4>
           <div className="flex flex-wrap gap-2">
             {summary.votes.map((vote) => (
               <div

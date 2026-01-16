@@ -1,4 +1,4 @@
-.PHONY: dev dev-backend dev-frontend proto build docker-build k8s-deploy frontend-setup frontend-components clean test up down logs
+.PHONY: dev dev-backend dev-frontend proto build docker-build k8s-deploy frontend-setup frontend-components clean test up down logs lint lint-backend lint-frontend fmt
 
 # Development
 dev: dev-backend dev-frontend
@@ -76,10 +76,19 @@ clean:
 # Generate TypeScript and Go code from protos
 gen: proto
 
+# Linting
+lint: lint-backend lint-frontend
+
+lint-backend:
+	cd backend && golangci-lint run ./...
+
+lint-frontend:
+	cd frontend && npm run lint
+
 # Format code
 fmt:
 	cd backend && go fmt ./...
-	cd frontend && npm run lint -- --fix
+	cd frontend && npm run lint:fix
 
 # Help
 help:
@@ -96,4 +105,6 @@ help:
 	@echo "  k8s-deploy     - Deploy to Kubernetes"
 	@echo "  frontend-setup - npm install"
 	@echo "  test           - Run all tests"
+	@echo "  lint           - Run linters (golangci-lint + biome)"
+	@echo "  fmt            - Format code"
 	@echo "  clean          - Remove build artifacts"

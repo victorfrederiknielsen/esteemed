@@ -1,5 +1,5 @@
+import { CARD_VALUES, type CardValue } from "@/lib/types";
 import { cn } from "@/lib/utils";
-import { CardValue, CARD_VALUES } from "@/lib/types";
 
 interface VotingCardsProps {
   selectedValue: CardValue | null;
@@ -7,13 +7,18 @@ interface VotingCardsProps {
   disabled?: boolean;
 }
 
-export function VotingCards({ selectedValue, onSelect, disabled }: VotingCardsProps) {
+export function VotingCards({
+  selectedValue,
+  onSelect,
+  disabled,
+}: VotingCardsProps) {
   return (
     <div className="bg-white rounded-xl border shadow-sm p-6">
       <h3 className="text-lg font-semibold mb-4">Select Your Estimate</h3>
       <div className="grid grid-cols-5 gap-3 sm:gap-4">
         {CARD_VALUES.map((card) => (
           <button
+            type="button"
             key={card.value}
             onClick={() => onSelect(card.value)}
             disabled={disabled}
@@ -23,7 +28,7 @@ export function VotingCards({ selectedValue, onSelect, disabled }: VotingCardsPr
               "disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-none",
               selectedValue === card.value
                 ? "border-primary bg-primary text-primary-foreground shadow-lg scale-105"
-                : "border-slate-200 bg-white text-slate-700 hover:border-primary/50"
+                : "border-slate-200 bg-white text-slate-700 hover:border-primary/50",
             )}
           >
             {card.label}
@@ -32,7 +37,10 @@ export function VotingCards({ selectedValue, onSelect, disabled }: VotingCardsPr
       </div>
       {selectedValue !== null && (
         <p className="mt-4 text-center text-sm text-slate-600">
-          Your vote: <span className="font-semibold">{CARD_VALUES.find(c => c.value === selectedValue)?.label}</span>
+          Your vote:{" "}
+          <span className="font-semibold">
+            {CARD_VALUES.find((c) => c.value === selectedValue)?.label}
+          </span>
         </p>
       )}
     </div>
