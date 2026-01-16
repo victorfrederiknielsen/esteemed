@@ -160,8 +160,10 @@ func (s *EstimationService) SetTopic(ctx context.Context, roomID, participantID,
 	room.SetTopic(topic)
 
 	// Start voting if in waiting state
+	startedVoting := false
 	if room.GetState() == domain.RoomStateWaiting {
 		room.StartVoting()
+		startedVoting = true
 	}
 
 	if err := s.repo.Save(ctx, room); err != nil {
@@ -173,6 +175,14 @@ func (s *EstimationService) SetTopic(ctx context.Context, roomID, participantID,
 		Type:  primary.RoomEventTopicChanged,
 		Topic: topic,
 	})
+
+	// Publish state change if we started voting
+	if startedVoting {
+		s.publisher.PublishRoomEvent(ctx, room.ID, primary.RoomEvent{
+			Type:     primary.RoomEventStateChanged,
+			NewState: domain.RoomStateVoting,
+		})
+	}
 
 	return nil
 }
