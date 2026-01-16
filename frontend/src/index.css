@@ -54,8 +54,14 @@
   }
 }
 
-.consensus-glow {
-  background: linear-gradient(
+@property --gradient-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+.consensus-badge {
+  --gradient: linear-gradient(
     -45deg,
     #22c55e,
     #10b981,
@@ -65,6 +71,32 @@
     #f59e0b,
     #22c55e
   );
+  position: relative;
+  background: var(--gradient);
   background-size: 400% 400%;
   animation: gradient-flow 4s ease infinite;
+}
+
+.consensus-badge::before,
+.consensus-badge::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: inherit;
+  background-size: inherit;
+  animation: inherit;
+  border-radius: inherit;
+  z-index: -1;
+}
+
+.consensus-badge::before {
+  inset: -4px;
+  filter: blur(8px);
+  opacity: 0.75;
+}
+
+.consensus-badge::after {
+  inset: -8px;
+  filter: blur(16px);
+  opacity: 0.5;
 }
