@@ -200,37 +200,35 @@ export function RoomPage() {
               </Card>
             )}
 
-            {/* Voting cards - always at top when voting or revealed */}
-            {(isVoting || isRevealed) && (
-              <VotingCards
-                selectedValue={currentVote}
-                onSelect={castVote}
-                disabled={!isVoting || isRevealed}
-              />
-            )}
-
-            {/* Vote progress - shown during voting */}
+            {/* During voting: show voting cards + progress */}
             {isVoting && !isRevealed && (
-              <Card>
-                <CardContent className="pt-6">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium text-slate-600">
-                      Votes: {votedCount} / {totalParticipants}
-                    </span>
-                  </div>
-                  <div className="w-full bg-slate-200 rounded-full h-2">
-                    <div
-                      className="bg-primary h-2 rounded-full transition-all duration-300"
-                      style={{
-                        width: `${(votedCount / Math.max(totalParticipants, 1)) * 100}%`,
-                      }}
-                    />
-                  </div>
-                </CardContent>
-              </Card>
+              <>
+                <VotingCards
+                  selectedValue={currentVote}
+                  onSelect={castVote}
+                  disabled={false}
+                />
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-medium text-slate-600">
+                        Votes: {votedCount} / {totalParticipants}
+                      </span>
+                    </div>
+                    <div className="w-full bg-slate-200 rounded-full h-2">
+                      <div
+                        className="bg-primary h-2 rounded-full transition-all duration-300"
+                        style={{
+                          width: `${(votedCount / Math.max(totalParticipants, 1)) * 100}%`,
+                        }}
+                      />
+                    </div>
+                  </CardContent>
+                </Card>
+              </>
             )}
 
-            {/* Results - shown after reveal */}
+            {/* After reveal: show results (replaces voting cards) */}
             {isRevealed && summary && <VoteResults summary={summary} />}
           </div>
 
