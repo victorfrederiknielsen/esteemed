@@ -17,36 +17,50 @@ export function VoteResults({ summary, onReset }: VoteResultsProps) {
   const hasTriggeredConfetti = useRef(false);
 
   // Trigger confetti when consensus is reached
+  const badgeRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     if (summary.hasConsensus && !hasTriggeredConfetti.current) {
-      hasTriggeredConfetti.current = true;
+      // Small delay to allow badge to render and get position
+      const timeout = setTimeout(() => {
+        if (!badgeRef.current || hasTriggeredConfetti.current) return;
+        hasTriggeredConfetti.current = true;
 
-      // Fire confetti from both sides
-      const duration = 3000;
-      const end = Date.now() + duration;
+        // Get badge position to spawn confetti from it
+        const rect = badgeRef.current.getBoundingClientRect();
+        const x = (rect.left + rect.width / 2) / window.innerWidth;
+        const y = (rect.top + rect.height / 2) / window.innerHeight;
 
-      const frame = () => {
+        // Initial burst from the badge
         confetti({
-          particleCount: 3,
-          angle: 60,
-          spread: 55,
-          origin: { x: 0, y: 0.7 },
-          colors: ["#3b82f6", "#8b5cf6", "#ec4899", "#10b981", "#f59e0b"],
-        });
-        confetti({
-          particleCount: 3,
-          angle: 120,
-          spread: 55,
-          origin: { x: 1, y: 0.7 },
-          colors: ["#3b82f6", "#8b5cf6", "#ec4899", "#10b981", "#f59e0b"],
+          particleCount: 100,
+          spread: 70,
+          origin: { x, y },
+          colors: ["#22c55e", "#10b981", "#06b6d4", "#8b5cf6", "#ec4899", "#f59e0b"],
         });
 
-        if (Date.now() < end) {
-          requestAnimationFrame(frame);
-        }
-      };
+        // Continuous spray from badge
+        const duration = 2500;
+        const end = Date.now() + duration;
 
-      frame();
+        const frame = () => {
+          confetti({
+            particleCount: 4,
+            angle: 60 + Math.random() * 60,
+            spread: 60,
+            origin: { x, y },
+            colors: ["#22c55e", "#10b981", "#06b6d4", "#8b5cf6", "#ec4899", "#f59e0b"],
+          });
+
+          if (Date.now() < end) {
+            requestAnimationFrame(frame);
+          }
+        };
+
+        frame();
+      }, 100);
+
+      return () => clearTimeout(timeout);
     }
   }, [summary.hasConsensus]);
 
@@ -128,7 +142,7 @@ export function VoteResults({ summary, onReset }: VoteResultsProps) {
         {/* Consensus badge */}
         {summary.hasConsensus && (
           <div className="flex justify-center py-8 overflow-visible">
-            <div className="consensus-badge-wrapper">
+            <div ref={badgeRef} className="consensus-badge-wrapper">
               <div className="consensus-glow-outer" />
               <div className="consensus-badge rounded-full px-6 py-2 shadow-lg">
                 <span className="text-base font-semibold text-white drop-shadow-md">
