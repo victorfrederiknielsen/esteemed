@@ -32,7 +32,14 @@ make dev-backend    # Start Go server
 make proto          # Regenerate protobuf code
 make build          # Production build
 make docker-build   # Build container
+make lint           # Run all linters (Biome + golangci-lint)
+make fmt            # Auto-fix formatting issues
 ```
+
+## Linting
+
+- **Frontend**: Biome (`frontend/biome.json`) - lint + format in one tool
+- **Backend**: golangci-lint (`backend/.golangci.yml`) - Go meta-linter
 
 ## File Locations
 

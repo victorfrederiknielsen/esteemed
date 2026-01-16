@@ -16,7 +16,8 @@ A real-time planning poker application for engineering teams. Estimate story poi
 | Layer | Technology |
 |-------|------------|
 | Frontend | Vite + React 19 + TypeScript + Tailwind CSS v4 |
-| Backend | Go 1.23 with hexagonal architecture |
+| Backend | Go with hexagonal architecture |
+| Linting | Biome (frontend) + golangci-lint (backend) |
 | Communication | ConnectRPC (gRPC-Web compatible, no proxy needed) |
 | Deployment | Docker + Kubernetes |
 
@@ -166,6 +167,8 @@ make docker-build   # Build container image
 make docker-run     # Run container locally
 make k8s-deploy     # Deploy to Kubernetes
 make test           # Run all tests
+make lint           # Run all linters (Biome + golangci-lint)
+make fmt            # Auto-fix formatting
 make clean          # Remove build artifacts
 ```
 
