@@ -200,40 +200,38 @@ export function RoomPage() {
               </Card>
             )}
 
-            {/* Voting status or results */}
-            {isRevealed && summary ? (
-              <VoteResults summary={summary} />
-            ) : (
-              isVoting && (
-                <>
-                  {/* Vote progress */}
-                  <Card>
-                    <CardContent className="pt-6">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm font-medium text-slate-600">
-                          Votes: {votedCount} / {totalParticipants}
-                        </span>
-                      </div>
-                      <div className="w-full bg-slate-200 rounded-full h-2">
-                        <div
-                          className="bg-primary h-2 rounded-full transition-all duration-300"
-                          style={{
-                            width: `${(votedCount / Math.max(totalParticipants, 1)) * 100}%`,
-                          }}
-                        />
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  {/* Voting cards */}
-                  <VotingCards
-                    selectedValue={currentVote}
-                    onSelect={castVote}
-                    disabled={!isVoting || isRevealed}
-                  />
-                </>
-              )
+            {/* Voting cards - always at top when voting or revealed */}
+            {(isVoting || isRevealed) && (
+              <VotingCards
+                selectedValue={currentVote}
+                onSelect={castVote}
+                disabled={!isVoting || isRevealed}
+              />
             )}
+
+            {/* Vote progress - shown during voting */}
+            {isVoting && !isRevealed && (
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium text-slate-600">
+                      Votes: {votedCount} / {totalParticipants}
+                    </span>
+                  </div>
+                  <div className="w-full bg-slate-200 rounded-full h-2">
+                    <div
+                      className="bg-primary h-2 rounded-full transition-all duration-300"
+                      style={{
+                        width: `${(votedCount / Math.max(totalParticipants, 1)) * 100}%`,
+                      }}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Results - shown after reveal */}
+            {isRevealed && summary && <VoteResults summary={summary} />}
           </div>
 
           {/* Sidebar */}
