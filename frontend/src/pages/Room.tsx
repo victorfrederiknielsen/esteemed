@@ -1,5 +1,4 @@
 import { ParticipantList } from "@/components/room/ParticipantList";
-import { VoteResults } from "@/components/room/VoteResults";
 import { VotingCards } from "@/components/room/VotingCards";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -8,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { RoomState, useRoom } from "@/hooks/useRoom";
 import { useVoting } from "@/hooks/useVoting";
 import { generateParticipantName } from "@/lib/namegen";
+import confetti from "canvas-confetti";
 import {
   Clock,
   Copy,
@@ -18,7 +18,7 @@ import {
   RefreshCw,
   Users,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 export function RoomPage() {
@@ -58,6 +58,31 @@ export function RoomPage() {
       navigate("/");
     }
   }, [roomError, navigate]);
+
+  // Confetti when votes are revealed
+  const hasTriggeredConfetti = useRef(false);
+  useEffect(() => {
+    if (isRevealed && !hasTriggeredConfetti.current) {
+      hasTriggeredConfetti.current = true;
+
+      // Fire confetti from center
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { x: 0.5, y: 0.4 },
+        colors: [
+          "#22c55e",
+          "#10b981",
+          "#06b6d4",
+          "#8b5cf6",
+          "#ec4899",
+          "#f59e0b",
+        ],
+      });
+    } else if (!isRevealed) {
+      hasTriggeredConfetti.current = false;
+    }
+  }, [isRevealed]);
 
   const handleJoin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -200,36 +225,37 @@ export function RoomPage() {
               </Card>
             )}
 
-            {/* During voting: show voting cards + progress */}
-            {isVoting && !isRevealed && (
-              <>
-                <VotingCards
-                  selectedValue={currentVote}
-                  onSelect={castVote}
-                  disabled={false}
-                />
-                <Card>
-                  <CardContent className="pt-6">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium text-slate-600">
-                        Votes: {votedCount} / {totalParticipants}
-                      </span>
-                    </div>
-                    <div className="w-full bg-slate-200 rounded-full h-2">
-                      <div
-                        className="bg-primary h-2 rounded-full transition-all duration-300"
-                        style={{
-                          width: `${(votedCount / Math.max(totalParticipants, 1)) * 100}%`,
-                        }}
-                      />
-                    </div>
-                  </CardContent>
-                </Card>
-              </>
+            {/* Voting cards - shown during voting and after reveal */}
+            {(isVoting || isRevealed) && (
+              <VotingCards
+                selectedValue={currentVote}
+                onSelect={castVote}
+                disabled={false}
+                isRevealed={isRevealed}
+                summary={summary}
+              />
             )}
 
-            {/* After reveal: show results (replaces voting cards) */}
-            {isRevealed && summary && <VoteResults summary={summary} />}
+            {/* Vote progress - shown during voting */}
+            {isVoting && !isRevealed && (
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium text-slate-600">
+                      Votes: {votedCount} / {totalParticipants}
+                    </span>
+                  </div>
+                  <div className="w-full bg-slate-200 rounded-full h-2">
+                    <div
+                      className="bg-primary h-2 rounded-full transition-all duration-300"
+                      style={{
+                        width: `${(votedCount / Math.max(totalParticipants, 1)) * 100}%`,
+                      }}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </div>
 
           {/* Sidebar */}
