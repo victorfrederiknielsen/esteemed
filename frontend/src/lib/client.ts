@@ -53,7 +53,7 @@ async function callUnary<Res>(
   const response = await fetch(`${BASE_URL}/${service}/${method}`, {
     method: "POST",
     headers: {
-      "Content-Type": "application/json",
+      "Content-Type": "application/connect+json",
     },
     body: JSON.stringify(request),
   });
@@ -78,7 +78,7 @@ async function* streamServerSide<Res>(
   const response = await fetch(`${BASE_URL}/${service}/${method}`, {
     method: "POST",
     headers: {
-      "Content-Type": "application/json",
+      "Content-Type": "application/connect+json",
       "Connect-Protocol-Version": "1",
     },
     body: JSON.stringify(request),
