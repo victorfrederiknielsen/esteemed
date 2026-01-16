@@ -15,31 +15,37 @@ interface VoteResultsProps {
 
 export function VoteResults({ summary, onReset }: VoteResultsProps) {
   const hasTriggeredConfetti = useRef(false);
+  const modeCardRef = useRef<HTMLDivElement>(null);
 
-  // Trigger confetti when consensus is reached
-  const badgeRef = useRef<HTMLDivElement>(null);
-
+  // Trigger confetti from the mode card
   useEffect(() => {
-    if (summary.hasConsensus && !hasTriggeredConfetti.current) {
-      // Small delay to allow badge to render and get position
+    if (!hasTriggeredConfetti.current) {
+      // Small delay to allow card to render and get position
       const timeout = setTimeout(() => {
-        if (!badgeRef.current || hasTriggeredConfetti.current) return;
+        if (!modeCardRef.current || hasTriggeredConfetti.current) return;
         hasTriggeredConfetti.current = true;
 
-        // Get badge position to spawn confetti from it
-        const rect = badgeRef.current.getBoundingClientRect();
+        // Get mode card position to spawn confetti from it
+        const rect = modeCardRef.current.getBoundingClientRect();
         const x = (rect.left + rect.width / 2) / window.innerWidth;
         const y = (rect.top + rect.height / 2) / window.innerHeight;
 
-        // Initial burst from the badge
+        // Initial burst from the card
         confetti({
           particleCount: 100,
           spread: 70,
           origin: { x, y },
-          colors: ["#22c55e", "#10b981", "#06b6d4", "#8b5cf6", "#ec4899", "#f59e0b"],
+          colors: [
+            "#22c55e",
+            "#10b981",
+            "#06b6d4",
+            "#8b5cf6",
+            "#ec4899",
+            "#f59e0b",
+          ],
         });
 
-        // Continuous spray from badge
+        // Continuous spray from card
         const duration = 2500;
         const end = Date.now() + duration;
 
@@ -49,7 +55,14 @@ export function VoteResults({ summary, onReset }: VoteResultsProps) {
             angle: 60 + Math.random() * 60,
             spread: 60,
             origin: { x, y },
-            colors: ["#22c55e", "#10b981", "#06b6d4", "#8b5cf6", "#ec4899", "#f59e0b"],
+            colors: [
+              "#22c55e",
+              "#10b981",
+              "#06b6d4",
+              "#8b5cf6",
+              "#ec4899",
+              "#f59e0b",
+            ],
           });
 
           if (Date.now() < end) {
@@ -62,14 +75,7 @@ export function VoteResults({ summary, onReset }: VoteResultsProps) {
 
       return () => clearTimeout(timeout);
     }
-  }, [summary.hasConsensus]);
-
-  // Reset confetti trigger when summary changes (new round)
-  useEffect(() => {
-    if (!summary.hasConsensus) {
-      hasTriggeredConfetti.current = false;
-    }
-  }, [summary.hasConsensus]);
+  }, []);
 
   // Track votes by card value with voter names
   const votesByCard = summary.votes.reduce(
@@ -141,38 +147,36 @@ export function VoteResults({ summary, onReset }: VoteResultsProps) {
 
         {/* Consensus badge */}
         {summary.hasConsensus && (
-          <div className="flex justify-center py-8 overflow-visible">
-            <div ref={badgeRef} className="consensus-badge-wrapper">
-              <div className="consensus-glow-outer" />
-              <div className="consensus-badge rounded-full px-6 py-2 shadow-lg">
-                <span className="text-base font-semibold text-white drop-shadow-md">
-                  🎉 Consensus reached! 🎉
-                </span>
-              </div>
-            </div>
+          <div className="flex justify-center">
+            <Badge variant="success" className="px-4 py-1.5 text-sm">
+              🎉 Consensus reached!
+            </Badge>
           </div>
         )}
 
         {/* Vote heatmap */}
-        <div>
+        <div className="overflow-visible">
           <h4 className="text-sm font-medium text-slate-600 mb-3">
             Vote Distribution
           </h4>
-          <div className="grid grid-cols-3 sm:grid-cols-5 gap-3">
-            {CARD_VALUES.map((card) => (
-              <HeatmapCard
-                key={card.value}
-                label={card.label}
-                voteCount={votesByCard[card.label]?.count || 0}
-                maxVoteCount={maxCount}
-                totalVotes={summary.votes.length}
-                voterNames={votesByCard[card.label]?.names || []}
-                isMode={
-                  card.label === modeLabel &&
-                  (votesByCard[card.label]?.count || 0) > 0
-                }
-              />
-            ))}
+          <div className="grid grid-cols-3 sm:grid-cols-5 gap-3 py-4">
+            {CARD_VALUES.map((card) => {
+              const isMode =
+                card.label === modeLabel &&
+                (votesByCard[card.label]?.count || 0) > 0;
+              return (
+                <HeatmapCard
+                  key={card.value}
+                  ref={isMode ? modeCardRef : undefined}
+                  label={card.label}
+                  voteCount={votesByCard[card.label]?.count || 0}
+                  maxVoteCount={maxCount}
+                  totalVotes={summary.votes.length}
+                  voterNames={votesByCard[card.label]?.names || []}
+                  isMode={isMode}
+                />
+              );
+            })}
           </div>
         </div>
       </CardContent>
