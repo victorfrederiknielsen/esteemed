@@ -128,16 +128,16 @@ export function VoteResults({ summary, onReset }: VoteResultsProps) {
         {/* Consensus badge */}
         {summary.hasConsensus && (
           <div className="flex justify-center">
-            <div className="relative">
-              {/* Animated glow background */}
-              <div className="absolute -inset-1 rounded-full bg-gradient-to-r from-green-400 via-emerald-500 to-teal-400 opacity-75 blur-md animate-pulse" />
-              <div className="absolute -inset-1 rounded-full bg-gradient-to-r from-teal-400 via-green-500 to-emerald-400 opacity-50 blur-lg animate-[pulse_2s_ease-in-out_infinite_0.5s]" />
+            <div className="relative group">
+              {/* Animated flowing gradient background */}
+              <div className="absolute -inset-1 rounded-full consensus-glow opacity-75 blur-md" />
+              <div className="absolute -inset-2 rounded-full consensus-glow opacity-50 blur-xl" />
               {/* Badge */}
               <Badge
                 variant="success"
-                className="relative px-6 py-2 text-base font-semibold shadow-lg"
+                className="relative px-6 py-2 text-base font-semibold shadow-lg border-0 bg-white text-slate-800"
               >
-                Consensus reached!
+                🎉 Consensus reached! 🎉
               </Badge>
             </div>
           </div>
