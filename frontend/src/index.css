@@ -82,10 +82,10 @@
   animation: gradient-flow 4s ease infinite;
 }
 
-.consensus-badge::before,
-.consensus-badge::after {
+.consensus-badge::before {
   content: "";
   position: absolute;
+  inset: -80px;
   background: linear-gradient(
     -45deg,
     #22c55e,
@@ -99,17 +99,28 @@
   background-size: 400% 400%;
   animation: gradient-flow 4s ease infinite;
   border-radius: 9999px;
+  filter: blur(80px);
+  opacity: 0.8;
   z-index: -1;
 }
 
-.consensus-badge::before {
-  inset: -6px;
-  filter: blur(12px);
-  opacity: 0.8;
-}
-
-.consensus-badge::after {
-  inset: -12px;
-  filter: blur(24px);
-  opacity: 0.6;
+.consensus-glow-outer {
+  position: absolute;
+  inset: -120px;
+  background: linear-gradient(
+    -45deg,
+    #22c55e,
+    #10b981,
+    #06b6d4,
+    #8b5cf6,
+    #ec4899,
+    #f59e0b,
+    #22c55e
+  );
+  background-size: 400% 400%;
+  animation: gradient-flow 4s ease infinite;
+  border-radius: 9999px;
+  filter: blur(100px);
+  opacity: 0.5;
+  z-index: -2;
 }

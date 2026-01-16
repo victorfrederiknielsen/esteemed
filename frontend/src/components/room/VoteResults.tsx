@@ -127,8 +127,9 @@ export function VoteResults({ summary, onReset }: VoteResultsProps) {
 
         {/* Consensus badge */}
         {summary.hasConsensus && (
-          <div className="flex justify-center py-4">
+          <div className="flex justify-center py-8 overflow-visible">
             <div className="consensus-badge-wrapper">
+              <div className="consensus-glow-outer" />
               <div className="consensus-badge rounded-full px-6 py-2 shadow-lg">
                 <span className="text-base font-semibold text-white drop-shadow-md">
                   🎉 Consensus reached! 🎉
