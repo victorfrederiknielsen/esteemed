@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+vendor/
+
+# Build outputs
+backend/bin/
+frontend/dist/
+
+# Generated code (regenerate with: make proto)
+# Uncomment if you want to track generated code
+# backend/gen/
+# frontend/src/gen/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
+
+# Testing
+coverage/
+
+# Temporary
+tmp/
+.tmp/

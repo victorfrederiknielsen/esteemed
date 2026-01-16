@@ -1,0 +1,129 @@
+syntax = "proto3";
+
+package esteemed.v1;
+
+option go_package = "github.com/vicmanager/esteemed/backend/gen/esteemed/v1;esteemedv1";
+
+// RoomService handles room creation, joining, and real-time updates
+service RoomService {
+  // CreateRoom generates a new room with a fun name (e.g., brave-falcon-42)
+  rpc CreateRoom(CreateRoomRequest) returns (CreateRoomResponse);
+
+  // JoinRoom adds a participant to an existing room
+  rpc JoinRoom(JoinRoomRequest) returns (JoinRoomResponse);
+
+  // LeaveRoom removes a participant from a room
+  rpc LeaveRoom(LeaveRoomRequest) returns (LeaveRoomResponse);
+
+  // GetRoom returns the current state of a room
+  rpc GetRoom(GetRoomRequest) returns (GetRoomResponse);
+
+  // WatchRoom streams real-time participant and room state updates
+  rpc WatchRoom(WatchRoomRequest) returns (stream RoomEvent);
+}
+
+// Room represents a planning poker room
+message Room {
+  string id = 1;
+  string name = 2;
+  repeated Participant participants = 3;
+  RoomState state = 4;
+  string current_topic = 5;
+  int64 created_at = 6;
+}
+
+// Participant in a room
+message Participant {
+  string id = 1;
+  string name = 2;
+  bool is_host = 3;
+  bool is_connected = 4;
+  int64 joined_at = 5;
+}
+
+// RoomState represents the current phase of estimation
+enum RoomState {
+  ROOM_STATE_UNSPECIFIED = 0;
+  ROOM_STATE_WAITING = 1;      // Waiting for participants
+  ROOM_STATE_VOTING = 2;       // Voting in progress
+  ROOM_STATE_REVEALED = 3;     // Votes have been revealed
+}
+
+// CreateRoomRequest creates a new room
+message CreateRoomRequest {
+  string host_name = 1;        // Name of the person creating the room
+}
+
+message CreateRoomResponse {
+  Room room = 1;
+  string session_token = 2;    // Token for reconnection
+  string participant_id = 3;   // ID of the host participant
+}
+
+// JoinRoomRequest adds a participant
+message JoinRoomRequest {
+  string room_id = 1;
+  string participant_name = 2;
+  string session_token = 3;    // Optional: for reconnection
+}
+
+message JoinRoomResponse {
+  Room room = 1;
+  string session_token = 2;
+  string participant_id = 3;
+}
+
+// LeaveRoomRequest removes a participant
+message LeaveRoomRequest {
+  string room_id = 1;
+  string participant_id = 2;
+  string session_token = 3;
+}
+
+message LeaveRoomResponse {}
+
+// GetRoomRequest gets current room state
+message GetRoomRequest {
+  string room_id = 1;
+}
+
+message GetRoomResponse {
+  Room room = 1;
+}
+
+// WatchRoomRequest subscribes to room updates
+message WatchRoomRequest {
+  string room_id = 1;
+  string session_token = 2;
+}
+
+// RoomEvent is sent when room state changes
+message RoomEvent {
+  oneof event {
+    ParticipantJoined participant_joined = 1;
+    ParticipantLeft participant_left = 2;
+    RoomStateChanged state_changed = 3;
+    TopicChanged topic_changed = 4;
+    RoomClosed room_closed = 5;
+  }
+}
+
+message ParticipantJoined {
+  Participant participant = 1;
+}
+
+message ParticipantLeft {
+  string participant_id = 1;
+}
+
+message RoomStateChanged {
+  RoomState new_state = 1;
+}
+
+message TopicChanged {
+  string topic = 1;
+}
+
+message RoomClosed {
+  string reason = 1;
+}

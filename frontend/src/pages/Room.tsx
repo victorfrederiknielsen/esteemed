@@ -1,0 +1,227 @@
+import { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { useRoom } from "@/hooks/useRoom";
+import { useVoting } from "@/hooks/useVoting";
+import { VotingCards } from "@/components/room/VotingCards";
+import { ParticipantList } from "@/components/room/ParticipantList";
+import { VoteResults } from "@/components/room/VoteResults";
+import { RoomState } from "@/gen/types";
+import { Copy, LogOut, Users } from "lucide-react";
+
+export function RoomPage() {
+  const { roomId } = useParams<{ roomId: string }>();
+  const navigate = useNavigate();
+  const [joinName, setJoinName] = useState("");
+  const [topic, setTopic] = useState("");
+  const [copied, setCopied] = useState(false);
+
+  const {
+    room,
+    participants,
+    currentParticipantId,
+    sessionToken,
+    isHost,
+    isConnected,
+    isLoading: roomLoading,
+    error: roomError,
+    joinRoom,
+    leaveRoom,
+    setTopic: updateTopic,
+  } = useRoom(roomId);
+
+  const {
+    voteStatuses,
+    summary,
+    currentVote,
+    isRevealed,
+    isLoading: voteLoading,
+    castVote,
+    revealVotes,
+    resetRound,
+  } = useVoting(room?.id ?? null, currentParticipantId, sessionToken, isHost);
+
+  // Redirect if room closed
+  useEffect(() => {
+    if (roomError?.includes("closed")) {
+      navigate("/");
+    }
+  }, [roomError, navigate]);
+
+  const handleJoin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!roomId || !joinName.trim()) return;
+    await joinRoom(roomId, joinName.trim());
+  };
+
+  const handleLeave = async () => {
+    await leaveRoom();
+    navigate("/");
+  };
+
+  const handleSetTopic = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!topic.trim()) return;
+    await updateTopic(topic.trim());
+    setTopic("");
+  };
+
+  const copyRoomLink = () => {
+    navigator.clipboard.writeText(window.location.href);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  // Show join form if not connected
+  if (!isConnected && !roomLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-slate-50 to-slate-100">
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle>Join Room: {roomId}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleJoin} className="space-y-4">
+              <div>
+                <label htmlFor="joinName" className="block text-sm font-medium text-slate-700 mb-1">
+                  Your Name
+                </label>
+                <Input
+                  id="joinName"
+                  placeholder="Enter your name"
+                  value={joinName}
+                  onChange={(e) => setJoinName(e.target.value)}
+                  disabled={roomLoading}
+                />
+              </div>
+              <Button type="submit" className="w-full" disabled={roomLoading || !joinName.trim()}>
+                {roomLoading ? "Joining..." : "Join Room"}
+              </Button>
+            </form>
+            {roomError && (
+              <p className="mt-4 text-sm text-red-600 text-center">{roomError}</p>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  const isVoting = room?.state === RoomState.VOTING;
+  const votedCount = voteStatuses.filter((v) => v.hasVoted).length;
+  const totalParticipants = participants.length;
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+      {/* Header */}
+      <header className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-10">
+        <div className="container mx-auto px-4 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <h1 className="text-xl font-bold text-slate-900">Esteemed</h1>
+            <Badge variant="secondary" className="font-mono">
+              {room?.name}
+            </Badge>
+            <Button variant="ghost" size="sm" onClick={copyRoomLink}>
+              <Copy className="h-4 w-4 mr-1" />
+              {copied ? "Copied!" : "Copy Link"}
+            </Button>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 text-sm text-slate-600">
+              <Users className="h-4 w-4" />
+              {totalParticipants} participant{totalParticipants !== 1 ? "s" : ""}
+            </div>
+            <Button variant="outline" size="sm" onClick={handleLeave}>
+              <LogOut className="h-4 w-4 mr-1" />
+              Leave
+            </Button>
+          </div>
+        </div>
+      </header>
+
+      <main className="container mx-auto px-4 py-8">
+        <div className="grid gap-8 lg:grid-cols-3">
+          {/* Main content */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Topic */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg">Current Topic</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {room?.currentTopic ? (
+                  <p className="text-lg font-medium">{room.currentTopic}</p>
+                ) : (
+                  <p className="text-slate-500 italic">No topic set</p>
+                )}
+
+                {isHost && (
+                  <form onSubmit={handleSetTopic} className="mt-4 flex gap-2">
+                    <Input
+                      placeholder="Set estimation topic..."
+                      value={topic}
+                      onChange={(e) => setTopic(e.target.value)}
+                    />
+                    <Button type="submit" disabled={!topic.trim()}>
+                      Set Topic
+                    </Button>
+                  </form>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Voting status or results */}
+            {isRevealed && summary ? (
+              <VoteResults summary={summary} onReset={isHost ? resetRound : undefined} />
+            ) : (
+              <>
+                {/* Vote progress */}
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-medium text-slate-600">
+                        Votes: {votedCount} / {totalParticipants}
+                      </span>
+                      {isHost && votedCount > 0 && (
+                        <Button onClick={revealVotes} disabled={voteLoading}>
+                          Reveal Votes
+                        </Button>
+                      )}
+                    </div>
+                    <div className="w-full bg-slate-200 rounded-full h-2">
+                      <div
+                        className="bg-primary h-2 rounded-full transition-all duration-300"
+                        style={{ width: `${(votedCount / Math.max(totalParticipants, 1)) * 100}%` }}
+                      />
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Voting cards */}
+                <VotingCards
+                  selectedValue={currentVote}
+                  onSelect={castVote}
+                  disabled={!isVoting || isRevealed}
+                />
+              </>
+            )}
+          </div>
+
+          {/* Sidebar - Participants */}
+          <div>
+            <ParticipantList
+              participants={participants}
+              voteStatuses={voteStatuses}
+              currentParticipantId={currentParticipantId}
+              isRevealed={isRevealed}
+              summary={summary}
+            />
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+}

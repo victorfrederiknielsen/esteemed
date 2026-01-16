@@ -1,0 +1,120 @@
+syntax = "proto3";
+
+package esteemed.v1;
+
+option go_package = "github.com/vicmanager/esteemed/backend/gen/esteemed/v1;esteemedv1";
+
+// EstimationService handles voting, revealing, and round management
+service EstimationService {
+  // CastVote submits a vote (hidden until reveal)
+  rpc CastVote(CastVoteRequest) returns (CastVoteResponse);
+
+  // RevealVotes makes all votes visible (host only)
+  rpc RevealVotes(RevealVotesRequest) returns (RevealVotesResponse);
+
+  // ResetRound clears all votes and starts a new round
+  rpc ResetRound(ResetRoundRequest) returns (ResetRoundResponse);
+
+  // SetTopic sets the current item being estimated
+  rpc SetTopic(SetTopicRequest) returns (SetTopicResponse);
+
+  // WatchVotes streams real-time vote status and results
+  rpc WatchVotes(WatchVotesRequest) returns (stream VoteEvent);
+}
+
+// CardValue represents a planning poker card
+enum CardValue {
+  CARD_VALUE_UNSPECIFIED = 0;
+  CARD_VALUE_ONE = 1;
+  CARD_VALUE_TWO = 2;
+  CARD_VALUE_THREE = 3;
+  CARD_VALUE_FIVE = 4;
+  CARD_VALUE_EIGHT = 5;
+  CARD_VALUE_THIRTEEN = 6;
+  CARD_VALUE_TWENTY_ONE = 7;
+  CARD_VALUE_QUESTION = 8;     // "?" - unsure
+  CARD_VALUE_COFFEE = 9;       // Coffee break
+}
+
+// Vote represents a participant's vote
+message Vote {
+  string participant_id = 1;
+  string participant_name = 2;
+  CardValue value = 3;
+  bool has_voted = 4;          // True if they've submitted a vote
+}
+
+// VoteSummary shows statistics after reveal
+message VoteSummary {
+  repeated Vote votes = 1;
+  CardValue average = 2;       // Rounded to nearest card value
+  CardValue mode = 3;          // Most common vote
+  bool has_consensus = 4;      // All votes are the same
+}
+
+// CastVoteRequest submits a vote
+message CastVoteRequest {
+  string room_id = 1;
+  string participant_id = 2;
+  string session_token = 3;
+  CardValue value = 4;
+}
+
+message CastVoteResponse {}
+
+// RevealVotesRequest reveals all votes
+message RevealVotesRequest {
+  string room_id = 1;
+  string participant_id = 2;   // Must be host
+  string session_token = 3;
+}
+
+message RevealVotesResponse {
+  VoteSummary summary = 1;
+}
+
+// ResetRoundRequest clears votes for a new round
+message ResetRoundRequest {
+  string room_id = 1;
+  string participant_id = 2;   // Must be host
+  string session_token = 3;
+}
+
+message ResetRoundResponse {}
+
+// SetTopicRequest sets the current estimation topic
+message SetTopicRequest {
+  string room_id = 1;
+  string participant_id = 2;   // Must be host
+  string session_token = 3;
+  string topic = 4;
+}
+
+message SetTopicResponse {}
+
+// WatchVotesRequest subscribes to vote updates
+message WatchVotesRequest {
+  string room_id = 1;
+  string session_token = 2;
+}
+
+// VoteEvent is sent when vote state changes
+message VoteEvent {
+  oneof event {
+    VoteCast vote_cast = 1;
+    VotesRevealed votes_revealed = 2;
+    RoundReset round_reset = 3;
+  }
+}
+
+message VoteCast {
+  string participant_id = 1;
+  string participant_name = 2;
+  // Value is not included - only that they voted (until reveal)
+}
+
+message VotesRevealed {
+  VoteSummary summary = 1;
+}
+
+message RoundReset {}
