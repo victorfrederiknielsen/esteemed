@@ -7,7 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { RoomState, useRoom } from "@/hooks/useRoom";
 import { useVoting } from "@/hooks/useVoting";
-import { Copy, LogOut, Play, Users } from "lucide-react";
+import { generateParticipantName } from "@/lib/namegen";
+import { Clock, Copy, Dices, LogOut, Play, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -83,13 +84,25 @@ export function RoomPage() {
                 >
                   Your Name
                 </label>
-                <Input
-                  id="joinName"
-                  placeholder="Enter your name"
-                  value={joinName}
-                  onChange={(e) => setJoinName(e.target.value)}
-                  disabled={roomLoading}
-                />
+                <div className="flex gap-2">
+                  <Input
+                    id="joinName"
+                    placeholder="Enter your name"
+                    value={joinName}
+                    onChange={(e) => setJoinName(e.target.value)}
+                    disabled={roomLoading}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setJoinName(generateParticipantName())}
+                    disabled={roomLoading}
+                    title="Generate random name"
+                  >
+                    <Dices className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
               <Button
                 type="submit"
@@ -168,9 +181,28 @@ export function RoomPage() {
                       </Button>
                     </div>
                   ) : (
-                    <p className="text-slate-500 text-center">
-                      Waiting for the host to start the round...
-                    </p>
+                    <div className="text-center space-y-4 py-4">
+                      <div className="flex justify-center">
+                        <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center">
+                          <Clock className="h-8 w-8 text-slate-400 animate-pulse" />
+                        </div>
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-slate-600 font-medium">
+                          Waiting for the host to start
+                        </p>
+                        <p className="text-sm text-slate-400">
+                          {totalParticipants === 1
+                            ? "You're the only one here so far"
+                            : `${totalParticipants} participants in the room`}
+                        </p>
+                      </div>
+                      <div className="pt-2">
+                        <p className="text-xs text-slate-400">
+                          The round will begin shortly
+                        </p>
+                      </div>
+                    </div>
                   )}
                 </CardContent>
               </Card>

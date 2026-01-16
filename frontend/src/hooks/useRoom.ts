@@ -58,6 +58,7 @@ export function useRoom(roomId?: string): UseRoomState & UseRoomActions {
 
     const controller = new AbortController();
     abortControllerRef.current = controller;
+    let retryTimeout: ReturnType<typeof setTimeout> | null = null;
 
     const watchRoom = async () => {
       try {
@@ -103,12 +104,18 @@ export function useRoom(roomId?: string): UseRoomState & UseRoomActions {
               isConnected: false,
               error: `Room closed: ${reason}`,
             }));
+            return; // Don't retry if room is closed
           }
         }
       } catch (err) {
         if (!controller.signal.aborted) {
           console.error("Watch room error:", err);
-          setState((prev) => ({ ...prev, isConnected: false }));
+          // Retry connection after a delay instead of disconnecting
+          retryTimeout = setTimeout(() => {
+            if (!controller.signal.aborted) {
+              watchRoom();
+            }
+          }, 2000);
         }
       }
     };
@@ -117,6 +124,7 @@ export function useRoom(roomId?: string): UseRoomState & UseRoomActions {
 
     return () => {
       controller.abort();
+      if (retryTimeout) clearTimeout(retryTimeout);
     };
   }, [state.room?.id, state.sessionToken]);
 

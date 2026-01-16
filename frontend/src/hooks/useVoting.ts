@@ -47,6 +47,7 @@ export function useVoting(
 
     const controller = new AbortController();
     abortControllerRef.current = controller;
+    let retryTimeout: ReturnType<typeof setTimeout> | null = null;
 
     const watchVotes = async () => {
       try {
@@ -106,6 +107,12 @@ export function useVoting(
       } catch (err) {
         if (!controller.signal.aborted) {
           console.error("Watch votes error:", err);
+          // Retry connection after a delay
+          retryTimeout = setTimeout(() => {
+            if (!controller.signal.aborted) {
+              watchVotes();
+            }
+          }, 2000);
         }
       }
     };
@@ -114,6 +121,7 @@ export function useVoting(
 
     return () => {
       controller.abort();
+      if (retryTimeout) clearTimeout(retryTimeout);
     };
   }, [roomId, sessionToken]);
 

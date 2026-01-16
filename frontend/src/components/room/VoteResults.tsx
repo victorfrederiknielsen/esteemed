@@ -3,7 +3,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { VoteSummary } from "@/lib/types";
 import { CARD_VALUES, cardValueToLabel } from "@/lib/types";
+import confetti from "canvas-confetti";
 import { RefreshCw, TrendingUp, Trophy, Users } from "lucide-react";
+import { useEffect, useRef } from "react";
+import { HeatmapCard } from "./HeatmapCard";
 
 interface VoteResultsProps {
   summary: VoteSummary;
@@ -11,18 +14,69 @@ interface VoteResultsProps {
 }
 
 export function VoteResults({ summary, onReset }: VoteResultsProps) {
-  // Count votes by value
-  const voteCounts = summary.votes.reduce(
+  const hasTriggeredConfetti = useRef(false);
+
+  // Trigger confetti when consensus is reached
+  useEffect(() => {
+    if (summary.hasConsensus && !hasTriggeredConfetti.current) {
+      hasTriggeredConfetti.current = true;
+
+      // Fire confetti from both sides
+      const duration = 3000;
+      const end = Date.now() + duration;
+
+      const frame = () => {
+        confetti({
+          particleCount: 3,
+          angle: 60,
+          spread: 55,
+          origin: { x: 0, y: 0.7 },
+          colors: ["#3b82f6", "#8b5cf6", "#ec4899", "#10b981", "#f59e0b"],
+        });
+        confetti({
+          particleCount: 3,
+          angle: 120,
+          spread: 55,
+          origin: { x: 1, y: 0.7 },
+          colors: ["#3b82f6", "#8b5cf6", "#ec4899", "#10b981", "#f59e0b"],
+        });
+
+        if (Date.now() < end) {
+          requestAnimationFrame(frame);
+        }
+      };
+
+      frame();
+    }
+  }, [summary.hasConsensus]);
+
+  // Reset confetti trigger when summary changes (new round)
+  useEffect(() => {
+    if (!summary.hasConsensus) {
+      hasTriggeredConfetti.current = false;
+    }
+  }, [summary.hasConsensus]);
+
+  // Track votes by card value with voter names
+  const votesByCard = summary.votes.reduce(
     (acc, vote) => {
       const label = cardValueToLabel(vote.value);
-      acc[label] = (acc[label] || 0) + 1;
+      if (!acc[label]) acc[label] = { count: 0, names: [] as string[] };
+      acc[label].count += 1;
+      acc[label].names.push(vote.participantName);
       return acc;
     },
-    {} as Record<string, number>,
+    {} as Record<string, { count: number; names: string[] }>,
   );
 
-  // Find the max count for scaling the bars
-  const maxCount = Math.max(...Object.values(voteCounts), 1);
+  // Find the max count for scaling the heatmap
+  const maxCount = Math.max(
+    ...Object.values(votesByCard).map((v) => v.count),
+    1,
+  );
+
+  // Get mode label for highlighting
+  const modeLabel = cardValueToLabel(summary.mode);
 
   return (
     <Card>
@@ -74,67 +128,40 @@ export function VoteResults({ summary, onReset }: VoteResultsProps) {
         {/* Consensus badge */}
         {summary.hasConsensus && (
           <div className="flex justify-center">
-            <Badge variant="success" className="px-4 py-1.5">
-              Consensus reached!
-            </Badge>
+            <div className="relative">
+              {/* Animated glow background */}
+              <div className="absolute -inset-1 rounded-full bg-gradient-to-r from-green-400 via-emerald-500 to-teal-400 opacity-75 blur-md animate-pulse" />
+              <div className="absolute -inset-1 rounded-full bg-gradient-to-r from-teal-400 via-green-500 to-emerald-400 opacity-50 blur-lg animate-[pulse_2s_ease-in-out_infinite_0.5s]" />
+              {/* Badge */}
+              <Badge
+                variant="success"
+                className="relative px-6 py-2 text-base font-semibold shadow-lg"
+              >
+                Consensus reached!
+              </Badge>
+            </div>
           </div>
         )}
 
-        {/* Vote distribution */}
+        {/* Vote heatmap */}
         <div>
           <h4 className="text-sm font-medium text-slate-600 mb-3">
             Vote Distribution
           </h4>
-          <div className="space-y-2">
-            {CARD_VALUES.map((card) => {
-              const count = voteCounts[card.label] || 0;
-              if (count === 0) return null;
-
-              const percentage = (count / summary.votes.length) * 100;
-              const barWidth = (count / maxCount) * 100;
-
-              return (
-                <div key={card.value} className="flex items-center gap-3">
-                  <span className="w-8 text-right font-mono text-sm font-medium">
-                    {card.label}
-                  </span>
-                  <div className="flex-1 bg-slate-100 rounded-full h-6 overflow-hidden">
-                    <div
-                      className="bg-primary h-full rounded-full transition-all duration-500 flex items-center justify-end pr-2"
-                      style={{ width: `${barWidth}%` }}
-                    >
-                      {barWidth > 20 && (
-                        <span className="text-xs font-medium text-white">
-                          {count}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  <span className="w-12 text-right text-sm text-slate-500">
-                    {percentage.toFixed(0)}%
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Individual votes */}
-        <div>
-          <h4 className="text-sm font-medium text-slate-600 mb-3">
-            Individual Votes
-          </h4>
-          <div className="flex flex-wrap gap-2">
-            {summary.votes.map((vote) => (
-              <div
-                key={vote.participantId}
-                className="flex items-center gap-2 bg-slate-50 rounded-full pl-3 pr-1 py-1"
-              >
-                <span className="text-sm">{vote.participantName}</span>
-                <Badge variant="secondary" className="font-mono">
-                  {cardValueToLabel(vote.value)}
-                </Badge>
-              </div>
+          <div className="grid grid-cols-3 sm:grid-cols-5 gap-3">
+            {CARD_VALUES.map((card) => (
+              <HeatmapCard
+                key={card.value}
+                label={card.label}
+                voteCount={votesByCard[card.label]?.count || 0}
+                maxVoteCount={maxCount}
+                totalVotes={summary.votes.length}
+                voterNames={votesByCard[card.label]?.names || []}
+                isMode={
+                  card.label === modeLabel &&
+                  (votesByCard[card.label]?.count || 0) > 0
+                }
+              />
             ))}
           </div>
         </div>

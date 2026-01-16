@@ -12,7 +12,8 @@ import type { RoomSummary } from "@/gen/esteemed/v1/room_pb";
 import { RoomState } from "@/gen/esteemed/v1/room_pb";
 import { useRoom } from "@/hooks/useRoom";
 import { roomClient } from "@/lib/client";
-import { RefreshCw, Users } from "lucide-react";
+import { generateParticipantName } from "@/lib/namegen";
+import { Dices, RefreshCw, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -146,13 +147,25 @@ export function HomePage() {
                     >
                       Your Name
                     </label>
-                    <Input
-                      id="hostName"
-                      placeholder="Enter your name"
-                      value={hostName}
-                      onChange={(e) => setHostName(e.target.value)}
-                      disabled={isLoading}
-                    />
+                    <div className="flex gap-2">
+                      <Input
+                        id="hostName"
+                        placeholder="Enter your name"
+                        value={hostName}
+                        onChange={(e) => setHostName(e.target.value)}
+                        disabled={isLoading}
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        onClick={() => setHostName(generateParticipantName())}
+                        disabled={isLoading}
+                        title="Generate random name"
+                      >
+                        <Dices className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
                   <Button
                     type="submit"
@@ -186,13 +199,27 @@ export function HomePage() {
                     >
                       Your Name
                     </label>
-                    <Input
-                      id="participantName"
-                      placeholder="Enter your name"
-                      value={participantName}
-                      onChange={(e) => setParticipantName(e.target.value)}
-                      disabled={isLoading}
-                    />
+                    <div className="flex gap-2">
+                      <Input
+                        id="participantName"
+                        placeholder="Enter your name"
+                        value={participantName}
+                        onChange={(e) => setParticipantName(e.target.value)}
+                        disabled={isLoading}
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        onClick={() =>
+                          setParticipantName(generateParticipantName())
+                        }
+                        disabled={isLoading}
+                        title="Generate random name"
+                      >
+                        <Dices className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
                   <Button
                     type="submit"
