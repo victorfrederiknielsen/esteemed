@@ -1,19 +1,17 @@
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { VoteSummary } from "@/lib/types";
 import { CARD_VALUES, cardValueToLabel } from "@/lib/types";
 import confetti from "canvas-confetti";
-import { RefreshCw, TrendingUp, Trophy, Users } from "lucide-react";
+import { TrendingUp, Trophy, Users } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { HeatmapCard } from "./HeatmapCard";
 
 interface VoteResultsProps {
   summary: VoteSummary;
-  onReset?: () => void;
 }
 
-export function VoteResults({ summary, onReset }: VoteResultsProps) {
+export function VoteResults({ summary }: VoteResultsProps) {
   const hasTriggeredConfetti = useRef(false);
   const modeCardRef = useRef<HTMLDivElement>(null);
 
@@ -101,15 +99,7 @@ export function VoteResults({ summary, onReset }: VoteResultsProps) {
   return (
     <Card>
       <CardHeader className="pb-3">
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-lg">Results</CardTitle>
-          {onReset && (
-            <Button variant="outline" size="sm" onClick={onReset}>
-              <RefreshCw className="h-4 w-4 mr-1" />
-              New Round
-            </Button>
-          )}
-        </div>
+        <CardTitle className="text-lg">Results</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Summary stats */}

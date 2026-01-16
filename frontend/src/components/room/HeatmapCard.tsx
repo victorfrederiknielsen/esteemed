@@ -23,10 +23,10 @@ export const HeatmapCard = forwardRef<HTMLDivElement, HeatmapCardProps>(
     const backgroundColor = `hsla(221.2, 83.2%, 53.3%, ${opacity})`;
 
     return (
-      <div ref={ref} className="relative">
+      <div ref={ref} className="relative isolate">
         {/* Glow effect for mode card - positioned absolutely so it doesn't affect layout */}
         {isMode && (
-          <div className="absolute -inset-4 consensus-glow-card rounded-lg pointer-events-none" />
+          <div className="absolute -inset-8 consensus-glow-card rounded-lg pointer-events-none" />
         )}
         {/* Card content - fixed height for all cards */}
         <div

@@ -8,7 +8,16 @@ import { Input } from "@/components/ui/input";
 import { RoomState, useRoom } from "@/hooks/useRoom";
 import { useVoting } from "@/hooks/useVoting";
 import { generateParticipantName } from "@/lib/namegen";
-import { Clock, Copy, Dices, LogOut, Play, Users } from "lucide-react";
+import {
+  Clock,
+  Copy,
+  Dices,
+  Eye,
+  LogOut,
+  Play,
+  RefreshCw,
+  Users,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -161,59 +170,39 @@ export function RoomPage() {
         <div className="grid gap-8 lg:grid-cols-3">
           {/* Main content */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Waiting state - Show start round button for host */}
+            {/* Waiting state */}
             {isWaiting && (
               <Card>
                 <CardHeader className="pb-3">
                   <CardTitle className="text-lg">Ready to Estimate?</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  {isHost ? (
-                    <div className="text-center space-y-4">
-                      <p className="text-slate-600">
-                        {totalParticipants === 1
-                          ? "Waiting for participants to join..."
-                          : `${totalParticipants} participants ready`}
+                  <div className="text-center space-y-4 py-4">
+                    <div className="flex justify-center">
+                      <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center">
+                        <Clock className="h-8 w-8 text-slate-400 animate-pulse" />
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-slate-600 font-medium">
+                        {isHost
+                          ? "Ready when you are"
+                          : "Waiting for the host to start"}
                       </p>
-                      <Button size="lg" onClick={startRound} className="gap-2">
-                        <Play className="h-5 w-5" />
-                        Start Round
-                      </Button>
+                      <p className="text-sm text-slate-400">
+                        {totalParticipants === 1
+                          ? "You're the only one here so far"
+                          : `${totalParticipants} participants in the room`}
+                      </p>
                     </div>
-                  ) : (
-                    <div className="text-center space-y-4 py-4">
-                      <div className="flex justify-center">
-                        <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center">
-                          <Clock className="h-8 w-8 text-slate-400 animate-pulse" />
-                        </div>
-                      </div>
-                      <div className="space-y-1">
-                        <p className="text-slate-600 font-medium">
-                          Waiting for the host to start
-                        </p>
-                        <p className="text-sm text-slate-400">
-                          {totalParticipants === 1
-                            ? "You're the only one here so far"
-                            : `${totalParticipants} participants in the room`}
-                        </p>
-                      </div>
-                      <div className="pt-2">
-                        <p className="text-xs text-slate-400">
-                          The round will begin shortly
-                        </p>
-                      </div>
-                    </div>
-                  )}
+                  </div>
                 </CardContent>
               </Card>
             )}
 
             {/* Voting status or results */}
             {isRevealed && summary ? (
-              <VoteResults
-                summary={summary}
-                onReset={isHost ? resetRound : undefined}
-              />
+              <VoteResults summary={summary} />
             ) : (
               isVoting && (
                 <>
@@ -224,11 +213,6 @@ export function RoomPage() {
                         <span className="text-sm font-medium text-slate-600">
                           Votes: {votedCount} / {totalParticipants}
                         </span>
-                        {isHost && votedCount > 0 && (
-                          <Button onClick={revealVotes} disabled={voteLoading}>
-                            Reveal Votes
-                          </Button>
-                        )}
                       </div>
                       <div className="w-full bg-slate-200 rounded-full h-2">
                         <div
@@ -252,8 +236,50 @@ export function RoomPage() {
             )}
           </div>
 
-          {/* Sidebar - Participants */}
-          <div>
+          {/* Sidebar */}
+          <div className="space-y-6">
+            {/* Host Controls */}
+            {isHost && (
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-lg">Controls</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {isWaiting && (
+                    <Button
+                      size="lg"
+                      onClick={startRound}
+                      className="w-full gap-2"
+                    >
+                      <Play className="h-5 w-5" />
+                      Start Round
+                    </Button>
+                  )}
+                  {isVoting && (
+                    <Button
+                      onClick={revealVotes}
+                      disabled={voteLoading || votedCount === 0}
+                      className="w-full gap-2"
+                    >
+                      <Eye className="h-4 w-4" />
+                      Reveal Votes
+                    </Button>
+                  )}
+                  {isRevealed && (
+                    <Button
+                      onClick={resetRound}
+                      variant="outline"
+                      className="w-full gap-2"
+                    >
+                      <RefreshCw className="h-4 w-4" />
+                      New Round
+                    </Button>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Participants */}
             <ParticipantList
               participants={participants}
               voteStatuses={voteStatuses}
