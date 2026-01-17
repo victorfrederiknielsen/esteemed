@@ -50,7 +50,7 @@ export function ParticipantList({
   };
 
   return (
-    <Card className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm">
+    <Card className="bg-white/70 dark:bg-neutral-800/70 backdrop-blur-sm">
       <CardHeader>
         <CardTitle className="text-lg">Participants</CardTitle>
       </CardHeader>
@@ -65,7 +65,7 @@ export function ParticipantList({
               key={participant.id}
               className={cn(
                 "flex items-center gap-3 p-2 rounded-lg transition-colors",
-                isCurrentUser && "bg-slate-100/50 dark:bg-slate-700/50",
+                isCurrentUser && "bg-neutral-100/50 dark:bg-neutral-700/50",
               )}
             >
               <Avatar className="h-9 w-9">
@@ -99,7 +99,7 @@ export function ParticipantList({
                     </Badge>
                   )}
                 </div>
-                <span className="text-xs text-slate-500 dark:text-slate-400">
+                <span className="text-xs text-neutral-500 dark:text-neutral-400">
                   {!participant.isConnected
                     ? "Disconnected"
                     : isRevealed
@@ -116,7 +116,7 @@ export function ParticipantList({
         })}
 
         {participants.length === 0 && (
-          <p className="text-sm text-slate-500 dark:text-slate-400 text-center py-4">
+          <p className="text-sm text-neutral-500 dark:text-neutral-400 text-center py-4">
             No participants yet
           </p>
         )}

@@ -31,7 +31,7 @@ export function ProfileCircleStack({
       ))}
       {overflowCount > 0 && (
         <div
-          className="relative w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-medium bg-slate-200 dark:bg-slate-600 text-slate-600 dark:text-slate-300 border-2 border-white dark:border-slate-800"
+          className="relative w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-medium bg-neutral-200 dark:bg-neutral-600 text-neutral-600 dark:text-neutral-300 border-2 border-white dark:border-neutral-800"
           style={{ marginLeft: -8, zIndex: maxVisible + 1 }}
           title={overflowNames.join(", ")}
         >

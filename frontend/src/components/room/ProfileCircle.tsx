@@ -11,7 +11,7 @@ export function ProfileCircle({ name, className = "" }: ProfileCircleProps) {
 
   return (
     <div
-      className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-medium text-white border-2 border-white dark:border-slate-800 ${className}`}
+      className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-medium text-white border-2 border-white dark:border-neutral-800 ${className}`}
       style={{ backgroundColor }}
       title={name}
     >

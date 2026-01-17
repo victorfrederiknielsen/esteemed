@@ -36,7 +36,7 @@ export const HeatmapCard = forwardRef<HTMLDivElement, HeatmapCardProps>(
           <div className="flex flex-col items-center gap-1">
             <span
               className={`font-bold text-3xl transition-all duration-500 ${
-                voteCount > 0 ? "text-white" : "text-slate-400"
+                voteCount > 0 ? "text-white" : "text-neutral-400"
               }`}
             >
               {label}

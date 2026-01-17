@@ -130,8 +130,8 @@ export function VoteResults({ summary }: VoteResultsProps) {
       <CardContent className="space-y-6">
         {/* Summary stats */}
         <div className="grid grid-cols-3 gap-4">
-          <div className="text-center p-3 bg-slate-50 rounded-lg">
-            <div className="flex items-center justify-center gap-1 text-slate-600 mb-1">
+          <div className="text-center p-3 bg-neutral-50 rounded-lg">
+            <div className="flex items-center justify-center gap-1 text-neutral-600 mb-1">
               <TrendingUp className="h-4 w-4" />
               <span className="text-xs font-medium">Average</span>
             </div>
@@ -140,8 +140,8 @@ export function VoteResults({ summary }: VoteResultsProps) {
             </span>
           </div>
 
-          <div className="text-center p-3 bg-slate-50 rounded-lg">
-            <div className="flex items-center justify-center gap-1 text-slate-600 mb-1">
+          <div className="text-center p-3 bg-neutral-50 rounded-lg">
+            <div className="flex items-center justify-center gap-1 text-neutral-600 mb-1">
               <Trophy className="h-4 w-4" />
               <span className="text-xs font-medium">Mode</span>
             </div>
@@ -150,8 +150,8 @@ export function VoteResults({ summary }: VoteResultsProps) {
             </span>
           </div>
 
-          <div className="text-center p-3 bg-slate-50 rounded-lg">
-            <div className="flex items-center justify-center gap-1 text-slate-600 mb-1">
+          <div className="text-center p-3 bg-neutral-50 rounded-lg">
+            <div className="flex items-center justify-center gap-1 text-neutral-600 mb-1">
               <Users className="h-4 w-4" />
               <span className="text-xs font-medium">Votes</span>
             </div>
@@ -172,7 +172,7 @@ export function VoteResults({ summary }: VoteResultsProps) {
 
         {/* Vote heatmap */}
         <div className="overflow-visible">
-          <h4 className="text-sm font-medium text-slate-600 mb-3">
+          <h4 className="text-sm font-medium text-neutral-600 mb-3">
             Vote Distribution
           </h4>
           <div

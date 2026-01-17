@@ -6,9 +6,23 @@ export function ThemeToggle() {
   const { theme, setTheme } = useTheme();
 
   const cycleTheme = () => {
-    if (theme === "light") setTheme("dark");
-    else if (theme === "dark") setTheme("system");
-    else setTheme("light");
+    // Cycle: light → dark → system → light
+    // But skip states that don't produce a visual change
+    const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
+      .matches
+      ? "dark"
+      : "light";
+
+    if (theme === "light") {
+      setTheme("dark");
+    } else if (theme === "dark") {
+      // Skip "system" if it would look the same as dark
+      setTheme(systemTheme === "dark" ? "light" : "system");
+    } else {
+      // theme === "system"
+      // Skip "light" if system is already light (would look the same)
+      setTheme(systemTheme === "light" ? "dark" : "light");
+    }
   };
 
   const icon = {
