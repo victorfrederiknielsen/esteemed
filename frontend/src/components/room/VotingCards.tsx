@@ -1,18 +1,16 @@
 import { Tilt3DWrapper } from "@/components/ui/Tilt3DWrapper";
-import {
-  CARD_VALUES,
-  type CardValue,
-  type VoteSummary,
-  cardValueToLabel,
-} from "@/lib/types";
+import type { Card } from "@/gen/esteemed/v1/room_pb";
+import type { VoteSummary } from "@/lib/types";
+import { cardValueToLabel } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { TrendingUp, Trophy, Users } from "lucide-react";
 import { forwardRef, useMemo, useRef } from "react";
 import { ProfileCircleStack } from "./ProfileCircleStack";
 
 interface VotingCardsProps {
-  selectedValue: CardValue | null;
-  onSelect: (value: CardValue) => void;
+  cards: Card[];
+  selectedValue: string | null;
+  onSelect: (value: string) => void;
   disabled?: boolean;
   // Results mode
   isRevealed?: boolean;
@@ -22,7 +20,15 @@ interface VotingCardsProps {
 
 export const VotingCards = forwardRef<HTMLDivElement, VotingCardsProps>(
   function VotingCards(
-    { selectedValue, onSelect, disabled, isRevealed, summary, modeCardRef },
+    {
+      cards,
+      selectedValue,
+      onSelect,
+      disabled,
+      isRevealed,
+      summary,
+      modeCardRef,
+    },
     ref,
   ) {
     const gridRef = useRef<HTMLDivElement>(null);
@@ -45,6 +51,15 @@ export const VotingCards = forwardRef<HTMLDivElement, VotingCardsProps>(
 
     const modeLabel = summary ? cardValueToLabel(summary.mode) : null;
 
+    // Determine grid columns based on card count
+    // Aim for larger cards: 5 per row for most decks
+    const gridCols = useMemo(() => {
+      if (cards.length <= 5) return "grid-cols-5";
+      if (cards.length <= 6) return "grid-cols-3 sm:grid-cols-6";
+      if (cards.length <= 10) return "grid-cols-3 sm:grid-cols-5";
+      return "grid-cols-4 sm:grid-cols-6";
+    }, [cards.length]);
+
     return (
       <div
         ref={(el) => {
@@ -60,13 +75,13 @@ export const VotingCards = forwardRef<HTMLDivElement, VotingCardsProps>(
           <h3 className="text-lg font-semibold mb-4">
             {isRevealed ? "Results" : "Select Your Estimate"}
           </h3>
-          <div className="grid grid-cols-5 gap-3 sm:gap-4">
-            {CARD_VALUES.map((card) => {
-              const voteData = votesByCard?.[card.label];
+          <div className={cn("grid gap-3 sm:gap-4", gridCols)}>
+            {cards.map((card) => {
+              const voteData = votesByCard?.[card.value];
               const isMode = !!(
                 isRevealed &&
                 summary?.hasConsensus &&
-                card.label === modeLabel &&
+                card.value === modeLabel &&
                 (voteData?.count || 0) > 0
               );
               const hasVotes = isRevealed && (voteData?.count || 0) > 0;
@@ -115,7 +130,7 @@ export const VotingCards = forwardRef<HTMLDivElement, VotingCardsProps>(
                           : "text-xl sm:text-2xl",
                       )}
                     >
-                      {card.label}
+                      {card.value}
                     </span>
                     {/* Vote info when revealed */}
                     {isRevealed && hasVotes && (

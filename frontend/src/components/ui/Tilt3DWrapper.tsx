@@ -64,10 +64,10 @@ export function Tilt3DWrapper({
     <div ref={ref} className={className} style={enabled ? style : undefined}>
       {enabled && (
         <>
-          <span className="consensus-text absolute top-2 left-1/2 -translate-x-1/2 text-base font-black tracking-wide z-10">
+          <span className="consensus-text absolute -top-7 left-1/2 -translate-x-1/2 text-base font-ui font-black tracking-wide z-10">
             CONSENSUS
           </span>
-          <span className="consensus-text absolute bottom-2 left-1/2 -translate-x-1/2 text-base font-black tracking-wide z-10">
+          <span className="consensus-text absolute -bottom-7 left-1/2 -translate-x-1/2 text-base font-ui font-black tracking-wide z-10">
             REACHED
           </span>
         </>

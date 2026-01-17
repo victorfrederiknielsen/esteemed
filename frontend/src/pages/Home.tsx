@@ -1,4 +1,4 @@
-import { Badge } from "@/components/ui/badge";
+import { CardPresetSelector } from "@/components/room/CardPresetSelector";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -9,10 +9,10 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useHeader } from "@/contexts/HeaderContext";
-import type { RoomSummary } from "@/gen/esteemed/v1/room_pb";
-import { RoomState } from "@/gen/esteemed/v1/room_pb";
+import type { CardConfig, RoomSummary } from "@/gen/esteemed/v1/room_pb";
 import { useRoom } from "@/hooks/useRoom";
 import { getDisplayName, roomClient, setCustomName } from "@/lib/client";
+import { getDefaultCardConfig } from "@/lib/types";
 import { Clock, RefreshCw, Sparkles, Users } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -26,6 +26,8 @@ export function HomePage() {
   const [participantName, setParticipantName] = useState("");
   const [joinAsSpectator, setJoinAsSpectator] = useState(false);
   const [mode, setMode] = useState<"create" | "join">("create");
+  const [cardConfig, setCardConfig] =
+    useState<CardConfig>(getDefaultCardConfig);
 
   // Initialize name from global identity
   useEffect(() => {
@@ -107,7 +109,7 @@ export function HomePage() {
     try {
       // Persist the name on room creation
       setCustomName(hostName.trim());
-      const roomName = await createRoom(hostName.trim());
+      const roomName = await createRoom(hostName.trim(), cardConfig);
       navigate(`/room/${roomName}`);
     } catch (err) {
       console.error("Failed to create room:", err);
@@ -125,32 +127,6 @@ export function HomePage() {
       navigate(`/room/${roomCode.trim()}`);
     } catch (err) {
       console.error("Failed to join room:", err);
-    }
-  };
-
-  const getRoomStateLabel = (state: RoomState) => {
-    switch (state) {
-      case RoomState.WAITING:
-        return "Waiting";
-      case RoomState.VOTING:
-        return "Voting";
-      case RoomState.REVEALED:
-        return "Revealed";
-      default:
-        return "Unknown";
-    }
-  };
-
-  const getRoomStateVariant = (state: RoomState) => {
-    switch (state) {
-      case RoomState.WAITING:
-        return "secondary" as const;
-      case RoomState.VOTING:
-        return "default" as const;
-      case RoomState.REVEALED:
-        return "outline" as const;
-      default:
-        return "secondary" as const;
     }
   };
 
@@ -176,7 +152,7 @@ export function HomePage() {
   return (
     <div className="max-w-4xl mx-auto">
       <div className="text-center mb-8">
-        <h1 className="text-4xl font-medium tracking-tight text-neutral-900 dark:text-neutral-100 flex items-center justify-center gap-2 font-display">
+        <h1 className="text-4xl font-normal tracking-tight text-neutral-900 dark:text-neutral-100 flex items-center justify-center gap-2 font-display">
           <Sparkles className="h-8 w-8" />
           Esteemed
         </h1>
@@ -233,6 +209,11 @@ export function HomePage() {
                     autoComplete="name"
                   />
                 </div>
+                <CardPresetSelector
+                  value={cardConfig}
+                  onChange={setCardConfig}
+                  disabled={isLoading}
+                />
                 <Button
                   type="submit"
                   className="w-full"
@@ -363,16 +344,9 @@ export function HomePage() {
                           Expires in {formatCountdown(secondsRemaining)}
                         </p>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <div className="flex items-center gap-1 text-neutral-500 dark:text-neutral-400">
-                          <Users className="h-3.5 w-3.5" />
-                          <span className="text-xs">
-                            {room.participantCount}
-                          </span>
-                        </div>
-                        <Badge variant={getRoomStateVariant(room.state)}>
-                          {getRoomStateLabel(room.state)}
-                        </Badge>
+                      <div className="flex items-center gap-1 text-neutral-500 dark:text-neutral-400">
+                        <Users className="h-3.5 w-3.5" />
+                        <span className="text-xs">{room.participantCount}</span>
                       </div>
                     </button>
                   );
