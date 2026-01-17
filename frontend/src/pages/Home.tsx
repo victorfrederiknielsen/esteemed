@@ -8,6 +8,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useHeader } from "@/contexts/HeaderContext";
 import type { CardConfig, RoomSummary } from "@/gen/esteemed/v1/room_pb";
 import { useRoom } from "@/hooks/useRoom";
@@ -193,13 +194,8 @@ export function HomePage() {
           <CardContent>
             {mode === "create" ? (
               <form onSubmit={handleCreate} className="space-y-4">
-                <div>
-                  <label
-                    htmlFor="hostName"
-                    className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1"
-                  >
-                    Your Name
-                  </label>
+                <div className="space-y-2">
+                  <Label htmlFor="hostName">Your Name</Label>
                   <Input
                     id="hostName"
                     placeholder="Enter your name"
@@ -224,13 +220,8 @@ export function HomePage() {
               </form>
             ) : (
               <form onSubmit={handleJoin} className="space-y-4">
-                <div>
-                  <label
-                    htmlFor="roomCode"
-                    className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1"
-                  >
-                    Room Code
-                  </label>
+                <div className="space-y-2">
+                  <Label htmlFor="roomCode">Room Code</Label>
                   <Input
                     id="roomCode"
                     placeholder="e.g., brave-falcon-42"
@@ -239,13 +230,8 @@ export function HomePage() {
                     disabled={isLoading}
                   />
                 </div>
-                <div>
-                  <label
-                    htmlFor="participantName"
-                    className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1"
-                  >
-                    Your Name
-                  </label>
+                <div className="space-y-2">
+                  <Label htmlFor="participantName">Your Name</Label>
                   <Input
                     id="participantName"
                     placeholder="Enter your name"
@@ -257,17 +243,21 @@ export function HomePage() {
                     autoComplete="name"
                   />
                 </div>
-                <label className="flex items-center gap-2 cursor-pointer">
+                <div className="flex items-center gap-2">
                   <input
                     type="checkbox"
+                    id="joinAsSpectator"
                     checked={joinAsSpectator}
                     onChange={(e) => setJoinAsSpectator(e.target.checked)}
-                    className="h-4 w-4 rounded border-neutral-300 text-primary focus:ring-primary"
+                    className="h-4 w-4 rounded border-input text-primary focus:ring-primary"
                   />
-                  <span className="text-sm text-neutral-600 dark:text-neutral-400">
+                  <Label
+                    htmlFor="joinAsSpectator"
+                    className="text-muted-foreground cursor-pointer"
+                  >
                     Join as spectator (watch only)
-                  </span>
-                </label>
+                  </Label>
+                </div>
                 <Button
                   type="submit"
                   className="w-full"

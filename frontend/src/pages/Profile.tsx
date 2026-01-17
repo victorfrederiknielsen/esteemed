@@ -7,6 +7,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useHeader } from "@/contexts/HeaderContext";
 import { getOrCreateIdentity, setCustomName } from "@/lib/client";
 import { ArrowLeft, Check, RotateCcw } from "lucide-react";
@@ -61,13 +62,8 @@ export function ProfilePage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div>
-            <label
-              htmlFor="displayName"
-              className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1"
-            >
-              Display Name
-            </label>
+          <div className="space-y-2">
+            <Label htmlFor="displayName">Display Name</Label>
             <Input
               id="displayName"
               placeholder="Enter your name"

@@ -5,6 +5,7 @@ import { VotingCards } from "@/components/room/VotingCards";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useHeader } from "@/contexts/HeaderContext";
 import { RoomState, useRoom } from "@/hooks/useRoom";
 import { useVoting } from "@/hooks/useVoting";
@@ -13,6 +14,7 @@ import {
   getRoomParticipantId,
   setCustomName,
 } from "@/lib/client";
+import { getDefaultCardConfig } from "@/lib/types";
 import { Check, Clock, Copy, LogOut } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useBlocker, useNavigate, useParams } from "react-router-dom";
@@ -239,13 +241,8 @@ export function RoomPage() {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleJoin} className="space-y-4">
-              <div>
-                <label
-                  htmlFor="joinName"
-                  className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1"
-                >
-                  Your Name
-                </label>
+              <div className="space-y-2">
+                <Label htmlFor="joinName">Your Name</Label>
                 <Input
                   id="joinName"
                   placeholder="Enter your name"
@@ -255,17 +252,21 @@ export function RoomPage() {
                   autoComplete="name"
                 />
               </div>
-              <label className="flex items-center gap-2 cursor-pointer">
+              <div className="flex items-center gap-2">
                 <input
                   type="checkbox"
+                  id="joinAsSpectatorRoom"
                   checked={joinAsSpectator}
                   onChange={(e) => setJoinAsSpectator(e.target.checked)}
-                  className="h-4 w-4 rounded border-neutral-300 text-primary focus:ring-primary"
+                  className="h-4 w-4 rounded border-input text-primary focus:ring-primary"
                 />
-                <span className="text-sm text-neutral-600 dark:text-neutral-400">
+                <Label
+                  htmlFor="joinAsSpectatorRoom"
+                  className="text-muted-foreground cursor-pointer"
+                >
                   Join as spectator (watch only)
-                </span>
-              </label>
+                </Label>
+              </div>
               <Button
                 type="submit"
                 className="w-full"
@@ -355,6 +356,7 @@ export function RoomPage() {
           {/* Voting cards - shown during voting (not for spectators) and after reveal (for everyone) */}
           {((isVoting && !isSpectator) || isRevealed || isRoomRevealed) && (
             <VotingCards
+              cards={room?.cardConfig?.cards || getDefaultCardConfig().cards}
               selectedValue={currentVote}
               onSelect={castVote}
               disabled={isSpectator}
