@@ -1,4 +1,5 @@
-import { forwardRef } from "react";
+import { useTilt3D } from "@/hooks/useTilt3D";
+import { forwardRef, useEffect } from "react";
 import { ProfileCircleStack } from "./ProfileCircleStack";
 
 interface HeatmapCardProps {
@@ -13,30 +14,45 @@ interface HeatmapCardProps {
 export const HeatmapCard = forwardRef<HTMLDivElement, HeatmapCardProps>(
   function HeatmapCard(
     { label, voteCount, maxVoteCount, voterNames, isMode },
-    ref,
+    forwardedRef,
   ) {
-    // Calculate opacity: 0.1 for zero votes, linear 0.3-1.0 for votes
-    const opacity =
-      voteCount === 0 ? 0.1 : 0.3 + (voteCount / maxVoteCount) * 0.7;
+    const { ref: tiltRef, style: tiltStyle } = useTilt3D<HTMLDivElement>(isMode);
 
-    // Primary color: hsl(221.2, 83.2%, 53.3%) converted to hsla
-    const backgroundColor = `hsla(221.2, 83.2%, 53.3%, ${opacity})`;
+    // Merge refs
+    useEffect(() => {
+      if (!tiltRef.current) return;
+      if (typeof forwardedRef === "function") {
+        forwardedRef(tiltRef.current);
+      } else if (forwardedRef) {
+        forwardedRef.current = tiltRef.current;
+      }
+    }, [forwardedRef]);
+
+    // Calculate lightness: higher votes = darker/more saturated
+    // Zero votes: very light (85%), max votes: fully saturated primary (53%)
+    const lightness =
+      voteCount === 0 ? 85 : 85 - (voteCount / maxVoteCount) * 32;
+
+    // Primary color with varying lightness for solid background
+    const backgroundColor = `hsl(221.2, 83.2%, ${lightness}%)`;
 
     return (
-      <div ref={ref} className="relative h-[120px]">
+      <div
+        ref={tiltRef}
+        className={`relative h-[120px] rounded-lg ${isMode ? "consensus-badge" : ""}`}
+        style={isMode ? tiltStyle : undefined}
+      >
         {/* Background layer */}
         <div
-          className={`absolute inset-0 rounded-lg transition-all duration-500 ${
-            isMode ? "consensus-badge" : ""
-          }`}
-          style={isMode ? undefined : { backgroundColor }}
+          className="absolute inset-0 rounded-lg transition-all duration-500"
+          style={{ backgroundColor }}
         />
         {/* Content layer - above background */}
         <div className="relative z-10 h-full p-3 flex flex-col items-center justify-center">
           <div className="flex flex-col items-center gap-1">
             <span
               className={`font-bold text-3xl transition-all duration-500 ${
-                voteCount > 0 ? "text-white" : "text-neutral-400"
+                voteCount > 0 ? "text-white" : "text-neutral-500"
               }`}
             >
               {label}

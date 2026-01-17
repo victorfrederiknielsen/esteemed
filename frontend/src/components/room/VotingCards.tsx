@@ -1,3 +1,4 @@
+import { Tilt3DWrapper } from "@/components/ui/Tilt3DWrapper";
 import {
   CARD_VALUES,
   type CardValue,
@@ -6,7 +7,7 @@ import {
 } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { TrendingUp, Trophy, Users } from "lucide-react";
-import { forwardRef, useEffect, useMemo, useRef, useState } from "react";
+import { forwardRef, useMemo, useRef } from "react";
 import { ProfileCircleStack } from "./ProfileCircleStack";
 
 interface VotingCardsProps {
@@ -25,33 +26,6 @@ export const VotingCards = forwardRef<HTMLDivElement, VotingCardsProps>(
     ref,
   ) {
     const gridRef = useRef<HTMLDivElement>(null);
-    const internalModeCardRef = useRef<HTMLButtonElement>(null);
-    const [glowPosition, setGlowPosition] = useState<{
-      top: number;
-      left: number;
-      width: number;
-      height: number;
-    } | null>(null);
-
-    // Calculate glow position relative to grid
-    useEffect(() => {
-      const timeout = setTimeout(() => {
-        const cardEl = modeCardRef?.current || internalModeCardRef.current;
-        if (cardEl && gridRef.current && isRevealed) {
-          const cardRect = cardEl.getBoundingClientRect();
-          const gridRect = gridRef.current.getBoundingClientRect();
-          setGlowPosition({
-            top: cardRect.top - gridRect.top,
-            left: cardRect.left - gridRect.left,
-            width: cardRect.width,
-            height: cardRect.height,
-          });
-        } else {
-          setGlowPosition(null);
-        }
-      }, 50);
-      return () => clearTimeout(timeout);
-    }, [isRevealed, modeCardRef]);
 
     // Build vote data when revealed
     const votesByCard = useMemo(
@@ -80,50 +54,43 @@ export const VotingCards = forwardRef<HTMLDivElement, VotingCardsProps>(
           (gridRef as React.MutableRefObject<HTMLDivElement | null>).current =
             el;
         }}
-        className="relative isolate"
+        className="relative"
       >
-        {/* Glow effect - only on consensus */}
-        {glowPosition && summary?.hasConsensus && (
-          <div
-            className="absolute z-0 consensus-glow-card rounded-full pointer-events-none"
-            style={{
-              top: glowPosition.top - 450,
-              left: glowPosition.left - 450,
-              width: glowPosition.width + 900,
-              height: glowPosition.height + 900,
-            }}
-          />
-        )}
-        <div className="relative z-10 bg-card/70 backdrop-blur-sm rounded-lg border shadow-sm p-6">
+        <div className="bg-card/70 backdrop-blur-sm rounded-lg border shadow-sm p-6">
           <h3 className="text-lg font-semibold mb-4">
             {isRevealed ? "Results" : "Select Your Estimate"}
           </h3>
           <div className="grid grid-cols-5 gap-3 sm:gap-4">
             {CARD_VALUES.map((card) => {
               const voteData = votesByCard?.[card.label];
-              const isMode =
+              const isMode = !!(
                 isRevealed &&
                 summary?.hasConsensus &&
                 card.label === modeLabel &&
-                (voteData?.count || 0) > 0;
+                (voteData?.count || 0) > 0
+              );
               const hasVotes = isRevealed && (voteData?.count || 0) > 0;
 
               return (
-                <div key={card.value} className="relative">
+                <Tilt3DWrapper
+                  key={card.value}
+                  enabled={isMode}
+                  className={cn(
+                    "relative rounded-lg",
+                    isMode && "consensus-badge",
+                  )}
+                >
                   <button
                     type="button"
-                    ref={
-                      isMode ? modeCardRef || internalModeCardRef : undefined
-                    }
+                    ref={isMode ? modeCardRef : undefined}
                     onClick={() => !isRevealed && onSelect(card.value)}
                     disabled={disabled || isRevealed}
                     className={cn(
                       "relative w-full aspect-[3/4] rounded-lg border-2 flex flex-col items-center justify-center transition-all duration-200",
                       "focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 dark:focus:ring-offset-neutral-900",
-                      "disabled:cursor-default backdrop-blur-md bg-card/40",
+                      "disabled:cursor-default bg-card",
                       // Revealed + is mode (winner)
-                      isMode &&
-                        "consensus-badge border-transparent text-white shadow-lg !bg-transparent",
+                      isMode && "border-transparent text-white shadow-lg",
                       // Revealed + has votes (not winner)
                       !isMode && hasVotes && "border-primary/50 text-primary",
                       // Revealed + no votes
@@ -169,7 +136,7 @@ export const VotingCards = forwardRef<HTMLDivElement, VotingCardsProps>(
                       </div>
                     )}
                   </button>
-                </div>
+                </Tilt3DWrapper>
               );
             })}
           </div>
