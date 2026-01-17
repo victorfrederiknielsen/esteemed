@@ -52,8 +52,8 @@ export function Header() {
           </BreadcrumbList>
         </Breadcrumb>
         <div className="flex items-center gap-4">
-          {actions}
           <ThemeToggle />
+          {actions}
         </div>
       </div>
     </header>
