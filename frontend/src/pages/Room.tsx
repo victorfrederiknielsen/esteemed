@@ -1,6 +1,13 @@
 import { ParticipantList } from "@/components/room/ParticipantList";
 import { VotingCards } from "@/components/room/VotingCards";
-import { Badge } from "@/components/ui/badge";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -19,7 +26,7 @@ import {
   Users,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 
 export function RoomPage() {
   const { roomId } = useParams<{ roomId: string }>();
@@ -145,18 +152,39 @@ export function RoomPage() {
       {/* Header */}
       <header className="border-b bg-white/80 dark:bg-neutral-900/80 backdrop-blur-sm sticky top-0 z-10">
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <h1 className="text-xl font-bold text-neutral-900 dark:text-neutral-100">
-              Esteemed
-            </h1>
-            <Badge variant="secondary" className="font-mono">
-              {room?.name}
-            </Badge>
-            <Button variant="ghost" size="sm" onClick={copyRoomLink}>
-              <Copy className="h-4 w-4 mr-1" />
-              {copied ? "Copied!" : "Copy Link"}
-            </Button>
-          </div>
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild>
+                  <Link to="/" className="font-semibold">
+                    Esteemed
+                  </Link>
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage className="font-mono flex items-center gap-2">
+                  {room?.name}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 px-2"
+                    onClick={copyRoomLink}
+                  >
+                    <Copy className="h-3 w-3" />
+                    <span className="sr-only">
+                      {copied ? "Copied!" : "Copy link"}
+                    </span>
+                  </Button>
+                  {copied && (
+                    <span className="text-xs text-muted-foreground">
+                      Copied!
+                    </span>
+                  )}
+                </BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-400">
               <Users className="h-4 w-4" />
