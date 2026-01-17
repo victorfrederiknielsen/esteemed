@@ -22,6 +22,7 @@ var (
 // RoomState represents the current phase of estimation
 type RoomState int
 
+// RoomState constants represent the possible phases of a planning poker session.
 const (
 	RoomStateWaiting RoomState = iota
 	RoomStateVoting
@@ -32,12 +33,13 @@ const (
 type Room struct {
 	mu sync.RWMutex
 
-	ID           string
-	Name         string
-	Participants map[string]*Participant
-	State        RoomState
-	CreatedAt    time.Time
-	Votes        map[string]*Vote
+	ID             string
+	Name           string
+	Participants   map[string]*Participant
+	State          RoomState
+	CreatedAt      time.Time
+	LastActivityAt time.Time
+	Votes          map[string]*Vote
 }
 
 // Participant in a room
@@ -54,14 +56,37 @@ type Participant struct {
 // NewRoom creates a new room with the given ID, name, and host
 func NewRoom(id, name string, host *Participant) *Room {
 	host.IsHost = true
+	now := time.Now()
 	return &Room{
-		ID:           id,
-		Name:         name,
-		Participants: map[string]*Participant{host.ID: host},
-		State:        RoomStateWaiting,
-		CreatedAt:    time.Now(),
-		Votes:        make(map[string]*Vote),
+		ID:             id,
+		Name:           name,
+		Participants:   map[string]*Participant{host.ID: host},
+		State:          RoomStateWaiting,
+		CreatedAt:      now,
+		LastActivityAt: now,
+		Votes:          make(map[string]*Vote),
 	}
+}
+
+// TouchActivity updates the last activity timestamp
+func (r *Room) TouchActivity() {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	r.LastActivityAt = time.Now()
+}
+
+// IsExpired returns true if the room has been inactive longer than the timeout
+func (r *Room) IsExpired(timeout time.Duration) bool {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+	return time.Since(r.LastActivityAt) > timeout
+}
+
+// ExpiresAt returns the time when the room will expire based on the timeout
+func (r *Room) ExpiresAt(timeout time.Duration) time.Time {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+	return r.LastActivityAt.Add(timeout)
 }
 
 // AddParticipant adds a new participant to the room

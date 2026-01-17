@@ -51,7 +51,7 @@ export const VotingCards = forwardRef<HTMLDivElement, VotingCardsProps>(
         }
       }, 50);
       return () => clearTimeout(timeout);
-    }, [isRevealed, summary, modeCardRef]);
+    }, [isRevealed, modeCardRef]);
 
     // Build vote data when revealed
     const votesByCard = useMemo(

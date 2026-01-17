@@ -63,7 +63,7 @@ func (b *Broker) PublishVoteEvent(ctx context.Context, roomID string, event prim
 }
 
 // SubscribeRoomEvents subscribes to room events for a specific room
-func (b *Broker) SubscribeRoomEvents(ctx context.Context, roomID string) (<-chan primary.RoomEvent, func()) {
+func (b *Broker) SubscribeRoomEvents(_ context.Context, roomID string) (events <-chan primary.RoomEvent, unsubscribe func()) {
 	ch := make(chan primary.RoomEvent, 10) // Buffer to prevent blocking
 
 	b.mu.Lock()
@@ -71,7 +71,7 @@ func (b *Broker) SubscribeRoomEvents(ctx context.Context, roomID string) (<-chan
 	b.mu.Unlock()
 
 	// Return unsubscribe function
-	unsubscribe := func() {
+	unsubscribe = func() {
 		b.mu.Lock()
 		defer b.mu.Unlock()
 
@@ -90,11 +90,12 @@ func (b *Broker) SubscribeRoomEvents(ctx context.Context, roomID string) (<-chan
 		}
 	}
 
-	return ch, unsubscribe
+	events = ch
+	return
 }
 
 // SubscribeVoteEvents subscribes to vote events for a specific room
-func (b *Broker) SubscribeVoteEvents(ctx context.Context, roomID string) (<-chan primary.VoteEvent, func()) {
+func (b *Broker) SubscribeVoteEvents(_ context.Context, roomID string) (events <-chan primary.VoteEvent, unsubscribe func()) {
 	ch := make(chan primary.VoteEvent, 10) // Buffer to prevent blocking
 
 	b.mu.Lock()
@@ -102,7 +103,7 @@ func (b *Broker) SubscribeVoteEvents(ctx context.Context, roomID string) (<-chan
 	b.mu.Unlock()
 
 	// Return unsubscribe function
-	unsubscribe := func() {
+	unsubscribe = func() {
 		b.mu.Lock()
 		defer b.mu.Unlock()
 
@@ -121,7 +122,8 @@ func (b *Broker) SubscribeVoteEvents(ctx context.Context, roomID string) (<-chan
 		}
 	}
 
-	return ch, unsubscribe
+	events = ch
+	return
 }
 
 // CleanupRoom removes all subscriptions for a room

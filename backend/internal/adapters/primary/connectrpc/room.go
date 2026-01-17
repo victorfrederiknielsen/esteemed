@@ -45,6 +45,7 @@ func (h *RoomHandler) ListRooms(
 			ParticipantCount: int32(s.ParticipantCount),
 			State:            domainStateToProto(s.State),
 			CreatedAt:        s.CreatedAt,
+			ExpiresAt:        s.ExpiresAt,
 		})
 	}
 

@@ -8,6 +8,7 @@ import (
 // CardValue represents a planning poker card
 type CardValue int
 
+// CardValue constants represent the available planning poker card values.
 const (
 	CardValueUnspecified CardValue = iota
 	CardValueOne

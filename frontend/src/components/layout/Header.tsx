@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { useHeader } from "@/contexts/HeaderContext";
+import { Sparkles } from "lucide-react";
 import { Fragment } from "react";
 import { Link } from "react-router-dom";
 
@@ -27,20 +28,39 @@ export function Header() {
                   {index > 0 && <BreadcrumbSeparator />}
                   <BreadcrumbItem>
                     {isLast ? (
-                      <BreadcrumbPage className="flex items-center gap-2">
+                      <BreadcrumbPage
+                        className={
+                          index === 0
+                            ? "font-display font-medium flex items-center gap-1"
+                            : "flex items-center gap-2"
+                        }
+                      >
+                        {index === 0 && <Sparkles className="h-4 w-4" />}
                         {crumb.element ?? crumb.label}
                       </BreadcrumbPage>
                     ) : crumb.href ? (
                       <BreadcrumbLink asChild>
                         <Link
                           to={crumb.href}
-                          className={index === 0 ? "font-semibold" : ""}
+                          className={
+                            index === 0
+                              ? "font-display font-medium flex items-center gap-1"
+                              : ""
+                          }
                         >
+                          {index === 0 && <Sparkles className="h-4 w-4" />}
                           {crumb.label}
                         </Link>
                       </BreadcrumbLink>
                     ) : (
-                      <span className={index === 0 ? "font-semibold" : ""}>
+                      <span
+                        className={
+                          index === 0
+                            ? "font-display font-medium flex items-center gap-1"
+                            : ""
+                        }
+                      >
+                        {index === 0 && <Sparkles className="h-4 w-4" />}
                         {crumb.label}
                       </span>
                     )}

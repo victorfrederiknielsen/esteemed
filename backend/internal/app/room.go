@@ -9,6 +9,9 @@ import (
 	"github.com/vicmanager/esteemed/backend/internal/ports/secondary"
 )
 
+// RoomInactivityTimeout is the duration after which inactive rooms are cleaned up
+const RoomInactivityTimeout = 15 * time.Minute
+
 // RoomService implements the primary.RoomService interface
 type RoomService struct {
 	repo      secondary.RoomRepository
@@ -38,6 +41,7 @@ func (s *RoomService) ListRooms(ctx context.Context) ([]*primary.RoomSummary, er
 			ParticipantCount: room.ParticipantCount(),
 			State:            room.GetState(),
 			CreatedAt:        room.CreatedAt.Unix(),
+			ExpiresAt:        room.ExpiresAt(RoomInactivityTimeout).Unix(),
 		})
 	}
 
@@ -95,7 +99,7 @@ func (s *RoomService) JoinRoom(ctx context.Context, roomID, participantName, ses
 			}
 
 			// Publish rejoin event
-			s.publisher.PublishRoomEvent(ctx, room.ID, primary.RoomEvent{
+			_ = s.publisher.PublishRoomEvent(ctx, room.ID, primary.RoomEvent{
 				Type:        primary.RoomEventParticipantJoined,
 				Participant: existing,
 			})
@@ -126,12 +130,14 @@ func (s *RoomService) JoinRoom(ctx context.Context, roomID, participantName, ses
 		return nil, err
 	}
 
+	room.TouchActivity()
+
 	if err := s.repo.Save(ctx, room); err != nil {
 		return nil, err
 	}
 
 	// Publish join event
-	s.publisher.PublishRoomEvent(ctx, room.ID, primary.RoomEvent{
+	_ = s.publisher.PublishRoomEvent(ctx, room.ID, primary.RoomEvent{
 		Type:        primary.RoomEventParticipantJoined,
 		Participant: participant,
 	})
@@ -162,19 +168,21 @@ func (s *RoomService) LeaveRoom(ctx context.Context, roomID, participantID, sess
 	// Check if room is empty
 	if room.IsEmpty() {
 		// Delete empty room
-		s.publisher.PublishRoomEvent(ctx, room.ID, primary.RoomEvent{
+		_ = s.publisher.PublishRoomEvent(ctx, room.ID, primary.RoomEvent{
 			Type:   primary.RoomEventClosed,
 			Reason: "all participants left",
 		})
 		return s.repo.Delete(ctx, room.ID)
 	}
 
+	room.TouchActivity()
+
 	if err := s.repo.Save(ctx, room); err != nil {
 		return err
 	}
 
 	// Publish leave event
-	s.publisher.PublishRoomEvent(ctx, room.ID, primary.RoomEvent{
+	_ = s.publisher.PublishRoomEvent(ctx, room.ID, primary.RoomEvent{
 		Type:          primary.RoomEventParticipantLeft,
 		ParticipantID: participantID,
 	})
@@ -255,19 +263,21 @@ func (s *RoomService) KickParticipant(ctx context.Context, roomID, participantID
 
 	// Check if room is empty
 	if room.IsEmpty() {
-		s.publisher.PublishRoomEvent(ctx, room.ID, primary.RoomEvent{
+		_ = s.publisher.PublishRoomEvent(ctx, room.ID, primary.RoomEvent{
 			Type:   primary.RoomEventClosed,
 			Reason: "all participants left",
 		})
 		return s.repo.Delete(ctx, room.ID)
 	}
 
+	room.TouchActivity()
+
 	if err := s.repo.Save(ctx, room); err != nil {
 		return err
 	}
 
 	// Publish leave event for the kicked participant
-	s.publisher.PublishRoomEvent(ctx, room.ID, primary.RoomEvent{
+	_ = s.publisher.PublishRoomEvent(ctx, room.ID, primary.RoomEvent{
 		Type:          primary.RoomEventParticipantLeft,
 		ParticipantID: targetParticipantID,
 	})
@@ -292,12 +302,14 @@ func (s *RoomService) TransferOwnership(ctx context.Context, roomID, participant
 		return err
 	}
 
+	room.TouchActivity()
+
 	if err := s.repo.Save(ctx, room); err != nil {
 		return err
 	}
 
 	// Publish host changed event
-	s.publisher.PublishRoomEvent(ctx, room.ID, primary.RoomEvent{
+	_ = s.publisher.PublishRoomEvent(ctx, room.ID, primary.RoomEvent{
 		Type:      primary.RoomEventHostChanged,
 		NewHostID: newHostID,
 	})

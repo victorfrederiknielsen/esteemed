@@ -27,6 +27,7 @@ type EstimationService interface {
 // VoteEventType represents types of vote events
 type VoteEventType int
 
+// VoteEventType constants represent the types of vote events.
 const (
 	VoteEventCast VoteEventType = iota
 	VoteEventRevealed

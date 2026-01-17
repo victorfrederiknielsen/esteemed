@@ -63,7 +63,9 @@ export function useRoom(roomId?: string): UseRoomState & UseRoomActions {
 
   // Start watching room events when connected
   useEffect(() => {
-    if (!state.room?.id || !state.sessionToken) return;
+    const roomId = state.room?.id;
+    const sessionToken = state.sessionToken;
+    if (!roomId || !sessionToken) return;
 
     const controller = new AbortController();
     abortControllerRef.current = controller;
@@ -72,7 +74,7 @@ export function useRoom(roomId?: string): UseRoomState & UseRoomActions {
     const watchRoom = async () => {
       try {
         const stream = roomClient.watchRoom(
-          { roomId: state.room!.id, sessionToken: state.sessionToken! },
+          { roomId, sessionToken },
           { signal: controller.signal },
         );
 
@@ -160,7 +162,7 @@ export function useRoom(roomId?: string): UseRoomState & UseRoomActions {
       controller.abort();
       if (retryTimeout) clearTimeout(retryTimeout);
     };
-  }, [state.room?.id, state.sessionToken]);
+  }, [state.room, state.sessionToken]);
 
   const createRoom = useCallback(async (hostName: string): Promise<string> => {
     setState((prev) => ({ ...prev, isLoading: true, error: null }));
@@ -254,7 +256,7 @@ export function useRoom(roomId?: string): UseRoomState & UseRoomActions {
       participantName: string,
       isSpectator = false,
     ): Promise<void> => {
-      return joinRoomInternal(
+      return joinRoomInternalRef.current?.(
         roomIdOrName,
         participantName,
         undefined,

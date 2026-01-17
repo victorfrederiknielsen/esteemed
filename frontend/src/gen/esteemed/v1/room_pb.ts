@@ -565,6 +565,11 @@ export class RoomSummary extends Message<RoomSummary> {
    */
   createdAt = protoInt64.zero;
 
+  /**
+   * @generated from field: int64 expires_at = 6;
+   */
+  expiresAt = protoInt64.zero;
+
   constructor(data?: PartialMessage<RoomSummary>) {
     super();
     proto3.util.initPartial(data, this);
@@ -578,6 +583,7 @@ export class RoomSummary extends Message<RoomSummary> {
     { no: 3, name: "participant_count", kind: "scalar", T: 5 /* ScalarType.INT32 */ },
     { no: 4, name: "state", kind: "enum", T: proto3.getEnumType(RoomState) },
     { no: 5, name: "created_at", kind: "scalar", T: 3 /* ScalarType.INT64 */ },
+    { no: 6, name: "expires_at", kind: "scalar", T: 3 /* ScalarType.INT64 */ },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): RoomSummary {

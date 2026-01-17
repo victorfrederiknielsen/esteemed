@@ -14,7 +14,7 @@ import { RoomState } from "@/gen/esteemed/v1/room_pb";
 import { useRoom } from "@/hooks/useRoom";
 import { roomClient } from "@/lib/client";
 import { generateParticipantName } from "@/lib/namegen";
-import { Dices, RefreshCw, Sparkles, Users } from "lucide-react";
+import { Clock, Dices, RefreshCw, Sparkles, Users } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -30,6 +30,15 @@ export function HomePage() {
   const [rooms, setRooms] = useState<RoomSummary[]>([]);
   const [loadingRooms, setLoadingRooms] = useState(true);
   const abortControllerRef = useRef<AbortController | null>(null);
+  const [now, setNow] = useState(() => Math.floor(Date.now() / 1000));
+
+  // Update current time every second for countdown display
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setNow(Math.floor(Date.now() / 1000));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   // Set header breadcrumbs
   useEffect(() => {
@@ -116,6 +125,13 @@ export function HomePage() {
       default:
         return "secondary" as const;
     }
+  };
+
+  const formatCountdown = (seconds: number): string => {
+    if (seconds <= 0) return "Expiring...";
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
   const sortedRooms = useMemo(
@@ -317,28 +333,47 @@ export function HomePage() {
               </p>
             ) : (
               <div className="space-y-3">
-                {sortedRooms.map((room) => (
-                  <button
-                    type="button"
-                    key={room.id}
-                    className="flex items-center justify-between p-3 w-full text-left bg-neutral-50 dark:bg-neutral-800/50 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors cursor-pointer"
-                    onClick={() => {
-                      setRoomCode(room.name);
-                      setMode("join");
-                    }}
-                  >
-                    <p className="font-mono font-medium text-sm">{room.name}</p>
-                    <div className="flex items-center gap-2">
-                      <div className="flex items-center gap-1 text-neutral-500 dark:text-neutral-400">
-                        <Users className="h-3.5 w-3.5" />
-                        <span className="text-xs">{room.participantCount}</span>
+                {sortedRooms.map((room) => {
+                  const secondsRemaining = Number(room.expiresAt) - now;
+                  const isExpiringSoon = secondsRemaining < 120;
+
+                  return (
+                    <button
+                      type="button"
+                      key={room.id}
+                      className="flex items-center justify-between p-3 w-full text-left bg-neutral-50 dark:bg-neutral-800/50 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors cursor-pointer"
+                      onClick={() => {
+                        setRoomCode(room.name);
+                        setMode("join");
+                      }}
+                    >
+                      <div>
+                        <p className="font-mono font-medium text-sm">
+                          {room.name}
+                        </p>
+                        <p
+                          className={`text-xs ${isExpiringSoon ? "text-amber-600 dark:text-amber-500" : "text-neutral-500 dark:text-neutral-400"}`}
+                        >
+                          {isExpiringSoon && (
+                            <Clock className="inline h-3 w-3 mr-1" />
+                          )}
+                          Expires in {formatCountdown(secondsRemaining)}
+                        </p>
                       </div>
-                      <Badge variant={getRoomStateVariant(room.state)}>
-                        {getRoomStateLabel(room.state)}
-                      </Badge>
-                    </div>
-                  </button>
-                ))}
+                      <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1 text-neutral-500 dark:text-neutral-400">
+                          <Users className="h-3.5 w-3.5" />
+                          <span className="text-xs">
+                            {room.participantCount}
+                          </span>
+                        </div>
+                        <Badge variant={getRoomStateVariant(room.state)}>
+                          {getRoomStateLabel(room.state)}
+                        </Badge>
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
             )}
           </CardContent>

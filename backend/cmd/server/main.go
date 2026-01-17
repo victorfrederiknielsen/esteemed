@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"log"
-	"math/rand"
 	"net/http"
 	"os"
 	"os/signal"
@@ -22,8 +21,6 @@ import (
 )
 
 func main() {
-	// Seed random for room name generation
-	rand.Seed(time.Now().UnixNano())
 
 	// Get port from environment or default
 	port := os.Getenv("PORT")
@@ -38,6 +35,11 @@ func main() {
 	// Initialize application services
 	roomService := app.NewRoomService(roomRepo, eventBroker)
 	estimationService := app.NewEstimationService(roomRepo, eventBroker)
+
+	// Initialize and start room cleaner
+	roomCleaner := app.NewRoomCleaner(roomRepo, eventBroker)
+	cleanupCtx, cleanupCancel := context.WithCancel(context.Background())
+	roomCleaner.Start(cleanupCtx)
 
 	// Initialize primary adapters (driving)
 	roomHandler := connectrpc.NewRoomHandler(roomService)
@@ -54,9 +56,9 @@ func main() {
 	mux.Handle(estimationPath, estimationSvc)
 
 	// Health check endpoint
-	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/health", func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("OK"))
+		_, _ = w.Write([]byte("OK"))
 	})
 
 	// Serve static files from /app/static (production) or fall back to API-only mode
@@ -82,6 +84,10 @@ func main() {
 		<-sigCh
 
 		log.Println("Shutting down server...")
+
+		// Stop room cleaner
+		cleanupCancel()
+
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
 

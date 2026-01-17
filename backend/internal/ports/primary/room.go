@@ -40,6 +40,7 @@ type RoomSummary struct {
 	ParticipantCount int
 	State            domain.RoomState
 	CreatedAt        int64
+	ExpiresAt        int64
 }
 
 // CreateRoomResult contains the result of creating a room
@@ -59,6 +60,7 @@ type JoinRoomResult struct {
 // RoomEventType represents types of room events
 type RoomEventType int
 
+// RoomEventType constants represent the types of room events.
 const (
 	RoomEventParticipantJoined RoomEventType = iota
 	RoomEventParticipantLeft

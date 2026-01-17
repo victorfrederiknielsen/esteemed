@@ -45,12 +45,14 @@ func (s *EstimationService) CastVote(ctx context.Context, roomID, participantID,
 		return err
 	}
 
+	room.TouchActivity()
+
 	if err := s.repo.Save(ctx, room); err != nil {
 		return err
 	}
 
 	// Publish vote event (without the value - hidden until reveal)
-	s.publisher.PublishVoteEvent(ctx, room.ID, primary.VoteEvent{
+	_ = s.publisher.PublishVoteEvent(ctx, room.ID, primary.VoteEvent{
 		Type:            primary.VoteEventCast,
 		ParticipantID:   participantID,
 		ParticipantName: participant.Name,
@@ -82,18 +84,20 @@ func (s *EstimationService) RevealVotes(ctx context.Context, roomID, participant
 		return nil, err
 	}
 
+	room.TouchActivity()
+
 	if err := s.repo.Save(ctx, room); err != nil {
 		return nil, err
 	}
 
 	// Publish reveal event
-	s.publisher.PublishVoteEvent(ctx, room.ID, primary.VoteEvent{
+	_ = s.publisher.PublishVoteEvent(ctx, room.ID, primary.VoteEvent{
 		Type:    primary.VoteEventRevealed,
 		Summary: summary,
 	})
 
 	// Also publish room state change
-	s.publisher.PublishRoomEvent(ctx, room.ID, primary.RoomEvent{
+	_ = s.publisher.PublishRoomEvent(ctx, room.ID, primary.RoomEvent{
 		Type:     primary.RoomEventStateChanged,
 		NewState: domain.RoomStateRevealed,
 	})
@@ -121,17 +125,19 @@ func (s *EstimationService) ResetRound(ctx context.Context, roomID, participantI
 	// Reset round
 	room.ResetRound()
 
+	room.TouchActivity()
+
 	if err := s.repo.Save(ctx, room); err != nil {
 		return err
 	}
 
 	// Publish reset event
-	s.publisher.PublishVoteEvent(ctx, room.ID, primary.VoteEvent{
+	_ = s.publisher.PublishVoteEvent(ctx, room.ID, primary.VoteEvent{
 		Type: primary.VoteEventReset,
 	})
 
 	// Also publish room state change
-	s.publisher.PublishRoomEvent(ctx, room.ID, primary.RoomEvent{
+	_ = s.publisher.PublishRoomEvent(ctx, room.ID, primary.RoomEvent{
 		Type:     primary.RoomEventStateChanged,
 		NewState: domain.RoomStateVoting,
 	})
@@ -163,12 +169,14 @@ func (s *EstimationService) StartRound(ctx context.Context, roomID, participantI
 
 	room.StartVoting()
 
+	room.TouchActivity()
+
 	if err := s.repo.Save(ctx, room); err != nil {
 		return err
 	}
 
 	// Publish state change event
-	s.publisher.PublishRoomEvent(ctx, room.ID, primary.RoomEvent{
+	_ = s.publisher.PublishRoomEvent(ctx, room.ID, primary.RoomEvent{
 		Type:     primary.RoomEventStateChanged,
 		NewState: domain.RoomStateVoting,
 	})
