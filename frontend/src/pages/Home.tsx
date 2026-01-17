@@ -212,7 +212,7 @@ export function HomePage() {
                 />
                 <Button
                   type="submit"
-                  className="w-full"
+                  className="w-full mt-4"
                   disabled={isLoading || !hostName.trim()}
                 >
                   {isLoading ? "Creating..." : "Create Room"}
