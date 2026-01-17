@@ -32,9 +32,16 @@ make dev-backend    # Start Go server
 make proto          # Regenerate protobuf code
 make build          # Production build
 make docker-build   # Build container
+make deploy         # Deploy to Fly.io
 make lint           # Run all linters (Biome + golangci-lint)
 make fmt            # Auto-fix formatting issues
 ```
+
+## Deployment
+
+- **Platform**: Fly.io (auto-deploys on push to main via GitHub Actions)
+- **Config**: `fly.toml`
+- **CI/CD**: `.github/workflows/ci.yml`
 
 ## Linting
 

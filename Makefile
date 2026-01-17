@@ -1,4 +1,4 @@
-.PHONY: dev dev-backend dev-frontend proto build docker-build k8s-deploy frontend-setup frontend-setup-docker frontend-components clean test up down logs lint lint-backend lint-frontend fmt
+.PHONY: dev dev-backend dev-frontend proto build docker-build frontend-setup frontend-setup-docker frontend-components clean test up down logs lint lint-backend lint-frontend fmt deploy
 
 # Development
 dev: dev-backend dev-frontend
@@ -42,12 +42,9 @@ down:
 logs:
 	docker compose logs -f
 
-# Kubernetes
-k8s-deploy:
-	kubectl apply -k k8s/overlays/production
-
-k8s-delete:
-	kubectl delete -k k8s/overlays/production
+# Deployment (Fly.io)
+deploy:
+	flyctl deploy
 
 # Frontend setup
 frontend-setup:
@@ -105,7 +102,7 @@ help:
 	@echo "  proto          - Generate Go + TypeScript from proto"
 	@echo "  build          - Build production artifacts"
 	@echo "  docker-build   - Build container image"
-	@echo "  k8s-deploy     - Deploy to Kubernetes"
+	@echo "  deploy         - Deploy to Fly.io"
 	@echo "  frontend-setup        - npm install"
 	@echo "  frontend-setup-docker - npm install in Docker"
 	@echo "  test           - Run all tests"

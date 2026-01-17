@@ -19,7 +19,7 @@ A real-time planning poker application for engineering teams. Estimate story poi
 | Backend | Go with hexagonal architecture |
 | Linting | Biome (frontend) + golangci-lint (backend) |
 | Communication | ConnectRPC (gRPC-Web compatible, no proxy needed) |
-| Deployment | Docker + Kubernetes |
+| Deployment | Fly.io with GitHub Actions CI/CD |
 
 ## Quick Start
 
@@ -87,9 +87,7 @@ esteemed/
 │   │   ├── pages/          # Route pages
 │   │   └── gen/            # Generated types
 │   └── index.html
-├── k8s/                    # Kubernetes manifests
-│   ├── base/               # Base resources
-│   └── overlays/           # Environment-specific configs
+├── fly.toml                # Fly.io configuration
 ├── Dockerfile              # Multi-stage build
 ├── Makefile                # Build automation
 ├── buf.yaml                # Buf configuration
@@ -165,28 +163,37 @@ make proto          # Generate Go + TypeScript from proto
 make build          # Build production artifacts
 make docker-build   # Build container image
 make docker-run     # Run container locally
-make k8s-deploy     # Deploy to Kubernetes
+make deploy         # Deploy to Fly.io
 make test           # Run all tests
 make lint           # Run all linters (Biome + golangci-lint)
 make fmt            # Auto-fix formatting
 make clean          # Remove build artifacts
 ```
 
-## Kubernetes Deployment
+## Deployment
 
+### Fly.io (Primary)
+
+The app deploys automatically to [Fly.io](https://fly.io) when pushing to `main`.
+
+**CI/CD Pipeline** (`.github/workflows/ci.yml`):
+1. Lint frontend (Biome)
+2. Build frontend
+3. Build backend
+4. Deploy to Fly.io (on main branch only)
+
+**Manual deployment:**
 ```bash
-# Deploy to production
-make k8s-deploy
-
-# Or manually with kustomize
-kubectl apply -k k8s/overlays/production
+flyctl deploy
 ```
 
-The deployment includes:
-- Deployment with 3 replicas
-- ClusterIP Service
-- Ingress with TLS (configure `esteemed-tls` secret)
-- Health checks on `/health`
+**Configuration** (`fly.toml`):
+- App: `esteemed-poker`
+- Region: `lhr` (London)
+- Auto-scaling: scales to 0 when idle
+
+**Required secrets:**
+- `FLY_API_TOKEN` - Set in GitHub repository secrets for CI/CD
 
 ## Environment Variables
 
