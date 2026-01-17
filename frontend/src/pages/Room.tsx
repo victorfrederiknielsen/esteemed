@@ -163,6 +163,12 @@ export function RoomPage() {
               </BreadcrumbItem>
               <BreadcrumbSeparator />
               <BreadcrumbItem>
+                <BreadcrumbLink asChild>
+                  <Link to="/">Rooms</Link>
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
                 <BreadcrumbPage className="font-mono flex items-center gap-2">
                   {room?.name}
                   <Button
