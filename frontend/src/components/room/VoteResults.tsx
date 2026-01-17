@@ -13,7 +13,7 @@ interface VoteResultsProps {
 
 export function VoteResults({ summary }: VoteResultsProps) {
   const hasTriggeredConfetti = useRef(false);
-  const modeCardRef = useRef<HTMLDivElement>(null);
+  const consensusCardRef = useRef<HTMLDivElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
   const [glowPosition, setGlowPosition] = useState<{
     top: number;
@@ -22,11 +22,22 @@ export function VoteResults({ summary }: VoteResultsProps) {
     height: number;
   } | null>(null);
 
-  // Calculate glow position relative to grid
+  // Reset confetti trigger when votes change (new round)
+  const votesKey = summary.votes.map((v) => v.participantId + v.value).join();
+  // biome-ignore lint/correctness/useExhaustiveDependencies: intentional trigger on votes change
   useEffect(() => {
+    hasTriggeredConfetti.current = false;
+  }, [votesKey]);
+
+  // Calculate glow position relative to grid (only for consensus)
+  useEffect(() => {
+    if (!summary.hasConsensus) {
+      setGlowPosition(null);
+      return;
+    }
     const timeout = setTimeout(() => {
-      if (modeCardRef.current && gridRef.current) {
-        const cardRect = modeCardRef.current.getBoundingClientRect();
+      if (consensusCardRef.current && gridRef.current) {
+        const cardRect = consensusCardRef.current.getBoundingClientRect();
         const gridRect = gridRef.current.getBoundingClientRect();
         setGlowPosition({
           top: cardRect.top - gridRect.top,
@@ -39,18 +50,18 @@ export function VoteResults({ summary }: VoteResultsProps) {
       }
     }, 50);
     return () => clearTimeout(timeout);
-  }, [summary]);
+  }, [summary, summary.hasConsensus]);
 
-  // Trigger confetti from the mode card
+  // Trigger confetti from the consensus card (only on consensus)
   useEffect(() => {
-    if (!hasTriggeredConfetti.current) {
+    if (!hasTriggeredConfetti.current && summary.hasConsensus) {
       // Small delay to allow card to render and get position
       const timeout = setTimeout(() => {
-        if (!modeCardRef.current || hasTriggeredConfetti.current) return;
+        if (!consensusCardRef.current || hasTriggeredConfetti.current) return;
         hasTriggeredConfetti.current = true;
 
-        // Get mode card position to spawn confetti from it
-        const rect = modeCardRef.current.getBoundingClientRect();
+        // Get consensus card position to spawn confetti from it
+        const rect = consensusCardRef.current.getBoundingClientRect();
         const x = (rect.left + rect.width / 2) / window.innerWidth;
         const y = (rect.top + rect.height / 2) / window.innerHeight;
 
@@ -99,7 +110,7 @@ export function VoteResults({ summary }: VoteResultsProps) {
 
       return () => clearTimeout(timeout);
     }
-  }, []);
+  }, [summary.hasConsensus]);
 
   // Track votes by card value with voter names
   const votesByCard = summary.votes.reduce(
@@ -175,28 +186,23 @@ export function VoteResults({ summary }: VoteResultsProps) {
           <h4 className="text-sm font-medium text-neutral-600 mb-3">
             Vote Distribution
           </h4>
-          <div
-            ref={gridRef}
-            className="relative py-4"
-            style={{
-              background: glowPosition ? "rgba(255,0,0,0.3)" : undefined,
-            }}
-          >
+          <div ref={gridRef} className="relative py-4">
             <div className="grid grid-cols-3 sm:grid-cols-5 gap-3">
               {CARD_VALUES.map((card) => {
                 const isMode =
                   card.label === modeLabel &&
                   (votesByCard[card.label]?.count || 0) > 0;
+                const isConsensus = isMode && summary.hasConsensus;
                 return (
                   <HeatmapCard
                     key={card.value}
-                    ref={isMode ? modeCardRef : undefined}
+                    ref={isConsensus ? consensusCardRef : undefined}
                     label={card.label}
                     voteCount={votesByCard[card.label]?.count || 0}
                     maxVoteCount={maxCount}
                     totalVotes={summary.votes.length}
                     voterNames={votesByCard[card.label]?.names || []}
-                    isMode={isMode}
+                    isMode={isConsensus}
                   />
                 );
               })}

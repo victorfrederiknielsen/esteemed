@@ -300,21 +300,9 @@ func checkConsensus(votes []*Vote) bool {
 		return len(votes) == 1
 	}
 
-	// Get numeric votes only for consensus check
-	var numericVotes []CardValue
-	for _, v := range votes {
-		if _, ok := v.Value.NumericValue(); ok {
-			numericVotes = append(numericVotes, v.Value)
-		}
-	}
-
-	if len(numericVotes) < 2 {
-		return false
-	}
-
-	first := numericVotes[0]
-	for _, v := range numericVotes[1:] {
-		if v != first {
+	first := votes[0].Value
+	for _, v := range votes[1:] {
+		if v.Value != first {
 			return false
 		}
 	}

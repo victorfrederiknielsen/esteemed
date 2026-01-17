@@ -129,7 +129,7 @@ export const VotingCards = forwardRef<HTMLDivElement, VotingCardsProps>(
                       // Voting + selected
                       !isRevealed &&
                         selectedValue === card.value &&
-                        "border-primary bg-primary/80 text-primary-foreground shadow-lg scale-105 hover:scale-105",
+                        "border-primary text-primary shadow-lg scale-105 hover:scale-105",
                       // Voting + not selected
                       !isRevealed &&
                         selectedValue !== card.value &&
