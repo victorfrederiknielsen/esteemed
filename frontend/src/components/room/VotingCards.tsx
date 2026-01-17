@@ -6,7 +6,7 @@ import {
 } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { TrendingUp, Trophy, Users } from "lucide-react";
-import { forwardRef, useEffect, useRef, useState } from "react";
+import { forwardRef, useEffect, useMemo, useRef, useState } from "react";
 import { ProfileCircleStack } from "./ProfileCircleStack";
 
 interface VotingCardsProps {
@@ -54,15 +54,19 @@ export const VotingCards = forwardRef<HTMLDivElement, VotingCardsProps>(
     }, [isRevealed, summary, modeCardRef]);
 
     // Build vote data when revealed
-    const votesByCard = summary?.votes.reduce(
-      (acc, vote) => {
-        const label = cardValueToLabel(vote.value);
-        if (!acc[label]) acc[label] = { count: 0, names: [] as string[] };
-        acc[label].count += 1;
-        acc[label].names.push(vote.participantName);
-        return acc;
-      },
-      {} as Record<string, { count: number; names: string[] }>,
+    const votesByCard = useMemo(
+      () =>
+        summary?.votes.reduce(
+          (acc, vote) => {
+            const label = cardValueToLabel(vote.value);
+            if (!acc[label]) acc[label] = { count: 0, names: [] as string[] };
+            acc[label].count += 1;
+            acc[label].names.push(vote.participantName);
+            return acc;
+          },
+          {} as Record<string, { count: number; names: string[] }>,
+        ),
+      [summary?.votes],
     );
 
     const modeLabel = summary ? cardValueToLabel(summary.mode) : null;

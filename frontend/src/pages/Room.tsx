@@ -148,6 +148,7 @@ export function RoomPage() {
                     value={joinName}
                     onChange={(e) => setJoinName(e.target.value)}
                     disabled={roomLoading}
+                    autoComplete="name"
                   />
                   <Button
                     type="button"
@@ -155,7 +156,7 @@ export function RoomPage() {
                     size="icon"
                     onClick={() => setJoinName(generateParticipantName())}
                     disabled={roomLoading}
-                    title="Generate random name"
+                    aria-label="Generate random name"
                   >
                     <Dices className="h-4 w-4" />
                   </Button>

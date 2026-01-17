@@ -14,8 +14,8 @@ import { RoomState } from "@/gen/esteemed/v1/room_pb";
 import { useRoom } from "@/hooks/useRoom";
 import { roomClient } from "@/lib/client";
 import { generateParticipantName } from "@/lib/namegen";
-import { Dices, RefreshCw, Users } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Dices, RefreshCw, Sparkles, Users } from "lucide-react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 export function HomePage() {
@@ -29,30 +29,44 @@ export function HomePage() {
   const [mode, setMode] = useState<"create" | "join">("create");
   const [rooms, setRooms] = useState<RoomSummary[]>([]);
   const [loadingRooms, setLoadingRooms] = useState(true);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   // Set header breadcrumbs
   useEffect(() => {
     setBreadcrumbs([{ label: "Esteemed" }]);
   }, [setBreadcrumbs]);
 
-  const fetchRooms = async () => {
+  const fetchRooms = useCallback(async (signal?: AbortSignal) => {
     try {
       setLoadingRooms(true);
-      const response = await roomClient.listRooms({});
-      setRooms(response.rooms);
+      const response = await roomClient.listRooms({}, { signal });
+      if (!signal?.aborted) {
+        setRooms(response.rooms);
+      }
     } catch (err) {
-      console.error("Failed to fetch rooms:", err);
+      if (!signal?.aborted) {
+        console.error("Failed to fetch rooms:", err);
+      }
     } finally {
-      setLoadingRooms(false);
+      if (!signal?.aborted) {
+        setLoadingRooms(false);
+      }
     }
-  };
+  }, []);
 
   useEffect(() => {
-    fetchRooms();
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+
+    fetchRooms(controller.signal);
     // Poll for room updates every 5 seconds
-    const interval = setInterval(fetchRooms, 5000);
-    return () => clearInterval(interval);
-  }, []);
+    const interval = setInterval(() => fetchRooms(controller.signal), 5000);
+
+    return () => {
+      controller.abort();
+      clearInterval(interval);
+    };
+  }, [fetchRooms]);
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -104,10 +118,23 @@ export function HomePage() {
     }
   };
 
+  const sortedRooms = useMemo(
+    () =>
+      [...rooms].sort((a, b) => {
+        // Sort by participant count descending, then alphabetically
+        if (b.participantCount !== a.participantCount) {
+          return b.participantCount - a.participantCount;
+        }
+        return a.name.localeCompare(b.name);
+      }),
+    [rooms],
+  );
+
   return (
     <div className="max-w-4xl mx-auto">
       <div className="text-center mb-8">
-        <h1 className="text-4xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100">
+        <h1 className="text-4xl font-medium tracking-tight text-neutral-900 dark:text-neutral-100 flex items-center justify-center gap-2 font-display">
+          <Sparkles className="h-8 w-8" />
           Esteemed
         </h1>
         <p className="mt-2 text-neutral-600 dark:text-neutral-400">
@@ -161,6 +188,7 @@ export function HomePage() {
                       value={hostName}
                       onChange={(e) => setHostName(e.target.value)}
                       disabled={isLoading}
+                      autoComplete="name"
                     />
                     <Button
                       type="button"
@@ -168,7 +196,7 @@ export function HomePage() {
                       size="icon"
                       onClick={() => setHostName(generateParticipantName())}
                       disabled={isLoading}
-                      title="Generate random name"
+                      aria-label="Generate random name"
                     >
                       <Dices className="h-4 w-4" />
                     </Button>
@@ -213,6 +241,7 @@ export function HomePage() {
                       value={participantName}
                       onChange={(e) => setParticipantName(e.target.value)}
                       disabled={isLoading}
+                      autoComplete="name"
                     />
                     <Button
                       type="button"
@@ -222,7 +251,7 @@ export function HomePage() {
                         setParticipantName(generateParticipantName())
                       }
                       disabled={isLoading}
-                      title="Generate random name"
+                      aria-label="Generate random name"
                     >
                       <Dices className="h-4 w-4" />
                     </Button>
@@ -265,11 +294,13 @@ export function HomePage() {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={fetchRooms}
+                onClick={() => fetchRooms()}
                 disabled={loadingRooms}
+                aria-label="Refresh room list"
               >
                 <RefreshCw
                   className={`h-4 w-4 ${loadingRooms ? "animate-spin" : ""}`}
+                  aria-hidden="true"
                 />
               </Button>
             </div>
@@ -286,39 +317,28 @@ export function HomePage() {
               </p>
             ) : (
               <div className="space-y-3">
-                {[...rooms]
-                  .sort((a, b) => {
-                    // Sort by participant count descending, then alphabetically
-                    if (b.participantCount !== a.participantCount) {
-                      return b.participantCount - a.participantCount;
-                    }
-                    return a.name.localeCompare(b.name);
-                  })
-                  .map((room) => (
-                    <div
-                      key={room.id}
-                      className="flex items-center justify-between p-3 bg-neutral-50 dark:bg-neutral-800/50 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors cursor-pointer"
-                      onClick={() => {
-                        setRoomCode(room.name);
-                        setMode("join");
-                      }}
-                    >
-                      <p className="font-mono font-medium text-sm">
-                        {room.name}
-                      </p>
-                      <div className="flex items-center gap-2">
-                        <div className="flex items-center gap-1 text-neutral-500 dark:text-neutral-400">
-                          <Users className="h-3.5 w-3.5" />
-                          <span className="text-xs">
-                            {room.participantCount}
-                          </span>
-                        </div>
-                        <Badge variant={getRoomStateVariant(room.state)}>
-                          {getRoomStateLabel(room.state)}
-                        </Badge>
+                {sortedRooms.map((room) => (
+                  <button
+                    type="button"
+                    key={room.id}
+                    className="flex items-center justify-between p-3 w-full text-left bg-neutral-50 dark:bg-neutral-800/50 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors cursor-pointer"
+                    onClick={() => {
+                      setRoomCode(room.name);
+                      setMode("join");
+                    }}
+                  >
+                    <p className="font-mono font-medium text-sm">{room.name}</p>
+                    <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1 text-neutral-500 dark:text-neutral-400">
+                        <Users className="h-3.5 w-3.5" />
+                        <span className="text-xs">{room.participantCount}</span>
                       </div>
+                      <Badge variant={getRoomStateVariant(room.state)}>
+                        {getRoomStateLabel(room.state)}
+                      </Badge>
                     </div>
-                  ))}
+                  </button>
+                ))}
               </div>
             )}
           </CardContent>

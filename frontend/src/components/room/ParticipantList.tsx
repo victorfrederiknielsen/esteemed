@@ -107,7 +107,10 @@ export function ParticipantList({
               {participant.name}
             </span>
             {participant.isHost && (
-              <Crown className="h-3.5 w-3.5 text-amber-500" />
+              <Crown
+                className="h-3.5 w-3.5 text-amber-500"
+                aria-hidden="true"
+              />
             )}
             {isCurrentUser && (
               <Badge variant="outline" className="text-xs py-0">

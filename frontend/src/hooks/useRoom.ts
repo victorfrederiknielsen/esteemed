@@ -48,15 +48,16 @@ export function useRoom(roomId?: string): UseRoomState & UseRoomActions {
   });
 
   const abortControllerRef = useRef<AbortController | null>(null);
+  const joinRoomInternalRef = useRef<typeof joinRoomInternal | null>(null);
 
   // Try to reconnect with existing session
   useEffect(() => {
     if (!roomId) return;
 
     const session = loadSession();
-    if (session && session.roomId === roomId) {
+    if (session && session.roomId === roomId && joinRoomInternalRef.current) {
       // Try to rejoin with existing token
-      joinRoomInternal(roomId, "", session.sessionToken);
+      joinRoomInternalRef.current(roomId, "", session.sessionToken);
     }
   }, [roomId]);
 
@@ -243,6 +244,9 @@ export function useRoom(roomId?: string): UseRoomState & UseRoomActions {
       throw err;
     }
   };
+
+  // Keep ref updated so the reconnection effect can use it
+  joinRoomInternalRef.current = joinRoomInternal;
 
   const joinRoom = useCallback(
     async (
