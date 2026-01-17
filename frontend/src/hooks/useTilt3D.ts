@@ -57,9 +57,19 @@ export function useTilt3D<T extends HTMLElement = HTMLElement>(
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, [enabled, handleMouseMove]);
 
+  // Shadow moves opposite to tilt direction
+  const shadowX = -tilt.rotateY * 0.4;
+  const shadowY = tilt.rotateX * 0.4;
+  const shadowBlur = 12 + Math.abs(tilt.rotateX) + Math.abs(tilt.rotateY);
+
+  // Gloss highlight position (moves opposite to tilt)
+  const glossX = -tilt.rotateY * 3;
+  const glossY = -tilt.rotateX * 3;
+
   const style: React.CSSProperties = {
     transform: `perspective(600px) rotateX(${tilt.rotateX}deg) rotateY(${tilt.rotateY}deg) scale(1.1)`,
-    transition: "transform 0.1s ease-out",
+    boxShadow: `${shadowX}px ${shadowY}px ${shadowBlur}px rgba(0, 0, 0, 0.12), inset ${glossX}px ${glossY}px 40px rgba(255, 255, 255, 0.15)`,
+    transition: "transform 0.1s ease-out, box-shadow 0.1s ease-out",
   };
 
   return { ref, style, handleMouseLeave };

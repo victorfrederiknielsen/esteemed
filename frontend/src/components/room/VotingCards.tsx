@@ -90,7 +90,7 @@ export const VotingCards = forwardRef<HTMLDivElement, VotingCardsProps>(
                       "focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 dark:focus:ring-offset-neutral-900",
                       "disabled:cursor-default bg-card",
                       // Revealed + is mode (winner)
-                      isMode && "border-transparent text-white shadow-lg",
+                      isMode && "border-transparent text-foreground shadow-lg",
                       // Revealed + has votes (not winner)
                       !isMode && hasVotes && "border-primary/50 text-primary",
                       // Revealed + no votes
@@ -123,7 +123,7 @@ export const VotingCards = forwardRef<HTMLDivElement, VotingCardsProps>(
                         <span
                           className={cn(
                             "text-xs",
-                            isMode ? "text-white/90" : "text-primary/70",
+                            isMode ? "text-muted-foreground" : "text-primary/70",
                           )}
                         >
                           {voteData?.count} vote
