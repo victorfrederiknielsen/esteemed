@@ -106,17 +106,12 @@ export function RoomPage() {
       isConnected && currentLocation.pathname !== nextLocation.pathname,
   );
 
-  // Show dialog when navigation is blocked (only if connected)
+  // Show dialog when navigation is blocked
   useEffect(() => {
     if (blocker.state === "blocked") {
-      if (isConnected) {
-        setShowLeaveDialog(true);
-      } else {
-        // Not connected, just proceed with navigation
-        blocker.proceed();
-      }
+      setShowLeaveDialog(true);
     }
-  }, [blocker.state, isConnected, blocker]);
+  }, [blocker.state]);
 
   const handleLeaveClick = useCallback(() => {
     if (isConnected) {
@@ -128,10 +123,13 @@ export function RoomPage() {
 
   const handleLeaveConfirm = useCallback(async () => {
     setShowLeaveDialog(false);
+
+    // Store whether we need to proceed before leaving (blocker state may change)
+    const shouldProceed = blocker.state === "blocked";
+
     await leaveRoom();
 
-    // If navigation was blocked, proceed with it
-    if (blocker.state === "blocked") {
+    if (shouldProceed) {
       blocker.proceed();
     } else {
       // Manual leave click - navigate home
@@ -141,7 +139,6 @@ export function RoomPage() {
 
   const handleLeaveCancel = useCallback(() => {
     setShowLeaveDialog(false);
-    // If navigation was blocked, reset the blocker
     if (blocker.state === "blocked") {
       blocker.reset();
     }
