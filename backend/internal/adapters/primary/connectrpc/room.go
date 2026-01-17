@@ -59,7 +59,7 @@ func (h *RoomHandler) CreateRoom(
 	ctx context.Context,
 	req *connect.Request[esteemedv1.CreateRoomRequest],
 ) (*connect.Response[esteemedv1.CreateRoomResponse], error) {
-	result, err := h.service.CreateRoom(ctx, req.Msg.HostName)
+	result, err := h.service.CreateRoom(ctx, req.Msg.HostName, req.Msg.SessionToken)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}

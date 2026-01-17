@@ -102,7 +102,7 @@ func (r *Room) AddParticipant(p *Participant) error {
 	return nil
 }
 
-// RemoveParticipant removes a participant from the room
+// RemoveParticipant removes a participant from the room (used for kicks)
 func (r *Room) RemoveParticipant(participantID string) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -124,17 +124,75 @@ func (r *Room) RemoveParticipant(participantID string) error {
 			}
 		}
 		if !hasHost {
-			// Assign first non-spectator participant as new host
+			// Find earliest connected non-spectator joiner as new host
+			var earliestJoiner *Participant
 			for _, p := range r.Participants {
-				if !p.IsSpectator {
-					p.IsHost = true
-					break
+				if !p.IsSpectator && p.IsConnected {
+					if earliestJoiner == nil || p.JoinedAt.Before(earliestJoiner.JoinedAt) {
+						earliestJoiner = p
+					}
 				}
+			}
+			if earliestJoiner != nil {
+				earliestJoiner.IsHost = true
 			}
 		}
 	}
 
 	return nil
+}
+
+// DisconnectParticipant marks a participant as disconnected (used for leave)
+// Returns hostTransferred (true if host was transferred) and newHostID
+func (r *Room) DisconnectParticipant(participantID string) (hostTransferred bool, newHostID string, err error) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	p, exists := r.Participants[participantID]
+	if !exists {
+		return false, "", ErrParticipantNotFound
+	}
+
+	p.IsConnected = false
+	wasHost := p.IsHost
+
+	// If host disconnected and there are other connected participants, transfer host
+	if wasHost {
+		p.IsHost = false
+		// Find earliest connected non-spectator joiner as new host
+		var earliestJoiner *Participant
+		for _, participant := range r.Participants {
+			if participant.ID != participantID && !participant.IsSpectator && participant.IsConnected {
+				if earliestJoiner == nil || participant.JoinedAt.Before(earliestJoiner.JoinedAt) {
+					earliestJoiner = participant
+				}
+			}
+		}
+		if earliestJoiner != nil {
+			earliestJoiner.IsHost = true
+			return true, earliestJoiner.ID, nil
+		}
+	}
+
+	return false, "", nil
+}
+
+// ConnectedParticipantCount returns the number of connected participants
+func (r *Room) ConnectedParticipantCount() int {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+	count := 0
+	for _, p := range r.Participants {
+		if p.IsConnected {
+			count++
+		}
+	}
+	return count
+}
+
+// HasConnectedParticipants returns true if there are any connected participants
+func (r *Room) HasConnectedParticipants() bool {
+	return r.ConnectedParticipantCount() > 0
 }
 
 // GetParticipant returns a participant by ID

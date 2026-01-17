@@ -38,7 +38,7 @@ func (s *RoomService) ListRooms(ctx context.Context) ([]*primary.RoomSummary, er
 		summaries = append(summaries, &primary.RoomSummary{
 			ID:               room.ID,
 			Name:             room.Name,
-			ParticipantCount: room.ParticipantCount(),
+			ParticipantCount: room.ConnectedParticipantCount(),
 			State:            room.GetState(),
 			CreatedAt:        room.CreatedAt.Unix(),
 			ExpiresAt:        room.ExpiresAt(RoomInactivityTimeout).Unix(),
@@ -49,11 +49,15 @@ func (s *RoomService) ListRooms(ctx context.Context) ([]*primary.RoomSummary, er
 }
 
 // CreateRoom creates a new room with a generated name
-func (s *RoomService) CreateRoom(ctx context.Context, hostName string) (*primary.CreateRoomResult, error) {
+func (s *RoomService) CreateRoom(ctx context.Context, hostName, sessionToken string) (*primary.CreateRoomResult, error) {
 	roomID := domain.GenerateID()
 	roomName := domain.GenerateRoomName()
-	sessionToken := domain.GenerateSessionToken()
 	participantID := domain.GenerateID()
+
+	// Use client-provided session token if available, otherwise generate one
+	if sessionToken == "" {
+		sessionToken = domain.GenerateSessionToken()
+	}
 
 	host := &domain.Participant{
 		ID:           participantID,
@@ -92,8 +96,11 @@ func (s *RoomService) JoinRoom(ctx context.Context, roomID, participantName, ses
 	if sessionToken != "" {
 		existing, err := room.GetParticipantByToken(sessionToken)
 		if err == nil {
-			// Reconnecting - update connection status
+			// Reconnecting - update connection status and name if provided
 			existing.IsConnected = true
+			if participantName != "" {
+				existing.Name = participantName
+			}
 			if err := s.repo.Save(ctx, room); err != nil {
 				return nil, err
 			}
@@ -112,14 +119,17 @@ func (s *RoomService) JoinRoom(ctx context.Context, roomID, participantName, ses
 		}
 	}
 
-	// New participant
-	newToken := domain.GenerateSessionToken()
+	// New participant - use client-provided token if available
+	participantToken := sessionToken
+	if participantToken == "" {
+		participantToken = domain.GenerateSessionToken()
+	}
 	participantID := domain.GenerateID()
 
 	participant := &domain.Participant{
 		ID:           participantID,
 		Name:         participantName,
-		SessionToken: newToken,
+		SessionToken: participantToken,
 		IsHost:       false,
 		IsConnected:  true,
 		IsSpectator:  isSpectator,
@@ -144,12 +154,12 @@ func (s *RoomService) JoinRoom(ctx context.Context, roomID, participantName, ses
 
 	return &primary.JoinRoomResult{
 		Room:          room,
-		SessionToken:  newToken,
+		SessionToken:  participantToken,
 		ParticipantID: participantID,
 	}, nil
 }
 
-// LeaveRoom removes a participant from a room
+// LeaveRoom marks a participant as disconnected (allows reconnection)
 func (s *RoomService) LeaveRoom(ctx context.Context, roomID, participantID, sessionToken string) error {
 	room, err := s.repo.FindByID(ctx, roomID)
 	if err != nil {
@@ -161,13 +171,15 @@ func (s *RoomService) LeaveRoom(ctx context.Context, roomID, participantID, sess
 		return err
 	}
 
-	if err := room.RemoveParticipant(participantID); err != nil {
+	// Mark participant as disconnected (not removed, so they can reconnect)
+	hostTransferred, newHostID, err := room.DisconnectParticipant(participantID)
+	if err != nil {
 		return err
 	}
 
-	// Check if room is empty
-	if room.IsEmpty() {
-		// Delete empty room
+	// Check if all participants are disconnected
+	if !room.HasConnectedParticipants() {
+		// Delete room when everyone has disconnected
 		_ = s.publisher.PublishRoomEvent(ctx, room.ID, primary.RoomEvent{
 			Type:   primary.RoomEventClosed,
 			Reason: "all participants left",
@@ -181,11 +193,19 @@ func (s *RoomService) LeaveRoom(ctx context.Context, roomID, participantID, sess
 		return err
 	}
 
-	// Publish leave event
+	// Notify other participants that this person left
 	_ = s.publisher.PublishRoomEvent(ctx, room.ID, primary.RoomEvent{
 		Type:          primary.RoomEventParticipantLeft,
 		ParticipantID: participantID,
 	})
+
+	// If host was transferred, publish host changed event
+	if hostTransferred && newHostID != "" {
+		_ = s.publisher.PublishRoomEvent(ctx, room.ID, primary.RoomEvent{
+			Type:      primary.RoomEventHostChanged,
+			NewHostID: newHostID,
+		})
+	}
 
 	return nil
 }

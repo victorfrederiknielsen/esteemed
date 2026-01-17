@@ -1,11 +1,12 @@
 import type { Participant, Room } from "@/gen/esteemed/v1/room_pb";
 import { RoomState } from "@/gen/esteemed/v1/room_pb";
 import {
-  clearSession,
+  clearRoomParticipantId,
   estimationClient,
-  loadSession,
+  getGlobalToken,
+  getRoomParticipantId,
   roomClient,
-  saveSession,
+  saveRoomParticipantId,
 } from "@/lib/client";
 import { useCallback, useEffect, useRef, useState } from "react";
 
@@ -49,15 +50,19 @@ export function useRoom(roomId?: string): UseRoomState & UseRoomActions {
 
   const abortControllerRef = useRef<AbortController | null>(null);
   const joinRoomInternalRef = useRef<typeof joinRoomInternal | null>(null);
+  const isLeavingRef = useRef(false); // Track voluntary leave
 
-  // Try to reconnect with existing session
+  // Try to reconnect if we were previously in this room
   useEffect(() => {
     if (!roomId) return;
 
-    const session = loadSession();
-    if (session && session.roomId === roomId && joinRoomInternalRef.current) {
-      // Try to rejoin with existing token
-      joinRoomInternalRef.current(roomId, "", session.sessionToken);
+    // Only auto-reconnect if we have a saved participant ID for this room
+    // (meaning we were previously in this room with our current token)
+    const savedParticipantId = getRoomParticipantId(roomId);
+    if (savedParticipantId && joinRoomInternalRef.current) {
+      const globalToken = getGlobalToken();
+      // Try to rejoin with global token (empty name will use existing name on reclaim)
+      joinRoomInternalRef.current(roomId, "", globalToken);
     }
   }, [roomId]);
 
@@ -93,17 +98,21 @@ export function useRoom(roomId?: string): UseRoomState & UseRoomActions {
             }));
           } else if (event.event?.case === "participantLeft") {
             const participantId = event.event.value.participantId;
-            // Check if current user was kicked
+            // Check if current user was kicked (not voluntary leave)
             setState((prev) => {
               if (participantId === prev.currentParticipantId) {
-                // Current user was kicked
-                clearSession();
-                return {
-                  ...prev,
-                  room: null,
-                  isConnected: false,
-                  error: "You have been removed from the room",
-                };
+                // Only clear room participant ID if we were kicked (not leaving voluntarily)
+                if (!isLeavingRef.current) {
+                  clearRoomParticipantId(prev.room?.name ?? "");
+                  return {
+                    ...prev,
+                    room: null,
+                    isConnected: false,
+                    error: "You have been removed from the room",
+                  };
+                }
+                // Voluntary leave - don't clear, just ignore the event
+                return prev;
               }
               return {
                 ...prev,
@@ -133,13 +142,16 @@ export function useRoom(roomId?: string): UseRoomState & UseRoomActions {
             });
           } else if (event.event?.case === "roomClosed") {
             const reason = event.event.value.reason;
-            clearSession();
-            setState((prev) => ({
-              ...prev,
-              room: null,
-              isConnected: false,
-              error: `Room closed: ${reason}`,
-            }));
+            setState((prev) => {
+              // Clear room participant ID for this specific room
+              clearRoomParticipantId(prev.room?.name ?? "");
+              return {
+                ...prev,
+                room: null,
+                isConnected: false,
+                error: `Room closed: ${reason}`,
+              };
+            });
             return; // Don't retry if room is closed
           }
         }
@@ -168,20 +180,22 @@ export function useRoom(roomId?: string): UseRoomState & UseRoomActions {
     setState((prev) => ({ ...prev, isLoading: true, error: null }));
 
     try {
-      const response = await roomClient.createRoom({ hostName });
+      // Use global token from identity
+      const globalToken = getGlobalToken();
+      const response = await roomClient.createRoom({
+        hostName,
+        sessionToken: globalToken,
+      });
 
       if (response.room) {
-        saveSession({
-          roomId: response.room.name, // Use name for URL matching
-          participantId: response.participantId,
-          sessionToken: response.sessionToken,
-        });
+        // Store room -> participantId mapping
+        saveRoomParticipantId(response.room.name, response.participantId);
 
         setState({
           room: response.room,
           participants: response.room.participants,
           currentParticipantId: response.participantId,
-          sessionToken: response.sessionToken,
+          sessionToken: globalToken,
           isHost: true,
           isSpectator: false,
           isConnected: true,
@@ -210,19 +224,18 @@ export function useRoom(roomId?: string): UseRoomState & UseRoomActions {
     setState((prev) => ({ ...prev, isLoading: true, error: null }));
 
     try {
+      // Always use the global token
+      const globalToken = existingToken || getGlobalToken();
       const response = await roomClient.joinRoom({
         roomId: roomIdOrName,
         participantName,
-        sessionToken: existingToken,
+        sessionToken: globalToken,
         isSpectator,
       });
 
       if (response.room) {
-        saveSession({
-          roomId: response.room.name, // Use name for URL matching
-          participantId: response.participantId,
-          sessionToken: response.sessionToken,
-        });
+        // Store room -> participantId mapping
+        saveRoomParticipantId(response.room.name, response.participantId);
 
         const currentParticipant = response.room.participants.find(
           (p) => p.id === response.participantId,
@@ -232,7 +245,7 @@ export function useRoom(roomId?: string): UseRoomState & UseRoomActions {
           room: response.room,
           participants: response.room.participants,
           currentParticipantId: response.participantId,
-          sessionToken: response.sessionToken,
+          sessionToken: globalToken,
           isHost: currentParticipant?.isHost ?? false,
           isSpectator: currentParticipant?.isSpectator ?? false,
           isConnected: true,
@@ -256,10 +269,12 @@ export function useRoom(roomId?: string): UseRoomState & UseRoomActions {
       participantName: string,
       isSpectator = false,
     ): Promise<void> => {
+      // Always use global token for joining
+      const globalToken = getGlobalToken();
       return joinRoomInternalRef.current?.(
         roomIdOrName,
         participantName,
-        undefined,
+        globalToken,
         isSpectator,
       );
     },
@@ -272,13 +287,16 @@ export function useRoom(roomId?: string): UseRoomState & UseRoomActions {
     }
 
     try {
+      // Mark that we're voluntarily leaving (so we don't clear on participantLeft event)
+      isLeavingRef.current = true;
+
       await roomClient.leaveRoom({
         roomId: state.room.id,
         participantId: state.currentParticipantId,
         sessionToken: state.sessionToken,
       });
 
-      clearSession();
+      // Don't clear room participant ID - keep it so user can reconnect later
       abortControllerRef.current?.abort();
 
       setState({
@@ -294,6 +312,8 @@ export function useRoom(roomId?: string): UseRoomState & UseRoomActions {
       });
     } catch (err) {
       console.error("Leave room error:", err);
+    } finally {
+      isLeavingRef.current = false;
     }
   }, [state.room?.id, state.currentParticipantId, state.sessionToken]);
 

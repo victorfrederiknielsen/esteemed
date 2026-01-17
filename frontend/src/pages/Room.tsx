@@ -1,4 +1,5 @@
 import { HostActionBar } from "@/components/room/HostActionBar";
+import { LeaveConfirmDialog } from "@/components/room/LeaveConfirmDialog";
 import { ParticipantList } from "@/components/room/ParticipantList";
 import { VotingCards } from "@/components/room/VotingCards";
 import { Button } from "@/components/ui/button";
@@ -7,10 +8,14 @@ import { Input } from "@/components/ui/input";
 import { useHeader } from "@/contexts/HeaderContext";
 import { RoomState, useRoom } from "@/hooks/useRoom";
 import { useVoting } from "@/hooks/useVoting";
-import { generateParticipantName } from "@/lib/namegen";
-import { Check, Clock, Copy, Dices, LogOut } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import {
+  getDisplayName,
+  getRoomParticipantId,
+  setCustomName,
+} from "@/lib/client";
+import { Check, Clock, Copy, LogOut } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useBlocker, useNavigate, useParams } from "react-router-dom";
 
 export function RoomPage() {
   const { roomId } = useParams<{ roomId: string }>();
@@ -19,6 +24,12 @@ export function RoomPage() {
   const [joinName, setJoinName] = useState("");
   const [joinAsSpectator, setJoinAsSpectator] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [showLeaveDialog, setShowLeaveDialog] = useState(false);
+
+  // Initialize name from global identity
+  useEffect(() => {
+    setJoinName(getDisplayName());
+  }, []);
 
   const {
     room,
@@ -51,19 +62,90 @@ export function RoomPage() {
   const handleJoin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!roomId || !joinName.trim()) return;
+    // Persist the name on room join
+    setCustomName(joinName.trim());
     await joinRoom(roomId, joinName.trim(), joinAsSpectator);
   };
 
-  const handleLeave = useCallback(async () => {
-    await leaveRoom();
-    navigate("/");
-  }, [leaveRoom, navigate]);
+  // Handler to update join name and persist to identity
+  const handleJoinNameChange = useCallback((name: string) => {
+    setJoinName(name);
+    if (name.trim()) {
+      setCustomName(name);
+    }
+  }, []);
 
   const copyRoomLink = useCallback(() => {
     navigator.clipboard.writeText(window.location.href);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   }, []);
+
+  // Compute next host (earliest non-spectator joiner who isn't the current user)
+  const nextHost = useMemo(() => {
+    if (!isHost || participants.length <= 1) return null;
+
+    const eligibleParticipants = participants
+      .filter((p) => p.id !== currentParticipantId && !p.isSpectator)
+      .sort((a, b) => {
+        const aTime = a.joinedAt ? Number(a.joinedAt) : 0;
+        const bTime = b.joinedAt ? Number(b.joinedAt) : 0;
+        return aTime - bTime;
+      });
+
+    return eligibleParticipants.length > 0
+      ? eligibleParticipants[0].name
+      : null;
+  }, [participants, currentParticipantId, isHost]);
+
+  const isAlone = participants.length === 1;
+
+  // Block navigation when connected - show leave confirmation
+  const blocker = useBlocker(
+    ({ currentLocation, nextLocation }) =>
+      isConnected && currentLocation.pathname !== nextLocation.pathname,
+  );
+
+  // Show dialog when navigation is blocked (only if connected)
+  useEffect(() => {
+    if (blocker.state === "blocked") {
+      if (isConnected) {
+        setShowLeaveDialog(true);
+      } else {
+        // Not connected, just proceed with navigation
+        blocker.proceed();
+      }
+    }
+  }, [blocker.state, isConnected, blocker]);
+
+  const handleLeaveClick = useCallback(() => {
+    if (isConnected) {
+      setShowLeaveDialog(true);
+    } else {
+      navigate("/");
+    }
+  }, [isConnected, navigate]);
+
+  const handleLeaveConfirm = useCallback(async () => {
+    setShowLeaveDialog(false);
+    await leaveRoom();
+
+    // If navigation was blocked, proceed with it
+    if (blocker.state === "blocked") {
+      blocker.proceed();
+    } else {
+      // Manual leave click - navigate home
+      navigate("/");
+    }
+  }, [leaveRoom, navigate, blocker]);
+
+  const handleLeaveCancel = useCallback(() => {
+    setShowLeaveDialog(false);
+    // If navigation was blocked, reset the blocker
+    if (blocker.state === "blocked") {
+      blocker.reset();
+    }
+  }, [blocker]);
 
   // Redirect if room closed
   useEffect(() => {
@@ -104,7 +186,7 @@ export function RoomPage() {
     ]);
 
     setActions(
-      <Button variant="outline" size="sm" onClick={handleLeave}>
+      <Button variant="outline" size="sm" onClick={handleLeaveClick}>
         <LogOut className="h-4 w-4 mr-1" />
         Leave
       </Button>,
@@ -121,10 +203,36 @@ export function RoomPage() {
     setBreadcrumbs,
     setActions,
     copyRoomLink,
-    handleLeave,
+    handleLeaveClick,
   ]);
 
-  // Show join form if not connected
+  // Check if we have a previous session (for auto-reconnect)
+  const hasPreviousSession = roomId ? !!getRoomParticipantId(roomId) : false;
+
+  // Show reconnecting state if we have a previous session and are loading
+  if (!isConnected && hasPreviousSession) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <Card className="w-full max-w-md">
+          <CardContent className="pt-6">
+            <div className="text-center space-y-4">
+              <div className="flex justify-center">
+                <div className="w-12 h-12 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center">
+                  <Clock className="h-6 w-6 text-neutral-400 animate-pulse" />
+                </div>
+              </div>
+              <p className="text-neutral-600 dark:text-neutral-300 font-medium">
+                Reconnecting to {roomId}...
+              </p>
+              {roomError && <p className="text-sm text-red-600">{roomError}</p>}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Show join form if not connected and no previous session
   if (!isConnected && !roomLoading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
@@ -141,26 +249,14 @@ export function RoomPage() {
                 >
                   Your Name
                 </label>
-                <div className="flex gap-2">
-                  <Input
-                    id="joinName"
-                    placeholder="Enter your name"
-                    value={joinName}
-                    onChange={(e) => setJoinName(e.target.value)}
-                    disabled={roomLoading}
-                    autoComplete="name"
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon"
-                    onClick={() => setJoinName(generateParticipantName())}
-                    disabled={roomLoading}
-                    aria-label="Generate random name"
-                  >
-                    <Dices className="h-4 w-4" />
-                  </Button>
-                </div>
+                <Input
+                  id="joinName"
+                  placeholder="Enter your name"
+                  value={joinName}
+                  onChange={(e) => handleJoinNameChange(e.target.value)}
+                  disabled={roomLoading}
+                  autoComplete="name"
+                />
               </div>
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
@@ -199,79 +295,90 @@ export function RoomPage() {
   const totalVoters = participants.filter((p) => !p.isSpectator).length;
 
   return (
-    <div className="grid gap-8 lg:grid-cols-3">
-      {/* Main content */}
-      <div className="lg:col-span-2 space-y-6">
-        {/* Host Action Bar */}
-        {isHost && (
-          <HostActionBar
-            roomState={room?.state}
-            isRevealed={isRevealed}
-            votedCount={votedCount}
-            totalVoters={totalVoters}
-            isLoading={voteLoading}
-            onStartRound={startRound}
-            onRevealVotes={revealVotes}
-            onResetRound={resetRound}
-          />
-        )}
+    <>
+      <LeaveConfirmDialog
+        open={showLeaveDialog}
+        onOpenChange={setShowLeaveDialog}
+        onConfirm={handleLeaveConfirm}
+        onCancel={handleLeaveCancel}
+        isHost={isHost}
+        nextHost={nextHost}
+        isAlone={isAlone}
+      />
+      <div className="grid gap-8 lg:grid-cols-3">
+        {/* Main content */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* Host Action Bar */}
+          {isHost && (
+            <HostActionBar
+              roomState={room?.state}
+              isRevealed={isRevealed}
+              votedCount={votedCount}
+              totalVoters={totalVoters}
+              isLoading={voteLoading}
+              onStartRound={startRound}
+              onRevealVotes={revealVotes}
+              onResetRound={resetRound}
+            />
+          )}
 
-        {/* Waiting state */}
-        {isWaiting && (
-          <Card className="bg-white/70 dark:bg-neutral-800/70 backdrop-blur-sm">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg">Ready to Estimate?</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center space-y-4 py-4">
-                <div className="flex justify-center">
-                  <div className="w-16 h-16 rounded-full bg-neutral-100/50 dark:bg-neutral-700/50 flex items-center justify-center">
-                    <Clock className="h-8 w-8 text-neutral-400 animate-pulse" />
+          {/* Waiting state */}
+          {isWaiting && (
+            <Card className="bg-white/70 dark:bg-neutral-800/70 backdrop-blur-sm">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg">Ready to Estimate?</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center space-y-4 py-4">
+                  <div className="flex justify-center">
+                    <div className="w-16 h-16 rounded-full bg-neutral-100/50 dark:bg-neutral-700/50 flex items-center justify-center">
+                      <Clock className="h-8 w-8 text-neutral-400 animate-pulse" />
+                    </div>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-neutral-600 dark:text-neutral-300 font-medium">
+                      {isHost
+                        ? "Ready when you are"
+                        : "Waiting for the host to start"}
+                    </p>
+                    <p className="text-sm text-neutral-400">
+                      {participants.length === 1
+                        ? "You're the only one here so far"
+                        : `${participants.length} participants in the room`}
+                    </p>
                   </div>
                 </div>
-                <div className="space-y-1">
-                  <p className="text-neutral-600 dark:text-neutral-300 font-medium">
-                    {isHost
-                      ? "Ready when you are"
-                      : "Waiting for the host to start"}
-                  </p>
-                  <p className="text-sm text-neutral-400">
-                    {participants.length === 1
-                      ? "You're the only one here so far"
-                      : `${participants.length} participants in the room`}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
+              </CardContent>
+            </Card>
+          )}
 
-        {/* Voting cards - shown during voting (not for spectators) and after reveal (for everyone) */}
-        {((isVoting && !isSpectator) || isRevealed) && (
-          <VotingCards
-            selectedValue={currentVote}
-            onSelect={castVote}
-            disabled={isSpectator}
+          {/* Voting cards - shown during voting (not for spectators) and after reveal (for everyone) */}
+          {((isVoting && !isSpectator) || isRevealed) && (
+            <VotingCards
+              selectedValue={currentVote}
+              onSelect={castVote}
+              disabled={isSpectator}
+              isRevealed={isRevealed}
+              summary={summary}
+            />
+          )}
+        </div>
+
+        {/* Sidebar */}
+        <div className="space-y-6">
+          {/* Participants */}
+          <ParticipantList
+            participants={participants}
+            voteStatuses={voteStatuses}
+            currentParticipantId={currentParticipantId}
             isRevealed={isRevealed}
             summary={summary}
+            isHost={isHost}
+            onKickParticipant={kickParticipant}
+            onTransferOwnership={transferOwnership}
           />
-        )}
+        </div>
       </div>
-
-      {/* Sidebar */}
-      <div className="space-y-6">
-        {/* Participants */}
-        <ParticipantList
-          participants={participants}
-          voteStatuses={voteStatuses}
-          currentParticipantId={currentParticipantId}
-          isRevealed={isRevealed}
-          summary={summary}
-          isHost={isHost}
-          onKickParticipant={kickParticipant}
-          onTransferOwnership={transferOwnership}
-        />
-      </div>
-    </div>
+    </>
   );
 }

@@ -12,9 +12,8 @@ import { useHeader } from "@/contexts/HeaderContext";
 import type { RoomSummary } from "@/gen/esteemed/v1/room_pb";
 import { RoomState } from "@/gen/esteemed/v1/room_pb";
 import { useRoom } from "@/hooks/useRoom";
-import { roomClient } from "@/lib/client";
-import { generateParticipantName } from "@/lib/namegen";
-import { Clock, Dices, RefreshCw, Sparkles, Users } from "lucide-react";
+import { getDisplayName, roomClient, setCustomName } from "@/lib/client";
+import { Clock, RefreshCw, Sparkles, Users } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -27,6 +26,30 @@ export function HomePage() {
   const [participantName, setParticipantName] = useState("");
   const [joinAsSpectator, setJoinAsSpectator] = useState(false);
   const [mode, setMode] = useState<"create" | "join">("create");
+
+  // Initialize name from global identity
+  useEffect(() => {
+    const displayName = getDisplayName();
+    setHostName(displayName);
+    setParticipantName(displayName);
+  }, []);
+
+  // Handler to update host name and persist to identity
+  const handleHostNameChange = useCallback((name: string) => {
+    setHostName(name);
+    if (name.trim()) {
+      setCustomName(name);
+    }
+  }, []);
+
+  // Handler to update participant name and persist to identity
+  const handleParticipantNameChange = useCallback((name: string) => {
+    setParticipantName(name);
+    if (name.trim()) {
+      setCustomName(name);
+    }
+  }, []);
+
   const [rooms, setRooms] = useState<RoomSummary[]>([]);
   const [loadingRooms, setLoadingRooms] = useState(true);
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -82,6 +105,8 @@ export function HomePage() {
     if (!hostName.trim()) return;
 
     try {
+      // Persist the name on room creation
+      setCustomName(hostName.trim());
       const roomName = await createRoom(hostName.trim());
       navigate(`/room/${roomName}`);
     } catch (err) {
@@ -94,6 +119,8 @@ export function HomePage() {
     if (!roomCode.trim() || !participantName.trim()) return;
 
     try {
+      // Persist the name on room join
+      setCustomName(participantName.trim());
       await joinRoom(roomCode.trim(), participantName.trim(), joinAsSpectator);
       navigate(`/room/${roomCode.trim()}`);
     } catch (err) {
@@ -197,26 +224,14 @@ export function HomePage() {
                   >
                     Your Name
                   </label>
-                  <div className="flex gap-2">
-                    <Input
-                      id="hostName"
-                      placeholder="Enter your name"
-                      value={hostName}
-                      onChange={(e) => setHostName(e.target.value)}
-                      disabled={isLoading}
-                      autoComplete="name"
-                    />
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="icon"
-                      onClick={() => setHostName(generateParticipantName())}
-                      disabled={isLoading}
-                      aria-label="Generate random name"
-                    >
-                      <Dices className="h-4 w-4" />
-                    </Button>
-                  </div>
+                  <Input
+                    id="hostName"
+                    placeholder="Enter your name"
+                    value={hostName}
+                    onChange={(e) => handleHostNameChange(e.target.value)}
+                    disabled={isLoading}
+                    autoComplete="name"
+                  />
                 </div>
                 <Button
                   type="submit"
@@ -250,28 +265,16 @@ export function HomePage() {
                   >
                     Your Name
                   </label>
-                  <div className="flex gap-2">
-                    <Input
-                      id="participantName"
-                      placeholder="Enter your name"
-                      value={participantName}
-                      onChange={(e) => setParticipantName(e.target.value)}
-                      disabled={isLoading}
-                      autoComplete="name"
-                    />
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="icon"
-                      onClick={() =>
-                        setParticipantName(generateParticipantName())
-                      }
-                      disabled={isLoading}
-                      aria-label="Generate random name"
-                    >
-                      <Dices className="h-4 w-4" />
-                    </Button>
-                  </div>
+                  <Input
+                    id="participantName"
+                    placeholder="Enter your name"
+                    value={participantName}
+                    onChange={(e) =>
+                      handleParticipantNameChange(e.target.value)
+                    }
+                    disabled={isLoading}
+                    autoComplete="name"
+                  />
                 </div>
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input

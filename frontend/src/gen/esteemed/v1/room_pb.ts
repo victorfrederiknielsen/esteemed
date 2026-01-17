@@ -191,6 +191,13 @@ export class CreateRoomRequest extends Message<CreateRoomRequest> {
    */
   hostName = "";
 
+  /**
+   * Client-provided session token for identity
+   *
+   * @generated from field: string session_token = 2;
+   */
+  sessionToken = "";
+
   constructor(data?: PartialMessage<CreateRoomRequest>) {
     super();
     proto3.util.initPartial(data, this);
@@ -200,6 +207,7 @@ export class CreateRoomRequest extends Message<CreateRoomRequest> {
   static readonly typeName = "esteemed.v1.CreateRoomRequest";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
     { no: 1, name: "host_name", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "session_token", kind: "scalar", T: 9 /* ScalarType.STRING */ },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): CreateRoomRequest {

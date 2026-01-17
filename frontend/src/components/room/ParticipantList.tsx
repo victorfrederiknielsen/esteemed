@@ -12,7 +12,15 @@ import {
 import type { CardValue, Participant, VoteSummary } from "@/lib/types";
 import { cardValueToLabel } from "@/lib/types";
 import { cn } from "@/lib/utils";
-import { Check, Crown, Eye, MoreHorizontal, UserX, Users } from "lucide-react";
+import {
+  Check,
+  Crown,
+  Eye,
+  MoreHorizontal,
+  UserX,
+  Users,
+  WifiOff,
+} from "lucide-react";
 
 interface VoteStatus {
   participantId: string;
@@ -79,6 +87,7 @@ export function ParticipantList({
         className={cn(
           "group flex items-center gap-3 p-2 rounded-lg transition-colors",
           isCurrentUser && "bg-neutral-100/50 dark:bg-neutral-700/50",
+          !participant.isConnected && "opacity-50",
         )}
       >
         <Avatar className="h-9 w-9">
@@ -89,9 +98,13 @@ export function ParticipantList({
                 hasVoted &&
                 !isRevealed &&
                 "bg-success text-white",
+              !participant.isConnected &&
+                "bg-neutral-300 dark:bg-neutral-600 text-neutral-500 dark:text-neutral-400",
             )}
           >
-            {isRevealed && voteValue !== null ? (
+            {!participant.isConnected ? (
+              <WifiOff className="h-4 w-4" />
+            ) : isRevealed && voteValue !== null ? (
               cardValueToLabel(voteValue)
             ) : hasVoted ? (
               <Check className="h-4 w-4" />
