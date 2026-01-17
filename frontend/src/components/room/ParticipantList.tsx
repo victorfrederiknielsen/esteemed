@@ -187,7 +187,7 @@ export function ParticipantList({
   return (
     <Card className="bg-white/70 dark:bg-neutral-800/70 backdrop-blur-sm">
       <CardHeader>
-        <CardTitle className="text-lg flex items-center gap-2">
+        <CardTitle as="h2" className="text-lg flex items-center gap-2">
           <Users className="h-4 w-4" />
           Participants ({participants.length})
         </CardTitle>
@@ -201,10 +201,10 @@ export function ParticipantList({
         {/* Spectators section */}
         {spectators.length > 0 && (
           <div className="space-y-2 pt-3 mt-3 border-t border-neutral-200 dark:border-neutral-700">
-            <div className="flex items-center gap-2 text-xs font-medium text-neutral-500 dark:text-neutral-400 mb-2">
+            <h3 className="flex items-center gap-2 text-xs font-medium text-neutral-500 dark:text-neutral-400 mb-2">
               <Eye className="h-3.5 w-3.5" />
               <span>Spectators ({spectators.length})</span>
-            </div>
+            </h3>
             <div className="space-y-1 bg-neutral-50/50 dark:bg-neutral-900/30 rounded-lg p-2 -mx-1">
               {spectators.map(renderParticipant)}
             </div>

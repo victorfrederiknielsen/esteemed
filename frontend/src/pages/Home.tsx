@@ -205,7 +205,7 @@ export function HomePage() {
                 Join Room
               </Button>
             </div>
-            <CardTitle>
+            <CardTitle as="h2">
               {mode === "create" ? "Create a New Room" : "Join Existing Room"}
             </CardTitle>
             <CardDescription>
@@ -309,7 +309,7 @@ export function HomePage() {
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
-              <CardTitle>Active Rooms</CardTitle>
+              <CardTitle as="h2">Active Rooms</CardTitle>
               <Button
                 variant="ghost"
                 size="sm"

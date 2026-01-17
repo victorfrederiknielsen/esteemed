@@ -195,6 +195,14 @@ func (s *EstimationService) WatchVotes(ctx context.Context, roomID, sessionToken
 		}
 	}
 
+	// Capture initial state before subscribing to avoid race conditions
+	initialVoteStatus := room.GetVoteStatus()
+	roomState := room.GetState()
+	var initialSummary *domain.VoteSummary
+	if roomState == domain.RoomStateRevealed {
+		initialSummary, _ = room.GetVoteSummary()
+	}
+
 	// Subscribe to events
 	eventCh, unsubscribe := s.publisher.SubscribeVoteEvents(ctx, room.ID)
 
@@ -205,6 +213,34 @@ func (s *EstimationService) WatchVotes(ctx context.Context, roomID, sessionToken
 		defer close(outputCh)
 		defer unsubscribe()
 
+		// Send initial state: vote cast events for participants who have already voted
+		for _, vote := range initialVoteStatus {
+			if vote.HasVoted {
+				select {
+				case outputCh <- primary.VoteEvent{
+					Type:            primary.VoteEventCast,
+					ParticipantID:   vote.ParticipantID,
+					ParticipantName: vote.ParticipantName,
+				}:
+				case <-ctx.Done():
+					return
+				}
+			}
+		}
+
+		// If room is revealed, send the summary
+		if initialSummary != nil {
+			select {
+			case outputCh <- primary.VoteEvent{
+				Type:    primary.VoteEventRevealed,
+				Summary: initialSummary,
+			}:
+			case <-ctx.Done():
+				return
+			}
+		}
+
+		// Continue with live events
 		for {
 			select {
 			case <-ctx.Done():

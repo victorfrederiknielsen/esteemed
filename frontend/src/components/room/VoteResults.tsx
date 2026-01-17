@@ -136,7 +136,9 @@ export function VoteResults({ summary }: VoteResultsProps) {
   return (
     <Card>
       <CardHeader className="pb-3">
-        <CardTitle className="text-lg">Results</CardTitle>
+        <CardTitle as="h2" className="text-lg">
+          Results
+        </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Summary stats */}

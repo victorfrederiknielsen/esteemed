@@ -235,7 +235,7 @@ export function RoomPage() {
       <div className="flex items-center justify-center min-h-[60vh]">
         <Card className="w-full max-w-md">
           <CardHeader>
-            <CardTitle>Join Room: {roomId}</CardTitle>
+            <CardTitle as="h2">Join Room: {roomId}</CardTitle>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleJoin} className="space-y-4">
@@ -287,6 +287,7 @@ export function RoomPage() {
 
   const isWaiting = room?.state === RoomState.WAITING;
   const isVoting = room?.state === RoomState.VOTING;
+  const isRoomRevealed = room?.state === RoomState.REVEALED;
   const votedCount = voteStatuses.filter((v) => v.hasVoted).length;
   // Exclude spectators from the total count (they don't vote)
   const totalVoters = participants.filter((p) => !p.isSpectator).length;
@@ -323,7 +324,9 @@ export function RoomPage() {
           {isWaiting && (
             <Card className="bg-white/70 dark:bg-neutral-800/70 backdrop-blur-sm">
               <CardHeader className="pb-3">
-                <CardTitle className="text-lg">Ready to Estimate?</CardTitle>
+                <CardTitle as="h2" className="text-lg">
+                  Ready to Estimate?
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-center space-y-4 py-4">
@@ -350,7 +353,7 @@ export function RoomPage() {
           )}
 
           {/* Voting cards - shown during voting (not for spectators) and after reveal (for everyone) */}
-          {((isVoting && !isSpectator) || isRevealed) && (
+          {((isVoting && !isSpectator) || isRevealed || isRoomRevealed) && (
             <VotingCards
               selectedValue={currentVote}
               onSelect={castVote}
