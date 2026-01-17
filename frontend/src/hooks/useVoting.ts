@@ -1,5 +1,4 @@
 import type { VoteSummary } from "@/gen/esteemed/v1/estimation_pb";
-import { CardValue } from "@/gen/esteemed/v1/estimation_pb";
 import { estimationClient } from "@/lib/client";
 import { useCallback, useEffect, useRef, useState } from "react";
 
@@ -12,14 +11,14 @@ interface VoteStatus {
 interface UseVotingState {
   voteStatuses: VoteStatus[];
   summary: VoteSummary | null;
-  currentVote: CardValue | null;
+  currentVote: string | null;
   isRevealed: boolean;
   isLoading: boolean;
   error: string | null;
 }
 
 interface UseVotingActions {
-  castVote: (value: CardValue) => Promise<void>;
+  castVote: (value: string) => Promise<void>;
   revealVotes: () => Promise<void>;
   resetRound: () => Promise<void>;
 }
@@ -126,7 +125,7 @@ export function useVoting(
   }, [roomId, sessionToken]);
 
   const castVote = useCallback(
-    async (value: CardValue): Promise<void> => {
+    async (value: string): Promise<void> => {
       if (!roomId || !participantId || !sessionToken) return;
 
       setState((prev) => ({ ...prev, isLoading: true, error: null }));
@@ -212,5 +211,3 @@ export function useVoting(
     resetRound,
   };
 }
-
-export { CardValue };

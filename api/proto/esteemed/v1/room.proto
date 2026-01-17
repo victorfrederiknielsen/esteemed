@@ -31,6 +31,30 @@ service RoomService {
   rpc TransferOwnership(TransferOwnershipRequest) returns (TransferOwnershipResponse);
 }
 
+// CardPreset represents predefined card deck types
+enum CardPreset {
+  CARD_PRESET_UNSPECIFIED = 0;
+  CARD_PRESET_FIBONACCI = 1;           // 1, 2, 3, 5, 8, 13, 21, ?, ☕
+  CARD_PRESET_MODIFIED_FIBONACCI = 2;  // 0, 1, 2, 3, 5, 8, 13, 20, 40, 100, ?, ☕
+  CARD_PRESET_TSHIRT = 3;              // XS, S, M, L, XL, ?, ☕
+  CARD_PRESET_POWERS_OF_TWO = 4;       // 1, 2, 4, 8, 16, 32, ?, ☕
+  CARD_PRESET_LINEAR = 5;              // 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, ?, ☕
+  CARD_PRESET_CUSTOM = 6;              // User-defined cards
+}
+
+// Card represents a single card in the deck
+message Card {
+  string value = 1;          // Display value (e.g., "5", "XL", "?")
+  int32 numeric_value = 2;   // Numeric value for averaging (0 if non-numeric)
+  bool is_numeric = 3;       // True if card has a numeric value
+}
+
+// CardConfig represents the card deck configuration for a room
+message CardConfig {
+  CardPreset preset = 1;     // The preset type
+  repeated Card cards = 2;   // The actual cards in the deck
+}
+
 // Room represents a planning poker room
 message Room {
   string id = 1;
@@ -38,6 +62,7 @@ message Room {
   repeated Participant participants = 3;
   RoomState state = 4;
   int64 created_at = 5;
+  CardConfig card_config = 6; // Card deck configuration
 }
 
 // Participant in a room
@@ -62,6 +87,7 @@ enum RoomState {
 message CreateRoomRequest {
   string host_name = 1;        // Name of the person creating the room
   string session_token = 2;    // Client-provided session token for identity
+  CardConfig card_config = 3;  // Optional card deck configuration (defaults to Fibonacci)
 }
 
 message CreateRoomResponse {

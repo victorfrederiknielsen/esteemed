@@ -7,80 +7,6 @@ import type { BinaryReadOptions, FieldList, JsonReadOptions, JsonValue, PartialM
 import { Message, proto3 } from "@bufbuild/protobuf";
 
 /**
- * CardValue represents a planning poker card
- *
- * @generated from enum esteemed.v1.CardValue
- */
-export enum CardValue {
-  /**
-   * @generated from enum value: CARD_VALUE_UNSPECIFIED = 0;
-   */
-  UNSPECIFIED = 0,
-
-  /**
-   * @generated from enum value: CARD_VALUE_ONE = 1;
-   */
-  ONE = 1,
-
-  /**
-   * @generated from enum value: CARD_VALUE_TWO = 2;
-   */
-  TWO = 2,
-
-  /**
-   * @generated from enum value: CARD_VALUE_THREE = 3;
-   */
-  THREE = 3,
-
-  /**
-   * @generated from enum value: CARD_VALUE_FIVE = 4;
-   */
-  FIVE = 4,
-
-  /**
-   * @generated from enum value: CARD_VALUE_EIGHT = 5;
-   */
-  EIGHT = 5,
-
-  /**
-   * @generated from enum value: CARD_VALUE_THIRTEEN = 6;
-   */
-  THIRTEEN = 6,
-
-  /**
-   * @generated from enum value: CARD_VALUE_TWENTY_ONE = 7;
-   */
-  TWENTY_ONE = 7,
-
-  /**
-   * "?" - unsure
-   *
-   * @generated from enum value: CARD_VALUE_QUESTION = 8;
-   */
-  QUESTION = 8,
-
-  /**
-   * Coffee break
-   *
-   * @generated from enum value: CARD_VALUE_COFFEE = 9;
-   */
-  COFFEE = 9,
-}
-// Retrieve enum metadata with: proto3.getEnumType(CardValue)
-proto3.util.setEnumType(CardValue, "esteemed.v1.CardValue", [
-  { no: 0, name: "CARD_VALUE_UNSPECIFIED" },
-  { no: 1, name: "CARD_VALUE_ONE" },
-  { no: 2, name: "CARD_VALUE_TWO" },
-  { no: 3, name: "CARD_VALUE_THREE" },
-  { no: 4, name: "CARD_VALUE_FIVE" },
-  { no: 5, name: "CARD_VALUE_EIGHT" },
-  { no: 6, name: "CARD_VALUE_THIRTEEN" },
-  { no: 7, name: "CARD_VALUE_TWENTY_ONE" },
-  { no: 8, name: "CARD_VALUE_QUESTION" },
-  { no: 9, name: "CARD_VALUE_COFFEE" },
-]);
-
-/**
  * Vote represents a participant's vote
  *
  * @generated from message esteemed.v1.Vote
@@ -97,9 +23,11 @@ export class Vote extends Message<Vote> {
   participantName = "";
 
   /**
-   * @generated from field: esteemed.v1.CardValue value = 3;
+   * Card value as string (e.g., "5", "XL", "?")
+   *
+   * @generated from field: string value = 3;
    */
-  value = CardValue.UNSPECIFIED;
+  value = "";
 
   /**
    * True if they've submitted a vote
@@ -118,7 +46,7 @@ export class Vote extends Message<Vote> {
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
     { no: 1, name: "participant_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 2, name: "participant_name", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 3, name: "value", kind: "enum", T: proto3.getEnumType(CardValue) },
+    { no: 3, name: "value", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 4, name: "has_voted", kind: "scalar", T: 8 /* ScalarType.BOOL */ },
   ]);
 
@@ -151,18 +79,18 @@ export class VoteSummary extends Message<VoteSummary> {
   votes: Vote[] = [];
 
   /**
-   * Rounded to nearest card value
+   * Rounded to nearest card value (string)
    *
-   * @generated from field: esteemed.v1.CardValue average = 2;
+   * @generated from field: string average = 2;
    */
-  average = CardValue.UNSPECIFIED;
+  average = "";
 
   /**
-   * Most common vote
+   * Most common vote (string)
    *
-   * @generated from field: esteemed.v1.CardValue mode = 3;
+   * @generated from field: string mode = 3;
    */
-  mode = CardValue.UNSPECIFIED;
+  mode = "";
 
   /**
    * All votes are the same
@@ -170,6 +98,13 @@ export class VoteSummary extends Message<VoteSummary> {
    * @generated from field: bool has_consensus = 4;
    */
   hasConsensus = false;
+
+  /**
+   * Raw numeric average (for display)
+   *
+   * @generated from field: double numeric_average = 5;
+   */
+  numericAverage = 0;
 
   constructor(data?: PartialMessage<VoteSummary>) {
     super();
@@ -180,9 +115,10 @@ export class VoteSummary extends Message<VoteSummary> {
   static readonly typeName = "esteemed.v1.VoteSummary";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
     { no: 1, name: "votes", kind: "message", T: Vote, repeated: true },
-    { no: 2, name: "average", kind: "enum", T: proto3.getEnumType(CardValue) },
-    { no: 3, name: "mode", kind: "enum", T: proto3.getEnumType(CardValue) },
+    { no: 2, name: "average", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 3, name: "mode", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 4, name: "has_consensus", kind: "scalar", T: 8 /* ScalarType.BOOL */ },
+    { no: 5, name: "numeric_average", kind: "scalar", T: 1 /* ScalarType.DOUBLE */ },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): VoteSummary {
@@ -224,9 +160,11 @@ export class CastVoteRequest extends Message<CastVoteRequest> {
   sessionToken = "";
 
   /**
-   * @generated from field: esteemed.v1.CardValue value = 4;
+   * Card value as string (e.g., "5", "XL", "?")
+   *
+   * @generated from field: string value = 4;
    */
-  value = CardValue.UNSPECIFIED;
+  value = "";
 
   constructor(data?: PartialMessage<CastVoteRequest>) {
     super();
@@ -239,7 +177,7 @@ export class CastVoteRequest extends Message<CastVoteRequest> {
     { no: 1, name: "room_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 2, name: "participant_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 3, name: "session_token", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 4, name: "value", kind: "enum", T: proto3.getEnumType(CardValue) },
+    { no: 4, name: "value", kind: "scalar", T: 9 /* ScalarType.STRING */ },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): CastVoteRequest {

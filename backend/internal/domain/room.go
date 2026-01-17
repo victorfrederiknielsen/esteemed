@@ -40,6 +40,7 @@ type Room struct {
 	CreatedAt      time.Time
 	LastActivityAt time.Time
 	Votes          map[string]*Vote
+	CardConfig     *CardConfig
 }
 
 // Participant in a room
@@ -53,10 +54,15 @@ type Participant struct {
 	JoinedAt     time.Time
 }
 
-// NewRoom creates a new room with the given ID, name, and host
-func NewRoom(id, name string, host *Participant) *Room {
+// NewRoom creates a new room with the given ID, name, host, and optional card config
+func NewRoom(id, name string, host *Participant, cardConfig *CardConfig) *Room {
 	host.IsHost = true
 	now := time.Now()
+
+	if cardConfig == nil {
+		cardConfig = DefaultCardConfig()
+	}
+
 	return &Room{
 		ID:             id,
 		Name:           name,
@@ -65,6 +71,7 @@ func NewRoom(id, name string, host *Participant) *Room {
 		CreatedAt:      now,
 		LastActivityAt: now,
 		Votes:          make(map[string]*Vote),
+		CardConfig:     cardConfig,
 	}
 }
 

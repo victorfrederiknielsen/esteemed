@@ -1,108 +1,28 @@
 package domain
 
 import (
-	"math"
 	"sort"
 )
-
-// CardValue represents a planning poker card
-type CardValue int
-
-// CardValue constants represent the available planning poker card values.
-const (
-	CardValueUnspecified CardValue = iota
-	CardValueOne
-	CardValueTwo
-	CardValueThree
-	CardValueFive
-	CardValueEight
-	CardValueThirteen
-	CardValueTwentyOne
-	CardValueQuestion
-	CardValueCoffee
-)
-
-// NumericValue returns the numeric value for averaging (excludes ? and coffee)
-func (c CardValue) NumericValue() (int, bool) {
-	switch c {
-	case CardValueOne:
-		return 1, true
-	case CardValueTwo:
-		return 2, true
-	case CardValueThree:
-		return 3, true
-	case CardValueFive:
-		return 5, true
-	case CardValueEight:
-		return 8, true
-	case CardValueThirteen:
-		return 13, true
-	case CardValueTwentyOne:
-		return 21, true
-	default:
-		return 0, false
-	}
-}
-
-// String returns the display string for a card value
-func (c CardValue) String() string {
-	switch c {
-	case CardValueOne:
-		return "1"
-	case CardValueTwo:
-		return "2"
-	case CardValueThree:
-		return "3"
-	case CardValueFive:
-		return "5"
-	case CardValueEight:
-		return "8"
-	case CardValueThirteen:
-		return "13"
-	case CardValueTwentyOne:
-		return "21"
-	case CardValueQuestion:
-		return "?"
-	case CardValueCoffee:
-		return "☕"
-	default:
-		return ""
-	}
-}
-
-// AllCardValues returns all valid card values for the deck
-func AllCardValues() []CardValue {
-	return []CardValue{
-		CardValueOne,
-		CardValueTwo,
-		CardValueThree,
-		CardValueFive,
-		CardValueEight,
-		CardValueThirteen,
-		CardValueTwentyOne,
-		CardValueQuestion,
-		CardValueCoffee,
-	}
-}
 
 // Vote represents a participant's vote
 type Vote struct {
 	ParticipantID   string
 	ParticipantName string
-	Value           CardValue
+	Value           string
 	HasVoted        bool
 }
 
 // VoteSummary shows statistics after reveal
 type VoteSummary struct {
-	Votes        []*Vote
-	Average      CardValue
-	Mode         CardValue
-	HasConsensus bool
+	Votes          []*Vote
+	Average        string  // Rounded to nearest card value
+	Mode           string  // Most common vote
+	HasConsensus   bool    // All votes are the same
+	NumericAverage float64 // Raw numeric average (for display)
 }
 
 // CastVote records a participant's vote in the room
-func (r *Room) CastVote(participantID string, value CardValue) error {
+func (r *Room) CastVote(participantID, value string) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
@@ -117,6 +37,11 @@ func (r *Room) CastVote(participantID string, value CardValue) error {
 
 	if r.State != RoomStateVoting {
 		return ErrInvalidState
+	}
+
+	// Validate the card value against room's card config
+	if err := ValidateCardValue(r.CardConfig, value); err != nil {
+		return err
 	}
 
 	r.Votes[participantID] = &Vote{
@@ -185,11 +110,23 @@ func (r *Room) RevealVotes() (*VoteSummary, error) {
 		votes = append(votes, v)
 	}
 
+	// Calculate statistics using the room's card config
+	numericAvg, hasNumeric := CalculateNumericAverage(r.CardConfig, votes)
+
+	var avgValue string
+	if hasNumeric {
+		nearestCard := FindNearestCard(r.CardConfig, numericAvg)
+		if nearestCard != nil {
+			avgValue = nearestCard.Value
+		}
+	}
+
 	summary := &VoteSummary{
-		Votes:        votes,
-		Average:      calculateAverage(votes),
-		Mode:         calculateMode(votes),
-		HasConsensus: checkConsensus(votes),
+		Votes:          votes,
+		Average:        avgValue,
+		Mode:           CalculateModeValue(votes),
+		HasConsensus:   CheckConsensus(votes),
+		NumericAverage: numericAvg,
 	}
 
 	return summary, nil
@@ -209,11 +146,22 @@ func (r *Room) GetVoteSummary() (*VoteSummary, error) {
 		votes = append(votes, v)
 	}
 
+	numericAvg, hasNumeric := CalculateNumericAverage(r.CardConfig, votes)
+
+	var avgValue string
+	if hasNumeric {
+		nearestCard := FindNearestCard(r.CardConfig, numericAvg)
+		if nearestCard != nil {
+			avgValue = nearestCard.Value
+		}
+	}
+
 	return &VoteSummary{
-		Votes:        votes,
-		Average:      calculateAverage(votes),
-		Mode:         calculateMode(votes),
-		HasConsensus: checkConsensus(votes),
+		Votes:          votes,
+		Average:        avgValue,
+		Mode:           CalculateModeValue(votes),
+		HasConsensus:   CheckConsensus(votes),
+		NumericAverage: numericAvg,
 	}, nil
 }
 
@@ -232,92 +180,6 @@ func (r *Room) StartVoting() {
 	defer r.mu.Unlock()
 
 	r.State = RoomStateVoting
-}
-
-// calculateAverage calculates the average vote rounded to nearest card
-func calculateAverage(votes []*Vote) CardValue {
-	var sum, count float64
-	for _, v := range votes {
-		if num, ok := v.Value.NumericValue(); ok {
-			sum += float64(num)
-			count++
-		}
-	}
-
-	if count == 0 {
-		return CardValueUnspecified
-	}
-
-	avg := sum / count
-	return nearestCardValue(avg)
-}
-
-// nearestCardValue finds the closest Fibonacci card value
-func nearestCardValue(avg float64) CardValue {
-	fibValues := []struct {
-		card CardValue
-		val  int
-	}{
-		{CardValueOne, 1},
-		{CardValueTwo, 2},
-		{CardValueThree, 3},
-		{CardValueFive, 5},
-		{CardValueEight, 8},
-		{CardValueThirteen, 13},
-		{CardValueTwentyOne, 21},
-	}
-
-	closest := fibValues[0]
-	minDiff := math.Abs(avg - float64(closest.val))
-
-	for _, fv := range fibValues[1:] {
-		diff := math.Abs(avg - float64(fv.val))
-		if diff < minDiff {
-			minDiff = diff
-			closest = fv
-		}
-	}
-
-	return closest.card
-}
-
-// calculateMode finds the most common vote
-func calculateMode(votes []*Vote) CardValue {
-	if len(votes) == 0 {
-		return CardValueUnspecified
-	}
-
-	counts := make(map[CardValue]int)
-	for _, v := range votes {
-		counts[v.Value]++
-	}
-
-	var mode CardValue
-	maxCount := 0
-	for card, count := range counts {
-		if count > maxCount {
-			maxCount = count
-			mode = card
-		}
-	}
-
-	return mode
-}
-
-// checkConsensus returns true if all votes are the same
-func checkConsensus(votes []*Vote) bool {
-	if len(votes) < 2 {
-		return len(votes) == 1
-	}
-
-	first := votes[0].Value
-	for _, v := range votes[1:] {
-		if v.Value != first {
-			return false
-		}
-	}
-
-	return true
 }
 
 // VoteCount returns how many participants have voted

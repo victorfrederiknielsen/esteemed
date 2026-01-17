@@ -11,8 +11,8 @@ type RoomService interface {
 	// ListRooms returns all active rooms
 	ListRooms(ctx context.Context) ([]*RoomSummary, error)
 
-	// CreateRoom creates a new room with a generated name
-	CreateRoom(ctx context.Context, hostName, sessionToken string) (*CreateRoomResult, error)
+	// CreateRoom creates a new room with a generated name and optional card config
+	CreateRoom(ctx context.Context, hostName, sessionToken string, cardConfig *domain.CardConfig) (*CreateRoomResult, error)
 
 	// JoinRoom adds a participant to an existing room
 	JoinRoom(ctx context.Context, roomID, participantName, sessionToken string, isSpectator bool) (*JoinRoomResult, error)

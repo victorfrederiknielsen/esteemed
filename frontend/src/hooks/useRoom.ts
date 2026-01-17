@@ -1,4 +1,4 @@
-import type { Participant, Room } from "@/gen/esteemed/v1/room_pb";
+import type { CardConfig, Participant, Room } from "@/gen/esteemed/v1/room_pb";
 import { RoomState } from "@/gen/esteemed/v1/room_pb";
 import {
   clearRoomParticipantId,
@@ -23,7 +23,7 @@ interface UseRoomState {
 }
 
 interface UseRoomActions {
-  createRoom: (hostName: string) => Promise<string>;
+  createRoom: (hostName: string, cardConfig?: CardConfig) => Promise<string>;
   joinRoom: (
     roomId: string,
     participantName: string,
@@ -176,44 +176,48 @@ export function useRoom(roomId?: string): UseRoomState & UseRoomActions {
     };
   }, [state.room, state.sessionToken]);
 
-  const createRoom = useCallback(async (hostName: string): Promise<string> => {
-    setState((prev) => ({ ...prev, isLoading: true, error: null }));
+  const createRoom = useCallback(
+    async (hostName: string, cardConfig?: CardConfig): Promise<string> => {
+      setState((prev) => ({ ...prev, isLoading: true, error: null }));
 
-    try {
-      // Use global token from identity
-      const globalToken = getGlobalToken();
-      const response = await roomClient.createRoom({
-        hostName,
-        sessionToken: globalToken,
-      });
-
-      if (response.room) {
-        // Store room -> participantId mapping
-        saveRoomParticipantId(response.room.name, response.participantId);
-
-        setState({
-          room: response.room,
-          participants: response.room.participants,
-          currentParticipantId: response.participantId,
+      try {
+        // Use global token from identity
+        const globalToken = getGlobalToken();
+        const response = await roomClient.createRoom({
+          hostName,
           sessionToken: globalToken,
-          isHost: true,
-          isSpectator: false,
-          isConnected: true,
-          isLoading: false,
-          error: null,
+          cardConfig,
         });
 
-        return response.room.name;
-      }
+        if (response.room) {
+          // Store room -> participantId mapping
+          saveRoomParticipantId(response.room.name, response.participantId);
 
-      throw new Error("Failed to create room");
-    } catch (err) {
-      const error =
-        err instanceof Error ? err.message : "Failed to create room";
-      setState((prev) => ({ ...prev, isLoading: false, error }));
-      throw err;
-    }
-  }, []);
+          setState({
+            room: response.room,
+            participants: response.room.participants,
+            currentParticipantId: response.participantId,
+            sessionToken: globalToken,
+            isHost: true,
+            isSpectator: false,
+            isConnected: true,
+            isLoading: false,
+            error: null,
+          });
+
+          return response.room.name;
+        }
+
+        throw new Error("Failed to create room");
+      } catch (err) {
+        const error =
+          err instanceof Error ? err.message : "Failed to create room";
+        setState((prev) => ({ ...prev, isLoading: false, error }));
+        throw err;
+      }
+    },
+    [],
+  );
 
   const joinRoomInternal = async (
     roomIdOrName: string,

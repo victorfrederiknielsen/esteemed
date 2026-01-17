@@ -7,6 +7,70 @@ import type { BinaryReadOptions, FieldList, JsonReadOptions, JsonValue, PartialM
 import { Message, proto3, protoInt64 } from "@bufbuild/protobuf";
 
 /**
+ * CardPreset represents predefined card deck types
+ *
+ * @generated from enum esteemed.v1.CardPreset
+ */
+export enum CardPreset {
+  /**
+   * @generated from enum value: CARD_PRESET_UNSPECIFIED = 0;
+   */
+  UNSPECIFIED = 0,
+
+  /**
+   * 1, 2, 3, 5, 8, 13, 21, ?, ☕
+   *
+   * @generated from enum value: CARD_PRESET_FIBONACCI = 1;
+   */
+  FIBONACCI = 1,
+
+  /**
+   * 0, 1, 2, 3, 5, 8, 13, 20, 40, 100, ?, ☕
+   *
+   * @generated from enum value: CARD_PRESET_MODIFIED_FIBONACCI = 2;
+   */
+  MODIFIED_FIBONACCI = 2,
+
+  /**
+   * XS, S, M, L, XL, ?, ☕
+   *
+   * @generated from enum value: CARD_PRESET_TSHIRT = 3;
+   */
+  TSHIRT = 3,
+
+  /**
+   * 1, 2, 4, 8, 16, 32, ?, ☕
+   *
+   * @generated from enum value: CARD_PRESET_POWERS_OF_TWO = 4;
+   */
+  POWERS_OF_TWO = 4,
+
+  /**
+   * 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, ?, ☕
+   *
+   * @generated from enum value: CARD_PRESET_LINEAR = 5;
+   */
+  LINEAR = 5,
+
+  /**
+   * User-defined cards
+   *
+   * @generated from enum value: CARD_PRESET_CUSTOM = 6;
+   */
+  CUSTOM = 6,
+}
+// Retrieve enum metadata with: proto3.getEnumType(CardPreset)
+proto3.util.setEnumType(CardPreset, "esteemed.v1.CardPreset", [
+  { no: 0, name: "CARD_PRESET_UNSPECIFIED" },
+  { no: 1, name: "CARD_PRESET_FIBONACCI" },
+  { no: 2, name: "CARD_PRESET_MODIFIED_FIBONACCI" },
+  { no: 3, name: "CARD_PRESET_TSHIRT" },
+  { no: 4, name: "CARD_PRESET_POWERS_OF_TWO" },
+  { no: 5, name: "CARD_PRESET_LINEAR" },
+  { no: 6, name: "CARD_PRESET_CUSTOM" },
+]);
+
+/**
  * RoomState represents the current phase of estimation
  *
  * @generated from enum esteemed.v1.RoomState
@@ -47,6 +111,112 @@ proto3.util.setEnumType(RoomState, "esteemed.v1.RoomState", [
 ]);
 
 /**
+ * Card represents a single card in the deck
+ *
+ * @generated from message esteemed.v1.Card
+ */
+export class Card extends Message<Card> {
+  /**
+   * Display value (e.g., "5", "XL", "?")
+   *
+   * @generated from field: string value = 1;
+   */
+  value = "";
+
+  /**
+   * Numeric value for averaging (0 if non-numeric)
+   *
+   * @generated from field: int32 numeric_value = 2;
+   */
+  numericValue = 0;
+
+  /**
+   * True if card has a numeric value
+   *
+   * @generated from field: bool is_numeric = 3;
+   */
+  isNumeric = false;
+
+  constructor(data?: PartialMessage<Card>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "esteemed.v1.Card";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "value", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "numeric_value", kind: "scalar", T: 5 /* ScalarType.INT32 */ },
+    { no: 3, name: "is_numeric", kind: "scalar", T: 8 /* ScalarType.BOOL */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Card {
+    return new Card().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): Card {
+    return new Card().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): Card {
+    return new Card().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: Card | PlainMessage<Card> | undefined, b: Card | PlainMessage<Card> | undefined): boolean {
+    return proto3.util.equals(Card, a, b);
+  }
+}
+
+/**
+ * CardConfig represents the card deck configuration for a room
+ *
+ * @generated from message esteemed.v1.CardConfig
+ */
+export class CardConfig extends Message<CardConfig> {
+  /**
+   * The preset type
+   *
+   * @generated from field: esteemed.v1.CardPreset preset = 1;
+   */
+  preset = CardPreset.UNSPECIFIED;
+
+  /**
+   * The actual cards in the deck
+   *
+   * @generated from field: repeated esteemed.v1.Card cards = 2;
+   */
+  cards: Card[] = [];
+
+  constructor(data?: PartialMessage<CardConfig>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "esteemed.v1.CardConfig";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "preset", kind: "enum", T: proto3.getEnumType(CardPreset) },
+    { no: 2, name: "cards", kind: "message", T: Card, repeated: true },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): CardConfig {
+    return new CardConfig().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): CardConfig {
+    return new CardConfig().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): CardConfig {
+    return new CardConfig().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: CardConfig | PlainMessage<CardConfig> | undefined, b: CardConfig | PlainMessage<CardConfig> | undefined): boolean {
+    return proto3.util.equals(CardConfig, a, b);
+  }
+}
+
+/**
  * Room represents a planning poker room
  *
  * @generated from message esteemed.v1.Room
@@ -77,6 +247,13 @@ export class Room extends Message<Room> {
    */
   createdAt = protoInt64.zero;
 
+  /**
+   * Card deck configuration
+   *
+   * @generated from field: esteemed.v1.CardConfig card_config = 6;
+   */
+  cardConfig?: CardConfig;
+
   constructor(data?: PartialMessage<Room>) {
     super();
     proto3.util.initPartial(data, this);
@@ -90,6 +267,7 @@ export class Room extends Message<Room> {
     { no: 3, name: "participants", kind: "message", T: Participant, repeated: true },
     { no: 4, name: "state", kind: "enum", T: proto3.getEnumType(RoomState) },
     { no: 5, name: "created_at", kind: "scalar", T: 3 /* ScalarType.INT64 */ },
+    { no: 6, name: "card_config", kind: "message", T: CardConfig },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Room {
@@ -198,6 +376,13 @@ export class CreateRoomRequest extends Message<CreateRoomRequest> {
    */
   sessionToken = "";
 
+  /**
+   * Optional card deck configuration (defaults to Fibonacci)
+   *
+   * @generated from field: esteemed.v1.CardConfig card_config = 3;
+   */
+  cardConfig?: CardConfig;
+
   constructor(data?: PartialMessage<CreateRoomRequest>) {
     super();
     proto3.util.initPartial(data, this);
@@ -208,6 +393,7 @@ export class CreateRoomRequest extends Message<CreateRoomRequest> {
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
     { no: 1, name: "host_name", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 2, name: "session_token", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 3, name: "card_config", kind: "message", T: CardConfig },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): CreateRoomRequest {

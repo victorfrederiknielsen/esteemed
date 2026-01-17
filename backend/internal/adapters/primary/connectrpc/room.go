@@ -59,7 +59,9 @@ func (h *RoomHandler) CreateRoom(
 	ctx context.Context,
 	req *connect.Request[esteemedv1.CreateRoomRequest],
 ) (*connect.Response[esteemedv1.CreateRoomResponse], error) {
-	result, err := h.service.CreateRoom(ctx, req.Msg.HostName, req.Msg.SessionToken)
+	cardConfig := protoCardConfigToDomain(req.Msg.CardConfig)
+
+	result, err := h.service.CreateRoom(ctx, req.Msg.HostName, req.Msg.SessionToken, cardConfig)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err)
 	}
@@ -236,6 +238,90 @@ func domainRoomToProto(room *domain.Room) *esteemedv1.Room {
 		Participants: participants,
 		State:        domainStateToProto(room.GetState()),
 		CreatedAt:    room.CreatedAt.Unix(),
+		CardConfig:   domainCardConfigToProto(room.CardConfig),
+	}
+}
+
+func protoCardConfigToDomain(config *esteemedv1.CardConfig) *domain.CardConfig {
+	if config == nil {
+		return nil
+	}
+
+	preset := protoPresetToDomain(config.Preset)
+
+	// For non-custom presets, use the preset cards
+	if preset != domain.CardPresetCustom {
+		return domain.NewCardConfig(preset)
+	}
+
+	// For custom preset, use the provided cards
+	cards := make([]*domain.Card, 0, len(config.Cards))
+	for _, c := range config.Cards {
+		cards = append(cards, &domain.Card{
+			Value:        c.Value,
+			NumericValue: int(c.NumericValue),
+			IsNumeric:    c.IsNumeric,
+		})
+	}
+
+	return domain.NewCustomCardConfig(cards)
+}
+
+func domainCardConfigToProto(config *domain.CardConfig) *esteemedv1.CardConfig {
+	if config == nil {
+		config = domain.DefaultCardConfig()
+	}
+
+	cards := make([]*esteemedv1.Card, 0, len(config.Cards))
+	for _, c := range config.Cards {
+		cards = append(cards, &esteemedv1.Card{
+			Value:        c.Value,
+			NumericValue: int32(c.NumericValue),
+			IsNumeric:    c.IsNumeric,
+		})
+	}
+
+	return &esteemedv1.CardConfig{
+		Preset: domainPresetToProto(config.Preset),
+		Cards:  cards,
+	}
+}
+
+func protoPresetToDomain(preset esteemedv1.CardPreset) domain.CardPreset {
+	switch preset {
+	case esteemedv1.CardPreset_CARD_PRESET_FIBONACCI:
+		return domain.CardPresetFibonacci
+	case esteemedv1.CardPreset_CARD_PRESET_MODIFIED_FIBONACCI:
+		return domain.CardPresetModifiedFibonacci
+	case esteemedv1.CardPreset_CARD_PRESET_TSHIRT:
+		return domain.CardPresetTShirt
+	case esteemedv1.CardPreset_CARD_PRESET_POWERS_OF_TWO:
+		return domain.CardPresetPowersOfTwo
+	case esteemedv1.CardPreset_CARD_PRESET_LINEAR:
+		return domain.CardPresetLinear
+	case esteemedv1.CardPreset_CARD_PRESET_CUSTOM:
+		return domain.CardPresetCustom
+	default:
+		return domain.CardPresetFibonacci
+	}
+}
+
+func domainPresetToProto(preset domain.CardPreset) esteemedv1.CardPreset {
+	switch preset {
+	case domain.CardPresetFibonacci:
+		return esteemedv1.CardPreset_CARD_PRESET_FIBONACCI
+	case domain.CardPresetModifiedFibonacci:
+		return esteemedv1.CardPreset_CARD_PRESET_MODIFIED_FIBONACCI
+	case domain.CardPresetTShirt:
+		return esteemedv1.CardPreset_CARD_PRESET_TSHIRT
+	case domain.CardPresetPowersOfTwo:
+		return esteemedv1.CardPreset_CARD_PRESET_POWERS_OF_TWO
+	case domain.CardPresetLinear:
+		return esteemedv1.CardPreset_CARD_PRESET_LINEAR
+	case domain.CardPresetCustom:
+		return esteemedv1.CardPreset_CARD_PRESET_CUSTOM
+	default:
+		return esteemedv1.CardPreset_CARD_PRESET_FIBONACCI
 	}
 }
 

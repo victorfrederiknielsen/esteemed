@@ -9,7 +9,7 @@ import (
 // EstimationService defines the primary port for estimation/voting operations
 type EstimationService interface {
 	// CastVote submits a vote for the current round
-	CastVote(ctx context.Context, roomID, participantID, sessionToken string, value domain.CardValue) error
+	CastVote(ctx context.Context, roomID, participantID, sessionToken, value string) error
 
 	// RevealVotes reveals all votes (host only)
 	RevealVotes(ctx context.Context, roomID, participantID, sessionToken string) (*domain.VoteSummary, error)

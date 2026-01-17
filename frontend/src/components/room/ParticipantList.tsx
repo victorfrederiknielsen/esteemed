@@ -9,7 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import type { CardValue, Participant, VoteSummary } from "@/lib/types";
+import type { Participant, VoteSummary } from "@/lib/types";
 import { cardValueToLabel } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import {
@@ -69,7 +69,7 @@ export function ParticipantList({
     );
   };
 
-  const getVoteValue = (participantId: string): CardValue | null => {
+  const getVoteValue = (participantId: string): string | null => {
     if (!isRevealed || !summary) return null;
     const vote = summary.votes.find((v) => v.participantId === participantId);
     return vote?.value ?? null;

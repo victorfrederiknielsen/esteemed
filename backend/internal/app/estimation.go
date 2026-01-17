@@ -23,7 +23,7 @@ func NewEstimationService(repo secondary.RoomRepository, publisher secondary.Eve
 }
 
 // CastVote submits a vote for the current round
-func (s *EstimationService) CastVote(ctx context.Context, roomID, participantID, sessionToken string, value domain.CardValue) error {
+func (s *EstimationService) CastVote(ctx context.Context, roomID, participantID, sessionToken, value string) error {
 	room, err := s.repo.FindByID(ctx, roomID)
 	if err != nil {
 		return err

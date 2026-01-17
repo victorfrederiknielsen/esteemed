@@ -48,8 +48,8 @@ func (s *RoomService) ListRooms(ctx context.Context) ([]*primary.RoomSummary, er
 	return summaries, nil
 }
 
-// CreateRoom creates a new room with a generated name
-func (s *RoomService) CreateRoom(ctx context.Context, hostName, sessionToken string) (*primary.CreateRoomResult, error) {
+// CreateRoom creates a new room with a generated name and optional card config
+func (s *RoomService) CreateRoom(ctx context.Context, hostName, sessionToken string, cardConfig *domain.CardConfig) (*primary.CreateRoomResult, error) {
 	roomID := domain.GenerateID()
 	roomName := domain.GenerateRoomName()
 	participantID := domain.GenerateID()
@@ -68,7 +68,7 @@ func (s *RoomService) CreateRoom(ctx context.Context, hostName, sessionToken str
 		JoinedAt:     time.Now(),
 	}
 
-	room := domain.NewRoom(roomID, roomName, host)
+	room := domain.NewRoom(roomID, roomName, host, cardConfig)
 
 	if err := s.repo.Save(ctx, room); err != nil {
 		return nil, err
