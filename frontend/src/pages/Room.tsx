@@ -8,7 +8,7 @@ import { useHeader } from "@/contexts/HeaderContext";
 import { RoomState, useRoom } from "@/hooks/useRoom";
 import { useVoting } from "@/hooks/useVoting";
 import { generateParticipantName } from "@/lib/namegen";
-import { Clock, Copy, Dices, LogOut, Users } from "lucide-react";
+import { Clock, Copy, Dices, LogOut } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -71,7 +71,6 @@ export function RoomPage() {
   // Set header breadcrumbs and actions
   useEffect(() => {
     const roomName = room?.name || roomId || "";
-    const participantCount = participants.length;
 
     const copyButton = (
       <Button
@@ -104,16 +103,10 @@ export function RoomPage() {
     ]);
 
     setActions(
-      <>
-        <div className="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-400">
-          <Users className="h-4 w-4" />
-          {participantCount} participant{participantCount !== 1 ? "s" : ""}
-        </div>
-        <Button variant="outline" size="sm" onClick={handleLeave}>
-          <LogOut className="h-4 w-4 mr-1" />
-          Leave
-        </Button>
-      </>,
+      <Button variant="outline" size="sm" onClick={handleLeave}>
+        <LogOut className="h-4 w-4 mr-1" />
+        Leave
+      </Button>,
     );
 
     return () => {
@@ -123,7 +116,6 @@ export function RoomPage() {
   }, [
     room?.name,
     roomId,
-    participants.length,
     copied,
     setBreadcrumbs,
     setActions,

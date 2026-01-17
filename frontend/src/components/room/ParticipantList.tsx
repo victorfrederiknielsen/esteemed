@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { CardValue, Participant, VoteSummary } from "@/lib/types";
 import { cardValueToLabel } from "@/lib/types";
 import { cn } from "@/lib/utils";
-import { Check, Crown } from "lucide-react";
+import { Check, Crown, Users } from "lucide-react";
 
 interface VoteStatus {
   participantId: string;
@@ -52,7 +52,10 @@ export function ParticipantList({
   return (
     <Card className="bg-white/70 dark:bg-neutral-800/70 backdrop-blur-sm">
       <CardHeader>
-        <CardTitle className="text-lg">Participants</CardTitle>
+        <CardTitle className="text-lg flex items-center gap-2">
+          <Users className="h-4 w-4" />
+          Participants ({participants.length})
+        </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
         {participants.map((participant) => {
