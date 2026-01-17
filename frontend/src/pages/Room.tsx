@@ -8,7 +8,6 @@ import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { RoomState, useRoom } from "@/hooks/useRoom";
 import { useVoting } from "@/hooks/useVoting";
 import { generateParticipantName } from "@/lib/namegen";
-import confetti from "canvas-confetti";
 import {
   Clock,
   Copy,
@@ -19,7 +18,7 @@ import {
   RefreshCw,
   Users,
 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 export function RoomPage() {
@@ -59,31 +58,6 @@ export function RoomPage() {
       navigate("/");
     }
   }, [roomError, navigate]);
-
-  // Confetti when votes are revealed
-  const hasTriggeredConfetti = useRef(false);
-  useEffect(() => {
-    if (isRevealed && !hasTriggeredConfetti.current) {
-      hasTriggeredConfetti.current = true;
-
-      // Fire confetti from center
-      confetti({
-        particleCount: 100,
-        spread: 70,
-        origin: { x: 0.5, y: 0.4 },
-        colors: [
-          "#22c55e",
-          "#10b981",
-          "#06b6d4",
-          "#8b5cf6",
-          "#ec4899",
-          "#f59e0b",
-        ],
-      });
-    } else if (!isRevealed) {
-      hasTriggeredConfetti.current = false;
-    }
-  }, [isRevealed]);
 
   const handleJoin = async (e: React.FormEvent) => {
     e.preventDefault();
