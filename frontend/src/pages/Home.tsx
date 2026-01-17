@@ -344,7 +344,7 @@ export function HomePage() {
                     <button
                       type="button"
                       key={room.id}
-                      className="flex items-center justify-between p-3 w-full text-left bg-neutral-50 dark:bg-neutral-800/50 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors cursor-pointer"
+                      className="flex items-center justify-between p-3 w-full text-left bg-muted/50 rounded-lg hover:bg-muted transition-colors cursor-pointer"
                       onClick={() => {
                         setRoomCode(room.name);
                         setMode("join");

@@ -29,9 +29,7 @@ function VoteDots({
             key={dotKey}
             className={cn(
               "w-2 h-2 rounded-full transition-colors duration-300",
-              i < votedCount
-                ? "bg-emerald-500"
-                : "bg-neutral-300 dark:bg-neutral-600",
+              i < votedCount ? "bg-emerald-500" : "bg-muted",
             )}
           />
         );
@@ -54,7 +52,7 @@ export function HostActionBar({
   const isVoting = roomState === RoomState.VOTING && !isRevealed;
 
   return (
-    <div className="relative z-10 flex items-center gap-3 p-3 rounded-lg border bg-white/70 dark:bg-neutral-800/70 backdrop-blur-sm">
+    <div className="relative z-10 flex items-center gap-3 p-3 rounded-lg border bg-card/70 backdrop-blur-sm">
       {isWaiting && (
         <Button disabled={isLoading} onClick={onStartRound}>
           <Play className="h-4 w-4" />

@@ -94,7 +94,7 @@ export const VotingCards = forwardRef<HTMLDivElement, VotingCardsProps>(
             }}
           />
         )}
-        <div className="relative z-10 bg-white/70 dark:bg-neutral-800/70 backdrop-blur-sm rounded-xl border shadow-sm p-6">
+        <div className="relative z-10 bg-card/70 backdrop-blur-sm rounded-lg border shadow-sm p-6">
           <h3 className="text-lg font-semibold mb-4">
             {isRevealed ? "Results" : "Select Your Estimate"}
           </h3>
@@ -120,7 +120,7 @@ export const VotingCards = forwardRef<HTMLDivElement, VotingCardsProps>(
                     className={cn(
                       "relative w-full aspect-[3/4] rounded-lg border-2 flex flex-col items-center justify-center transition-all duration-200",
                       "focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 dark:focus:ring-offset-neutral-900",
-                      "disabled:cursor-default backdrop-blur-md bg-white/40 dark:bg-neutral-700/40",
+                      "disabled:cursor-default backdrop-blur-md bg-card/40",
                       // Revealed + is mode (winner)
                       isMode &&
                         "consensus-badge border-transparent text-white shadow-lg !bg-transparent",
@@ -184,7 +184,7 @@ export const VotingCards = forwardRef<HTMLDivElement, VotingCardsProps>(
           {/* Statistics - shown when revealed */}
           {isRevealed && summary && (
             <div className="grid grid-cols-3 gap-4 mt-6">
-              <div className="text-center p-3 bg-white/50 dark:bg-neutral-700/50 backdrop-blur-sm rounded-lg">
+              <div className="text-center p-3 bg-card/50 backdrop-blur-sm rounded-lg">
                 <div className="flex items-center justify-center gap-1 text-neutral-600 dark:text-neutral-400 mb-1">
                   <TrendingUp className="h-4 w-4" />
                   <span className="text-xs font-medium">Average</span>
@@ -193,7 +193,7 @@ export const VotingCards = forwardRef<HTMLDivElement, VotingCardsProps>(
                   {cardValueToLabel(summary.average) || "-"}
                 </span>
               </div>
-              <div className="text-center p-3 bg-white/50 dark:bg-neutral-700/50 backdrop-blur-sm rounded-lg">
+              <div className="text-center p-3 bg-card/50 backdrop-blur-sm rounded-lg">
                 <div className="flex items-center justify-center gap-1 text-neutral-600 dark:text-neutral-400 mb-1">
                   <Trophy className="h-4 w-4" />
                   <span className="text-xs font-medium">Mode</span>
@@ -202,7 +202,7 @@ export const VotingCards = forwardRef<HTMLDivElement, VotingCardsProps>(
                   {cardValueToLabel(summary.mode) || "-"}
                 </span>
               </div>
-              <div className="text-center p-3 bg-white/50 dark:bg-neutral-700/50 backdrop-blur-sm rounded-lg">
+              <div className="text-center p-3 bg-card/50 backdrop-blur-sm rounded-lg">
                 <div className="flex items-center justify-center gap-1 text-neutral-600 dark:text-neutral-400 mb-1">
                   <Users className="h-4 w-4" />
                   <span className="text-xs font-medium">Votes</span>

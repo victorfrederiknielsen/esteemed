@@ -1,3 +1,4 @@
+import { AppearanceMenu } from "@/components/ui/appearance-menu";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -6,7 +7,6 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { useHeader } from "@/contexts/HeaderContext";
 import { Sparkles } from "lucide-react";
 import { Fragment } from "react";
@@ -16,7 +16,7 @@ export function Header() {
   const { breadcrumbs, actions } = useHeader();
 
   return (
-    <header className="border-b bg-white/80 dark:bg-neutral-900/80 backdrop-blur-sm sticky top-0 z-10">
+    <header className="border-b bg-background/80 backdrop-blur-sm sticky top-0 z-10">
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
         <Breadcrumb>
           <BreadcrumbList>
@@ -71,7 +71,7 @@ export function Header() {
           </BreadcrumbList>
         </Breadcrumb>
         <div className="flex items-center gap-4">
-          <ThemeToggle />
+          <AppearanceMenu />
           {actions}
         </div>
       </div>

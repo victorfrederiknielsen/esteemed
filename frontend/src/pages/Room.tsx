@@ -156,12 +156,12 @@ export function RoomPage() {
     const roomName = room?.name || roomId || "";
 
     const roomChip = (
-      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-neutral-100 dark:bg-neutral-800">
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-muted">
         <span className="font-mono text-sm">{roomName}</span>
         <button
           type="button"
           onClick={copyRoomLink}
-          className="p-0.5 rounded hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors"
+          className="p-0.5 rounded hover:bg-accent transition-colors"
         >
           {copied ? (
             <Check className="h-3.5 w-3.5 text-emerald-500" />
@@ -214,7 +214,7 @@ export function RoomPage() {
           <CardContent className="pt-6">
             <div className="text-center space-y-4">
               <div className="flex justify-center">
-                <div className="w-12 h-12 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center">
+                <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center">
                   <Clock className="h-6 w-6 text-neutral-400 animate-pulse" />
                 </div>
               </div>
@@ -322,7 +322,7 @@ export function RoomPage() {
 
           {/* Waiting state */}
           {isWaiting && (
-            <Card className="bg-white/70 dark:bg-neutral-800/70 backdrop-blur-sm">
+            <Card className="bg-card/70 backdrop-blur-sm">
               <CardHeader className="pb-3">
                 <CardTitle as="h2" className="text-lg">
                   Ready to Estimate?
@@ -331,7 +331,7 @@ export function RoomPage() {
               <CardContent>
                 <div className="text-center space-y-4 py-4">
                   <div className="flex justify-center">
-                    <div className="w-16 h-16 rounded-full bg-neutral-100/50 dark:bg-neutral-700/50 flex items-center justify-center">
+                    <div className="w-16 h-16 rounded-full bg-muted/50 flex items-center justify-center">
                       <Clock className="h-8 w-8 text-neutral-400 animate-pulse" />
                     </div>
                   </div>

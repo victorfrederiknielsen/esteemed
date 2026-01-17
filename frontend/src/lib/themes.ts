@@ -1,0 +1,288 @@
+export interface ThemeVariables {
+  background: string;
+  foreground: string;
+  card: string;
+  cardForeground: string;
+  popover: string;
+  popoverForeground: string;
+  primary: string;
+  primaryForeground: string;
+  secondary: string;
+  secondaryForeground: string;
+  muted: string;
+  mutedForeground: string;
+  accent: string;
+  accentForeground: string;
+  destructive: string;
+  border: string;
+  input: string;
+  ring: string;
+  success: string;
+  warning: string;
+  radius: string;
+}
+
+export interface Theme {
+  name: string;
+  light: ThemeVariables;
+  dark: ThemeVariables;
+}
+
+export const THEMES: Record<string, Theme> = {
+  default: {
+    name: "Default",
+    light: {
+      background: "oklch(1 0 0)",
+      foreground: "oklch(0.145 0 0)",
+      card: "oklch(1 0 0)",
+      cardForeground: "oklch(0.145 0 0)",
+      popover: "oklch(1 0 0)",
+      popoverForeground: "oklch(0.145 0 0)",
+      primary: "oklch(0.205 0 0)",
+      primaryForeground: "oklch(0.985 0 0)",
+      secondary: "oklch(0.97 0 0)",
+      secondaryForeground: "oklch(0.205 0 0)",
+      muted: "oklch(0.97 0 0)",
+      mutedForeground: "oklch(0.556 0 0)",
+      accent: "oklch(0.97 0 0)",
+      accentForeground: "oklch(0.205 0 0)",
+      destructive: "oklch(0.577 0.245 27.325)",
+      border: "oklch(0.922 0 0)",
+      input: "oklch(0.922 0 0)",
+      ring: "oklch(0.708 0 0)",
+      success: "oklch(0.723 0.219 149.579)",
+      warning: "oklch(0.795 0.184 86.047)",
+      radius: "0.625rem",
+    },
+    dark: {
+      background: "oklch(0.145 0 0)",
+      foreground: "oklch(0.985 0 0)",
+      card: "oklch(0.205 0 0)",
+      cardForeground: "oklch(0.985 0 0)",
+      popover: "oklch(0.205 0 0)",
+      popoverForeground: "oklch(0.985 0 0)",
+      primary: "oklch(0.922 0 0)",
+      primaryForeground: "oklch(0.205 0 0)",
+      secondary: "oklch(0.269 0 0)",
+      secondaryForeground: "oklch(0.985 0 0)",
+      muted: "oklch(0.269 0 0)",
+      mutedForeground: "oklch(0.708 0 0)",
+      accent: "oklch(0.269 0 0)",
+      accentForeground: "oklch(0.985 0 0)",
+      destructive: "oklch(0.704 0.191 22.216)",
+      border: "oklch(1 0 0 / 10%)",
+      input: "oklch(1 0 0 / 15%)",
+      ring: "oklch(0.556 0 0)",
+      success: "oklch(0.723 0.219 149.579)",
+      warning: "oklch(0.795 0.184 86.047)",
+      radius: "0.625rem",
+    },
+  },
+  ocean: {
+    name: "Ocean",
+    light: {
+      background: "oklch(0.99 0.005 240)",
+      foreground: "oklch(0.2 0.02 240)",
+      card: "oklch(1 0 0)",
+      cardForeground: "oklch(0.2 0.02 240)",
+      popover: "oklch(1 0 0)",
+      popoverForeground: "oklch(0.2 0.02 240)",
+      primary: "oklch(0.55 0.18 240)",
+      primaryForeground: "oklch(0.98 0.005 240)",
+      secondary: "oklch(0.95 0.02 240)",
+      secondaryForeground: "oklch(0.25 0.03 240)",
+      muted: "oklch(0.95 0.015 240)",
+      mutedForeground: "oklch(0.5 0.02 240)",
+      accent: "oklch(0.92 0.03 240)",
+      accentForeground: "oklch(0.25 0.03 240)",
+      destructive: "oklch(0.577 0.245 27.325)",
+      border: "oklch(0.9 0.02 240)",
+      input: "oklch(0.9 0.02 240)",
+      ring: "oklch(0.55 0.18 240)",
+      success: "oklch(0.723 0.219 149.579)",
+      warning: "oklch(0.795 0.184 86.047)",
+      radius: "0.5rem",
+    },
+    dark: {
+      background: "oklch(0.18 0.02 240)",
+      foreground: "oklch(0.95 0.01 240)",
+      card: "oklch(0.22 0.025 240)",
+      cardForeground: "oklch(0.95 0.01 240)",
+      popover: "oklch(0.22 0.025 240)",
+      popoverForeground: "oklch(0.95 0.01 240)",
+      primary: "oklch(0.65 0.18 220)",
+      primaryForeground: "oklch(0.15 0.02 240)",
+      secondary: "oklch(0.28 0.03 240)",
+      secondaryForeground: "oklch(0.92 0.01 240)",
+      muted: "oklch(0.28 0.025 240)",
+      mutedForeground: "oklch(0.65 0.02 240)",
+      accent: "oklch(0.32 0.04 240)",
+      accentForeground: "oklch(0.92 0.01 240)",
+      destructive: "oklch(0.704 0.191 22.216)",
+      border: "oklch(1 0 0 / 12%)",
+      input: "oklch(1 0 0 / 15%)",
+      ring: "oklch(0.65 0.18 220)",
+      success: "oklch(0.723 0.219 149.579)",
+      warning: "oklch(0.795 0.184 86.047)",
+      radius: "0.5rem",
+    },
+  },
+  forest: {
+    name: "Forest",
+    light: {
+      background: "oklch(0.99 0.005 145)",
+      foreground: "oklch(0.2 0.03 145)",
+      card: "oklch(1 0 0)",
+      cardForeground: "oklch(0.2 0.03 145)",
+      popover: "oklch(1 0 0)",
+      popoverForeground: "oklch(0.2 0.03 145)",
+      primary: "oklch(0.5 0.16 150)",
+      primaryForeground: "oklch(0.98 0.01 145)",
+      secondary: "oklch(0.95 0.025 145)",
+      secondaryForeground: "oklch(0.25 0.04 145)",
+      muted: "oklch(0.95 0.02 145)",
+      mutedForeground: "oklch(0.5 0.03 145)",
+      accent: "oklch(0.92 0.04 145)",
+      accentForeground: "oklch(0.25 0.04 145)",
+      destructive: "oklch(0.577 0.245 27.325)",
+      border: "oklch(0.9 0.025 145)",
+      input: "oklch(0.9 0.025 145)",
+      ring: "oklch(0.5 0.16 150)",
+      success: "oklch(0.723 0.219 149.579)",
+      warning: "oklch(0.795 0.184 86.047)",
+      radius: "0.375rem",
+    },
+    dark: {
+      background: "oklch(0.17 0.025 145)",
+      foreground: "oklch(0.95 0.015 145)",
+      card: "oklch(0.21 0.03 145)",
+      cardForeground: "oklch(0.95 0.015 145)",
+      popover: "oklch(0.21 0.03 145)",
+      popoverForeground: "oklch(0.95 0.015 145)",
+      primary: "oklch(0.6 0.16 145)",
+      primaryForeground: "oklch(0.15 0.025 145)",
+      secondary: "oklch(0.27 0.035 145)",
+      secondaryForeground: "oklch(0.92 0.015 145)",
+      muted: "oklch(0.27 0.03 145)",
+      mutedForeground: "oklch(0.65 0.025 145)",
+      accent: "oklch(0.31 0.045 145)",
+      accentForeground: "oklch(0.92 0.015 145)",
+      destructive: "oklch(0.704 0.191 22.216)",
+      border: "oklch(1 0 0 / 12%)",
+      input: "oklch(1 0 0 / 15%)",
+      ring: "oklch(0.6 0.16 145)",
+      success: "oklch(0.723 0.219 149.579)",
+      warning: "oklch(0.795 0.184 86.047)",
+      radius: "0.375rem",
+    },
+  },
+  rose: {
+    name: "Rose",
+    light: {
+      background: "oklch(0.99 0.005 350)",
+      foreground: "oklch(0.2 0.02 350)",
+      card: "oklch(1 0 0)",
+      cardForeground: "oklch(0.2 0.02 350)",
+      popover: "oklch(1 0 0)",
+      popoverForeground: "oklch(0.2 0.02 350)",
+      primary: "oklch(0.6 0.2 350)",
+      primaryForeground: "oklch(0.98 0.01 350)",
+      secondary: "oklch(0.95 0.025 350)",
+      secondaryForeground: "oklch(0.25 0.03 350)",
+      muted: "oklch(0.95 0.02 350)",
+      mutedForeground: "oklch(0.5 0.02 350)",
+      accent: "oklch(0.92 0.04 350)",
+      accentForeground: "oklch(0.25 0.03 350)",
+      destructive: "oklch(0.577 0.245 27.325)",
+      border: "oklch(0.9 0.025 350)",
+      input: "oklch(0.9 0.025 350)",
+      ring: "oklch(0.6 0.2 350)",
+      success: "oklch(0.723 0.219 149.579)",
+      warning: "oklch(0.795 0.184 86.047)",
+      radius: "0.75rem",
+    },
+    dark: {
+      background: "oklch(0.17 0.02 350)",
+      foreground: "oklch(0.95 0.015 350)",
+      card: "oklch(0.21 0.025 350)",
+      cardForeground: "oklch(0.95 0.015 350)",
+      popover: "oklch(0.21 0.025 350)",
+      popoverForeground: "oklch(0.95 0.015 350)",
+      primary: "oklch(0.7 0.18 350)",
+      primaryForeground: "oklch(0.15 0.02 350)",
+      secondary: "oklch(0.27 0.03 350)",
+      secondaryForeground: "oklch(0.92 0.015 350)",
+      muted: "oklch(0.27 0.025 350)",
+      mutedForeground: "oklch(0.65 0.02 350)",
+      accent: "oklch(0.31 0.04 350)",
+      accentForeground: "oklch(0.92 0.015 350)",
+      destructive: "oklch(0.704 0.191 22.216)",
+      border: "oklch(1 0 0 / 12%)",
+      input: "oklch(1 0 0 / 15%)",
+      ring: "oklch(0.7 0.18 350)",
+      success: "oklch(0.723 0.219 149.579)",
+      warning: "oklch(0.795 0.184 86.047)",
+      radius: "0.75rem",
+    },
+  },
+  "vintage-paper": {
+    name: "Vintage Paper",
+    light: {
+      background: "oklch(0.9582 0.0152 90.2357)",
+      foreground: "oklch(0.3760 0.0225 64.3434)",
+      card: "oklch(0.9914 0.0098 87.4695)",
+      cardForeground: "oklch(0.3760 0.0225 64.3434)",
+      popover: "oklch(0.9914 0.0098 87.4695)",
+      popoverForeground: "oklch(0.3760 0.0225 64.3434)",
+      primary: "oklch(0.6180 0.0778 65.5444)",
+      primaryForeground: "oklch(1.0000 0 0)",
+      secondary: "oklch(0.8846 0.0302 85.5655)",
+      secondaryForeground: "oklch(0.4313 0.0300 64.9288)",
+      muted: "oklch(0.9239 0.0190 83.0636)",
+      mutedForeground: "oklch(0.5391 0.0387 71.1655)",
+      accent: "oklch(0.8348 0.0426 88.8064)",
+      accentForeground: "oklch(0.3760 0.0225 64.3434)",
+      destructive: "oklch(0.5471 0.1438 32.9149)",
+      border: "oklch(0.8606 0.0321 84.5881)",
+      input: "oklch(0.8606 0.0321 84.5881)",
+      ring: "oklch(0.6180 0.0778 65.5444)",
+      success: "oklch(0.723 0.219 149.579)",
+      warning: "oklch(0.795 0.184 86.047)",
+      radius: "0.25rem",
+    },
+    dark: {
+      background: "oklch(0.2747 0.0139 57.6523)",
+      foreground: "oklch(0.9239 0.0190 83.0636)",
+      card: "oklch(0.3237 0.0155 59.0603)",
+      cardForeground: "oklch(0.9239 0.0190 83.0636)",
+      popover: "oklch(0.3237 0.0155 59.0603)",
+      popoverForeground: "oklch(0.9239 0.0190 83.0636)",
+      primary: "oklch(0.7264 0.0581 66.6967)",
+      primaryForeground: "oklch(0.2747 0.0139 57.6523)",
+      secondary: "oklch(0.3795 0.0181 57.1280)",
+      secondaryForeground: "oklch(0.9239 0.0190 83.0636)",
+      muted: "oklch(0.2939 0.0125 62.1298)",
+      mutedForeground: "oklch(0.7982 0.0243 82.1078)",
+      accent: "oklch(0.4186 0.0281 56.3404)",
+      accentForeground: "oklch(0.9239 0.0190 83.0636)",
+      destructive: "oklch(0.5471 0.1438 32.9149)",
+      border: "oklch(0.3795 0.0181 57.1280)",
+      input: "oklch(0.3795 0.0181 57.1280)",
+      ring: "oklch(0.7264 0.0581 66.6967)",
+      success: "oklch(0.723 0.219 149.579)",
+      warning: "oklch(0.795 0.184 86.047)",
+      radius: "0.25rem",
+    },
+  },
+};
+
+export const THEME_KEYS = Object.keys(THEMES) as Array<keyof typeof THEMES>;
+
+export function getThemePrimaryColor(
+  themeKey: string,
+  isDark: boolean,
+): string {
+  const theme = THEMES[themeKey];
+  if (!theme) return THEMES.default.light.primary;
+  return isDark ? theme.dark.primary : theme.light.primary;
+}

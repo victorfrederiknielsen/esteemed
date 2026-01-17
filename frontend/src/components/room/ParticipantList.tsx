@@ -86,7 +86,7 @@ export function ParticipantList({
         key={participant.id}
         className={cn(
           "group flex items-center gap-3 p-2 rounded-lg transition-colors",
-          isCurrentUser && "bg-neutral-100/50 dark:bg-neutral-700/50",
+          isCurrentUser && "bg-muted/50",
           !participant.isConnected && "opacity-50",
         )}
       >
@@ -98,8 +98,7 @@ export function ParticipantList({
                 hasVoted &&
                 !isRevealed &&
                 "bg-success text-white",
-              !participant.isConnected &&
-                "bg-neutral-300 dark:bg-neutral-600 text-neutral-500 dark:text-neutral-400",
+              !participant.isConnected && "bg-muted text-muted-foreground",
             )}
           >
             {!participant.isConnected ? (
@@ -185,7 +184,7 @@ export function ParticipantList({
   };
 
   return (
-    <Card className="bg-white/70 dark:bg-neutral-800/70 backdrop-blur-sm">
+    <Card className="bg-card/70 backdrop-blur-sm">
       <CardHeader>
         <CardTitle as="h2" className="text-lg flex items-center gap-2">
           <Users className="h-4 w-4" />
@@ -205,7 +204,7 @@ export function ParticipantList({
               <Eye className="h-3.5 w-3.5" />
               <span>Spectators ({spectators.length})</span>
             </h3>
-            <div className="space-y-1 bg-neutral-50/50 dark:bg-neutral-900/30 rounded-lg p-2 -mx-1">
+            <div className="space-y-1 bg-muted/30 rounded-lg p-2 -mx-1">
               {spectators.map(renderParticipant)}
             </div>
           </div>

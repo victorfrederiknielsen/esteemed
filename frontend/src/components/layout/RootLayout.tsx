@@ -6,7 +6,7 @@ import { PageTransition } from "./PageTransition";
 export function RootLayout() {
   return (
     <HeaderProvider>
-      <div className="min-h-screen bg-gradient-to-br from-neutral-50 to-neutral-100 dark:from-neutral-900 dark:to-neutral-800">
+      <div className="min-h-screen bg-gradient-to-br from-background to-muted">
         <Header />
         <main className="container mx-auto px-4 py-8">
           <PageTransition>
