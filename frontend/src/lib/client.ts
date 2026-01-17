@@ -20,6 +20,7 @@ export const estimationClient = createPromiseClient(
 // Global identity storage - single token and name that follows user everywhere
 const IDENTITY_KEY = "esteemed_identity";
 const ROOM_PARTICIPANTS_KEY = "esteemed_room_participants";
+const RECENT_ROOMS_KEY = "esteemed_recent_rooms";
 const OLD_SESSIONS_KEY = "esteemed_sessions"; // For migration cleanup
 
 export interface UserIdentity {
@@ -28,8 +29,17 @@ export interface UserIdentity {
   customName?: string; // User's custom override (optional)
 }
 
-// Room → participantId mapping (for local state tracking)
+// Room → participantId mapping (for reconnection)
 type RoomParticipantMap = Record<string, string>;
+
+// Room → lastVisited timestamp (for recent rooms display)
+type RecentRoomsMap = Record<string, number>;
+
+// Recent room entry for display
+export interface RecentRoom {
+  name: string;
+  lastVisited: number;
+}
 
 // Migration: clear old per-room sessions on first load
 function migrateOldSessions(): void {
@@ -79,7 +89,7 @@ export function setCustomName(name: string): void {
   localStorage.setItem(IDENTITY_KEY, JSON.stringify(identity));
 }
 
-// Room participant ID storage (tracks which participantId we have in each room)
+// Room participant ID storage (tracks which participantId we have in each room for reconnection)
 function loadRoomParticipants(): RoomParticipantMap {
   const stored = localStorage.getItem(ROOM_PARTICIPANTS_KEY);
   if (!stored) return {};
@@ -101,6 +111,8 @@ export function saveRoomParticipantId(
   const map = loadRoomParticipants();
   map[roomId] = participantId;
   saveRoomParticipants(map);
+  // Also track this room visit
+  updateRoomVisit(roomId);
 }
 
 export function getRoomParticipantId(roomId: string): string | null {
@@ -112,4 +124,56 @@ export function clearRoomParticipantId(roomId: string): void {
   const map = loadRoomParticipants();
   delete map[roomId];
   saveRoomParticipants(map);
+}
+
+// Recent rooms storage (tracks visit timestamps for history display)
+function loadRecentRooms(): RecentRoomsMap {
+  const stored = localStorage.getItem(RECENT_ROOMS_KEY);
+  if (!stored) return {};
+  try {
+    return JSON.parse(stored);
+  } catch {
+    return {};
+  }
+}
+
+function saveRecentRoomsMap(map: RecentRoomsMap): void {
+  localStorage.setItem(RECENT_ROOMS_KEY, JSON.stringify(map));
+}
+
+// Update the lastVisited timestamp for a room
+export function updateRoomVisit(roomName: string): void {
+  const map = loadRecentRooms();
+  map[roomName] = Date.now();
+  saveRecentRoomsMap(map);
+}
+
+// Get recently visited rooms sorted by most recent, limited to last 7 days
+export function getRecentRooms(limit = 5): RecentRoom[] {
+  const map = loadRecentRooms();
+  const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+
+  return Object.entries(map)
+    .filter(([, timestamp]) => timestamp > sevenDaysAgo)
+    .map(([name, timestamp]) => ({
+      name,
+      lastVisited: timestamp,
+    }))
+    .sort((a, b) => b.lastVisited - a.lastVisited)
+    .slice(0, limit);
+}
+
+// Format relative time for display
+export function formatRelativeTime(timestamp: number): string {
+  const now = Date.now();
+  const diffMs = now - timestamp;
+  const diffMins = Math.floor(diffMs / (1000 * 60));
+  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+  if (diffMins < 1) return "just now";
+  if (diffMins < 60) return `${diffMins}m ago`;
+  if (diffHours < 24) return `${diffHours}h ago`;
+  if (diffDays === 1) return "yesterday";
+  return `${diffDays}d ago`;
 }
