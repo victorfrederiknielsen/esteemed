@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"path/filepath"
+	"strings"
 	"syscall"
 	"time"
 
@@ -56,6 +58,13 @@ func main() {
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("OK"))
 	})
+
+	// Serve static files from /app/static (production) or fall back to API-only mode
+	staticDir := "./static"
+	if _, err := os.Stat(staticDir); err == nil {
+		// Serve static files, with SPA fallback to index.html
+		mux.Handle("/", spaHandler(staticDir))
+	}
 
 	// CORS middleware for development
 	handler := corsMiddleware(mux)
@@ -108,5 +117,32 @@ func corsMiddleware(next http.Handler) http.Handler {
 		}
 
 		next.ServeHTTP(w, r)
+	})
+}
+
+// spaHandler serves static files and falls back to index.html for SPA routing
+func spaHandler(staticDir string) http.Handler {
+	fs := http.Dir(staticDir)
+	fileServer := http.FileServer(fs)
+
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		path := r.URL.Path
+
+		// Try to serve the file directly
+		filePath := filepath.Join(staticDir, path)
+		if info, err := os.Stat(filePath); err == nil && !info.IsDir() {
+			fileServer.ServeHTTP(w, r)
+			return
+		}
+
+		// Check if it's a static asset request (has file extension)
+		if strings.Contains(path, ".") {
+			// File not found, return 404
+			http.NotFound(w, r)
+			return
+		}
+
+		// SPA fallback: serve index.html for all other routes
+		http.ServeFile(w, r, filepath.Join(staticDir, "index.html"))
 	})
 }
