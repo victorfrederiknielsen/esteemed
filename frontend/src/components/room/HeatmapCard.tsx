@@ -23,18 +23,16 @@ export const HeatmapCard = forwardRef<HTMLDivElement, HeatmapCardProps>(
     const backgroundColor = `hsla(221.2, 83.2%, 53.3%, ${opacity})`;
 
     return (
-      <div ref={ref} className="relative isolate">
-        {/* Glow effect for mode card - positioned absolutely so it doesn't affect layout */}
-        {isMode && (
-          <div className="absolute -inset-8 consensus-glow-card rounded-lg pointer-events-none" />
-        )}
-        {/* Card content - fixed height for all cards */}
+      <div ref={ref} className="relative h-[120px]">
+        {/* Background layer */}
         <div
-          className={`relative rounded-lg p-3 h-[120px] flex flex-col items-center justify-center transition-all duration-500 ${
+          className={`absolute inset-0 rounded-lg transition-all duration-500 ${
             isMode ? "consensus-badge" : ""
           }`}
           style={isMode ? undefined : { backgroundColor }}
-        >
+        />
+        {/* Content layer - above background */}
+        <div className="relative z-10 h-full p-3 flex flex-col items-center justify-center">
           <div className="flex flex-col items-center gap-1">
             <span
               className={`font-bold text-3xl transition-all duration-500 ${

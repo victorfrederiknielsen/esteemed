@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { RoomState, useRoom } from "@/hooks/useRoom";
 import { useVoting } from "@/hooks/useVoting";
 import { generateParticipantName } from "@/lib/namegen";
@@ -104,7 +105,10 @@ export function RoomPage() {
   // Show join form if not connected
   if (!isConnected && !roomLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-slate-50 to-slate-100">
+      <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
+        <div className="absolute top-4 right-4">
+          <ThemeToggle />
+        </div>
         <Card className="w-full max-w-md">
           <CardHeader>
             <CardTitle>Join Room: {roomId}</CardTitle>
@@ -114,7 +118,7 @@ export function RoomPage() {
               <div>
                 <label
                   htmlFor="joinName"
-                  className="block text-sm font-medium text-slate-700 mb-1"
+                  className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1"
                 >
                   Your Name
                 </label>
@@ -163,12 +167,14 @@ export function RoomPage() {
   const totalParticipants = participants.length;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
       {/* Header */}
-      <header className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-10">
+      <header className="border-b bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm sticky top-0 z-10">
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <h1 className="text-xl font-bold text-slate-900">Esteemed</h1>
+            <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100">
+              Esteemed
+            </h1>
             <Badge variant="secondary" className="font-mono">
               {room?.name}
             </Badge>
@@ -178,11 +184,12 @@ export function RoomPage() {
             </Button>
           </div>
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 text-sm text-slate-600">
+            <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
               <Users className="h-4 w-4" />
               {totalParticipants} participant
               {totalParticipants !== 1 ? "s" : ""}
             </div>
+            <ThemeToggle />
             <Button variant="outline" size="sm" onClick={handleLeave}>
               <LogOut className="h-4 w-4 mr-1" />
               Leave
@@ -197,19 +204,19 @@ export function RoomPage() {
           <div className="lg:col-span-2 space-y-6">
             {/* Waiting state */}
             {isWaiting && (
-              <Card>
+              <Card className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm">
                 <CardHeader className="pb-3">
                   <CardTitle className="text-lg">Ready to Estimate?</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="text-center space-y-4 py-4">
                     <div className="flex justify-center">
-                      <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center">
+                      <div className="w-16 h-16 rounded-full bg-slate-100/50 dark:bg-slate-700/50 flex items-center justify-center">
                         <Clock className="h-8 w-8 text-slate-400 animate-pulse" />
                       </div>
                     </div>
                     <div className="space-y-1">
-                      <p className="text-slate-600 font-medium">
+                      <p className="text-slate-600 dark:text-slate-300 font-medium">
                         {isHost
                           ? "Ready when you are"
                           : "Waiting for the host to start"}
@@ -238,16 +245,16 @@ export function RoomPage() {
 
             {/* Vote progress - shown during voting */}
             {isVoting && !isRevealed && (
-              <Card>
+              <Card className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm">
                 <CardContent className="pt-6">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium text-slate-600">
+                    <span className="text-sm font-medium text-slate-600 dark:text-slate-400">
                       Votes: {votedCount} / {totalParticipants}
                     </span>
                   </div>
-                  <div className="w-full bg-slate-200 rounded-full h-2">
+                  <div className="w-full bg-slate-200/50 dark:bg-slate-700/50 rounded-full h-2">
                     <div
-                      className="bg-primary h-2 rounded-full transition-all duration-300"
+                      className="bg-primary/80 h-2 rounded-full transition-all duration-300"
                       style={{
                         width: `${(votedCount / Math.max(totalParticipants, 1)) * 100}%`,
                       }}
@@ -262,7 +269,7 @@ export function RoomPage() {
           <div className="space-y-6">
             {/* Host Controls */}
             {isHost && (
-              <Card>
+              <Card className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm">
                 <CardHeader className="pb-3">
                   <CardTitle className="text-lg">Controls</CardTitle>
                 </CardHeader>

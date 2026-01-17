@@ -8,6 +8,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import type { RoomSummary } from "@/gen/esteemed/v1/room_pb";
 import { RoomState } from "@/gen/esteemed/v1/room_pb";
 import { useRoom } from "@/hooks/useRoom";
@@ -97,13 +98,16 @@ export function HomePage() {
   };
 
   return (
-    <div className="min-h-screen p-4 bg-gradient-to-br from-slate-50 to-slate-100">
+    <div className="min-h-screen p-4 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
       <div className="max-w-4xl mx-auto">
+        <div className="absolute top-4 right-4">
+          <ThemeToggle />
+        </div>
         <div className="text-center mb-8 pt-8">
-          <h1 className="text-4xl font-bold tracking-tight text-slate-900">
+          <h1 className="text-4xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
             Esteemed
           </h1>
-          <p className="mt-2 text-slate-600">
+          <p className="mt-2 text-slate-600 dark:text-slate-400">
             Planning poker for engineering teams
           </p>
         </div>
@@ -143,7 +147,7 @@ export function HomePage() {
                   <div>
                     <label
                       htmlFor="hostName"
-                      className="block text-sm font-medium text-slate-700 mb-1"
+                      className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1"
                     >
                       Your Name
                     </label>
@@ -180,7 +184,7 @@ export function HomePage() {
                   <div>
                     <label
                       htmlFor="roomCode"
-                      className="block text-sm font-medium text-slate-700 mb-1"
+                      className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1"
                     >
                       Room Code
                     </label>
@@ -195,7 +199,7 @@ export function HomePage() {
                   <div>
                     <label
                       htmlFor="participantName"
-                      className="block text-sm font-medium text-slate-700 mb-1"
+                      className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1"
                     >
                       Your Name
                     </label>
@@ -259,11 +263,11 @@ export function HomePage() {
             </CardHeader>
             <CardContent>
               {loadingRooms && rooms.length === 0 ? (
-                <p className="text-sm text-slate-500 text-center py-4">
+                <p className="text-sm text-slate-500 dark:text-slate-400 text-center py-4">
                   Loading rooms...
                 </p>
               ) : rooms.length === 0 ? (
-                <p className="text-sm text-slate-500 text-center py-4">
+                <p className="text-sm text-slate-500 dark:text-slate-400 text-center py-4">
                   No active rooms
                 </p>
               ) : (
@@ -271,7 +275,7 @@ export function HomePage() {
                   {rooms.map((room) => (
                     <div
                       key={room.id}
-                      className="flex items-center justify-between p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
+                      className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                       onClick={() => {
                         setRoomCode(room.name);
                         setMode("join");
@@ -281,7 +285,7 @@ export function HomePage() {
                         {room.name}
                       </p>
                       <div className="flex items-center gap-2">
-                        <div className="flex items-center gap-1 text-slate-500">
+                        <div className="flex items-center gap-1 text-slate-500 dark:text-slate-400">
                           <Users className="h-3.5 w-3.5" />
                           <span className="text-xs">
                             {room.participantCount}
@@ -299,7 +303,7 @@ export function HomePage() {
           </Card>
         </div>
 
-        <p className="mt-8 text-center text-sm text-slate-500">
+        <p className="mt-8 text-center text-sm text-slate-500 dark:text-slate-400">
           Real-time estimation for agile teams
         </p>
       </div>

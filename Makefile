@@ -1,4 +1,4 @@
-.PHONY: dev dev-backend dev-frontend proto build docker-build k8s-deploy frontend-setup frontend-components clean test up down logs lint lint-backend lint-frontend fmt
+.PHONY: dev dev-backend dev-frontend proto build docker-build k8s-deploy frontend-setup frontend-setup-docker frontend-components clean test up down logs lint lint-backend lint-frontend fmt
 
 # Development
 dev: dev-backend dev-frontend
@@ -53,6 +53,9 @@ k8s-delete:
 frontend-setup:
 	cd frontend && npm install
 
+frontend-setup-docker:
+	docker compose run --rm frontend npm install
+
 # Testing
 test: test-backend test-frontend
 
@@ -103,7 +106,8 @@ help:
 	@echo "  build          - Build production artifacts"
 	@echo "  docker-build   - Build container image"
 	@echo "  k8s-deploy     - Deploy to Kubernetes"
-	@echo "  frontend-setup - npm install"
+	@echo "  frontend-setup        - npm install"
+	@echo "  frontend-setup-docker - npm install in Docker"
 	@echo "  test           - Run all tests"
 	@echo "  lint           - Run linters (golangci-lint + biome)"
 	@echo "  fmt            - Format code"

@@ -9,9 +9,9 @@ import (
 
 // RoomRepository is an in-memory implementation of the RoomRepository port
 type RoomRepository struct {
-	mu      sync.RWMutex
-	rooms   map[string]*domain.Room
-	byName  map[string]string // name -> id mapping
+	mu     sync.RWMutex
+	rooms  map[string]*domain.Room
+	byName map[string]string // name -> id mapping
 }
 
 // NewRoomRepository creates a new in-memory room repository

@@ -4,7 +4,7 @@ import type { VoteSummary } from "@/lib/types";
 import { CARD_VALUES, cardValueToLabel } from "@/lib/types";
 import confetti from "canvas-confetti";
 import { TrendingUp, Trophy, Users } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { HeatmapCard } from "./HeatmapCard";
 
 interface VoteResultsProps {
@@ -14,6 +14,32 @@ interface VoteResultsProps {
 export function VoteResults({ summary }: VoteResultsProps) {
   const hasTriggeredConfetti = useRef(false);
   const modeCardRef = useRef<HTMLDivElement>(null);
+  const gridRef = useRef<HTMLDivElement>(null);
+  const [glowPosition, setGlowPosition] = useState<{
+    top: number;
+    left: number;
+    width: number;
+    height: number;
+  } | null>(null);
+
+  // Calculate glow position relative to grid
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (modeCardRef.current && gridRef.current) {
+        const cardRect = modeCardRef.current.getBoundingClientRect();
+        const gridRect = gridRef.current.getBoundingClientRect();
+        setGlowPosition({
+          top: cardRect.top - gridRect.top,
+          left: cardRect.left - gridRect.left,
+          width: cardRect.width,
+          height: cardRect.height,
+        });
+      } else {
+        setGlowPosition(null);
+      }
+    }, 50);
+    return () => clearTimeout(timeout);
+  }, [summary]);
 
   // Trigger confetti from the mode card
   useEffect(() => {
@@ -149,24 +175,32 @@ export function VoteResults({ summary }: VoteResultsProps) {
           <h4 className="text-sm font-medium text-slate-600 mb-3">
             Vote Distribution
           </h4>
-          <div className="grid grid-cols-3 sm:grid-cols-5 gap-3 py-4">
-            {CARD_VALUES.map((card) => {
-              const isMode =
-                card.label === modeLabel &&
-                (votesByCard[card.label]?.count || 0) > 0;
-              return (
-                <HeatmapCard
-                  key={card.value}
-                  ref={isMode ? modeCardRef : undefined}
-                  label={card.label}
-                  voteCount={votesByCard[card.label]?.count || 0}
-                  maxVoteCount={maxCount}
-                  totalVotes={summary.votes.length}
-                  voterNames={votesByCard[card.label]?.names || []}
-                  isMode={isMode}
-                />
-              );
-            })}
+          <div
+            ref={gridRef}
+            className="relative py-4"
+            style={{
+              background: glowPosition ? "rgba(255,0,0,0.3)" : undefined,
+            }}
+          >
+            <div className="grid grid-cols-3 sm:grid-cols-5 gap-3">
+              {CARD_VALUES.map((card) => {
+                const isMode =
+                  card.label === modeLabel &&
+                  (votesByCard[card.label]?.count || 0) > 0;
+                return (
+                  <HeatmapCard
+                    key={card.value}
+                    ref={isMode ? modeCardRef : undefined}
+                    label={card.label}
+                    voteCount={votesByCard[card.label]?.count || 0}
+                    maxVoteCount={maxCount}
+                    totalVotes={summary.votes.length}
+                    voterNames={votesByCard[card.label]?.names || []}
+                    isMode={isMode}
+                  />
+                );
+              })}
+            </div>
           </div>
         </div>
       </CardContent>
