@@ -41,8 +41,6 @@ const (
 	RoomServiceJoinRoomProcedure = "/esteemed.v1.RoomService/JoinRoom"
 	// RoomServiceLeaveRoomProcedure is the fully-qualified name of the RoomService's LeaveRoom RPC.
 	RoomServiceLeaveRoomProcedure = "/esteemed.v1.RoomService/LeaveRoom"
-	// RoomServiceGetRoomProcedure is the fully-qualified name of the RoomService's GetRoom RPC.
-	RoomServiceGetRoomProcedure = "/esteemed.v1.RoomService/GetRoom"
 	// RoomServiceWatchRoomProcedure is the fully-qualified name of the RoomService's WatchRoom RPC.
 	RoomServiceWatchRoomProcedure = "/esteemed.v1.RoomService/WatchRoom"
 	// RoomServiceKickParticipantProcedure is the fully-qualified name of the RoomService's
@@ -63,8 +61,6 @@ type RoomServiceClient interface {
 	JoinRoom(context.Context, *connect.Request[v1.JoinRoomRequest]) (*connect.Response[v1.JoinRoomResponse], error)
 	// LeaveRoom removes a participant from a room
 	LeaveRoom(context.Context, *connect.Request[v1.LeaveRoomRequest]) (*connect.Response[v1.LeaveRoomResponse], error)
-	// GetRoom returns the current state of a room
-	GetRoom(context.Context, *connect.Request[v1.GetRoomRequest]) (*connect.Response[v1.GetRoomResponse], error)
 	// WatchRoom streams real-time participant and room state updates
 	WatchRoom(context.Context, *connect.Request[v1.WatchRoomRequest]) (*connect.ServerStreamForClient[v1.RoomEvent], error)
 	// KickParticipant removes a participant from the room (host only)
@@ -108,12 +104,6 @@ func NewRoomServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 			connect.WithSchema(roomServiceMethods.ByName("LeaveRoom")),
 			connect.WithClientOptions(opts...),
 		),
-		getRoom: connect.NewClient[v1.GetRoomRequest, v1.GetRoomResponse](
-			httpClient,
-			baseURL+RoomServiceGetRoomProcedure,
-			connect.WithSchema(roomServiceMethods.ByName("GetRoom")),
-			connect.WithClientOptions(opts...),
-		),
 		watchRoom: connect.NewClient[v1.WatchRoomRequest, v1.RoomEvent](
 			httpClient,
 			baseURL+RoomServiceWatchRoomProcedure,
@@ -141,7 +131,6 @@ type roomServiceClient struct {
 	createRoom        *connect.Client[v1.CreateRoomRequest, v1.CreateRoomResponse]
 	joinRoom          *connect.Client[v1.JoinRoomRequest, v1.JoinRoomResponse]
 	leaveRoom         *connect.Client[v1.LeaveRoomRequest, v1.LeaveRoomResponse]
-	getRoom           *connect.Client[v1.GetRoomRequest, v1.GetRoomResponse]
 	watchRoom         *connect.Client[v1.WatchRoomRequest, v1.RoomEvent]
 	kickParticipant   *connect.Client[v1.KickParticipantRequest, v1.KickParticipantResponse]
 	transferOwnership *connect.Client[v1.TransferOwnershipRequest, v1.TransferOwnershipResponse]
@@ -165,11 +154,6 @@ func (c *roomServiceClient) JoinRoom(ctx context.Context, req *connect.Request[v
 // LeaveRoom calls esteemed.v1.RoomService.LeaveRoom.
 func (c *roomServiceClient) LeaveRoom(ctx context.Context, req *connect.Request[v1.LeaveRoomRequest]) (*connect.Response[v1.LeaveRoomResponse], error) {
 	return c.leaveRoom.CallUnary(ctx, req)
-}
-
-// GetRoom calls esteemed.v1.RoomService.GetRoom.
-func (c *roomServiceClient) GetRoom(ctx context.Context, req *connect.Request[v1.GetRoomRequest]) (*connect.Response[v1.GetRoomResponse], error) {
-	return c.getRoom.CallUnary(ctx, req)
 }
 
 // WatchRoom calls esteemed.v1.RoomService.WatchRoom.
@@ -197,8 +181,6 @@ type RoomServiceHandler interface {
 	JoinRoom(context.Context, *connect.Request[v1.JoinRoomRequest]) (*connect.Response[v1.JoinRoomResponse], error)
 	// LeaveRoom removes a participant from a room
 	LeaveRoom(context.Context, *connect.Request[v1.LeaveRoomRequest]) (*connect.Response[v1.LeaveRoomResponse], error)
-	// GetRoom returns the current state of a room
-	GetRoom(context.Context, *connect.Request[v1.GetRoomRequest]) (*connect.Response[v1.GetRoomResponse], error)
 	// WatchRoom streams real-time participant and room state updates
 	WatchRoom(context.Context, *connect.Request[v1.WatchRoomRequest], *connect.ServerStream[v1.RoomEvent]) error
 	// KickParticipant removes a participant from the room (host only)
@@ -238,12 +220,6 @@ func NewRoomServiceHandler(svc RoomServiceHandler, opts ...connect.HandlerOption
 		connect.WithSchema(roomServiceMethods.ByName("LeaveRoom")),
 		connect.WithHandlerOptions(opts...),
 	)
-	roomServiceGetRoomHandler := connect.NewUnaryHandler(
-		RoomServiceGetRoomProcedure,
-		svc.GetRoom,
-		connect.WithSchema(roomServiceMethods.ByName("GetRoom")),
-		connect.WithHandlerOptions(opts...),
-	)
 	roomServiceWatchRoomHandler := connect.NewServerStreamHandler(
 		RoomServiceWatchRoomProcedure,
 		svc.WatchRoom,
@@ -272,8 +248,6 @@ func NewRoomServiceHandler(svc RoomServiceHandler, opts ...connect.HandlerOption
 			roomServiceJoinRoomHandler.ServeHTTP(w, r)
 		case RoomServiceLeaveRoomProcedure:
 			roomServiceLeaveRoomHandler.ServeHTTP(w, r)
-		case RoomServiceGetRoomProcedure:
-			roomServiceGetRoomHandler.ServeHTTP(w, r)
 		case RoomServiceWatchRoomProcedure:
 			roomServiceWatchRoomHandler.ServeHTTP(w, r)
 		case RoomServiceKickParticipantProcedure:
@@ -303,10 +277,6 @@ func (UnimplementedRoomServiceHandler) JoinRoom(context.Context, *connect.Reques
 
 func (UnimplementedRoomServiceHandler) LeaveRoom(context.Context, *connect.Request[v1.LeaveRoomRequest]) (*connect.Response[v1.LeaveRoomResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("esteemed.v1.RoomService.LeaveRoom is not implemented"))
-}
-
-func (UnimplementedRoomServiceHandler) GetRoom(context.Context, *connect.Request[v1.GetRoomRequest]) (*connect.Response[v1.GetRoomResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("esteemed.v1.RoomService.GetRoom is not implemented"))
 }
 
 func (UnimplementedRoomServiceHandler) WatchRoom(context.Context, *connect.Request[v1.WatchRoomRequest], *connect.ServerStream[v1.RoomEvent]) error {

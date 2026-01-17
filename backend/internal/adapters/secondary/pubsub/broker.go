@@ -125,35 +125,3 @@ func (b *Broker) SubscribeVoteEvents(_ context.Context, roomID string) (events <
 	events = ch
 	return
 }
-
-// CleanupRoom removes all subscriptions for a room
-func (b *Broker) CleanupRoom(roomID string) {
-	b.mu.Lock()
-	defer b.mu.Unlock()
-
-	// Close and remove all room event channels
-	for _, ch := range b.roomSubs[roomID] {
-		close(ch)
-	}
-	delete(b.roomSubs, roomID)
-
-	// Close and remove all vote event channels
-	for _, ch := range b.voteSubs[roomID] {
-		close(ch)
-	}
-	delete(b.voteSubs, roomID)
-}
-
-// Stats returns subscription statistics (for debugging)
-func (b *Broker) Stats() (roomSubs, voteSubs int) {
-	b.mu.RLock()
-	defer b.mu.RUnlock()
-
-	for _, subs := range b.roomSubs {
-		roomSubs += len(subs)
-	}
-	for _, subs := range b.voteSubs {
-		voteSubs += len(subs)
-	}
-	return
-}

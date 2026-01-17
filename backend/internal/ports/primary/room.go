@@ -20,9 +20,6 @@ type RoomService interface {
 	// LeaveRoom removes a participant from a room
 	LeaveRoom(ctx context.Context, roomID, participantID, sessionToken string) error
 
-	// GetRoom returns the current state of a room
-	GetRoom(ctx context.Context, roomID string) (*domain.Room, error)
-
 	// WatchRoom returns a channel for room events
 	WatchRoom(ctx context.Context, roomID, sessionToken string) (<-chan RoomEvent, error)
 

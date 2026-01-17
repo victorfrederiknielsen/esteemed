@@ -25,10 +25,10 @@ type CardPreset int
 const (
 	CardPresetUnspecified CardPreset = iota
 	CardPresetFibonacci
-	CardPresetModifiedFibonacci
+	_ // Reserved (was ModifiedFibonacci)
 	CardPresetTShirt
-	CardPresetPowersOfTwo
-	CardPresetLinear
+	_ // Reserved (was PowersOfTwo)
+	_ // Reserved (was Linear)
 	CardPresetCustom
 )
 
@@ -59,53 +59,12 @@ var (
 		{Value: "\u2615", NumericValue: 0, IsNumeric: false}, // Coffee emoji
 	}
 
-	ModifiedFibonacciCards = []*Card{
-		{Value: "0", NumericValue: 0, IsNumeric: true},
-		{Value: "1", NumericValue: 1, IsNumeric: true},
-		{Value: "2", NumericValue: 2, IsNumeric: true},
-		{Value: "3", NumericValue: 3, IsNumeric: true},
-		{Value: "5", NumericValue: 5, IsNumeric: true},
-		{Value: "8", NumericValue: 8, IsNumeric: true},
-		{Value: "13", NumericValue: 13, IsNumeric: true},
-		{Value: "20", NumericValue: 20, IsNumeric: true},
-		{Value: "40", NumericValue: 40, IsNumeric: true},
-		{Value: "100", NumericValue: 100, IsNumeric: true},
-		{Value: "?", NumericValue: 0, IsNumeric: false},
-		{Value: "\u2615", NumericValue: 0, IsNumeric: false},
-	}
-
 	TShirtCards = []*Card{
 		{Value: "XS", NumericValue: 1, IsNumeric: false},
 		{Value: "S", NumericValue: 2, IsNumeric: false},
 		{Value: "M", NumericValue: 3, IsNumeric: false},
 		{Value: "L", NumericValue: 5, IsNumeric: false},
 		{Value: "XL", NumericValue: 8, IsNumeric: false},
-		{Value: "?", NumericValue: 0, IsNumeric: false},
-		{Value: "\u2615", NumericValue: 0, IsNumeric: false},
-	}
-
-	PowersOfTwoCards = []*Card{
-		{Value: "1", NumericValue: 1, IsNumeric: true},
-		{Value: "2", NumericValue: 2, IsNumeric: true},
-		{Value: "4", NumericValue: 4, IsNumeric: true},
-		{Value: "8", NumericValue: 8, IsNumeric: true},
-		{Value: "16", NumericValue: 16, IsNumeric: true},
-		{Value: "32", NumericValue: 32, IsNumeric: true},
-		{Value: "?", NumericValue: 0, IsNumeric: false},
-		{Value: "\u2615", NumericValue: 0, IsNumeric: false},
-	}
-
-	LinearCards = []*Card{
-		{Value: "1", NumericValue: 1, IsNumeric: true},
-		{Value: "2", NumericValue: 2, IsNumeric: true},
-		{Value: "3", NumericValue: 3, IsNumeric: true},
-		{Value: "4", NumericValue: 4, IsNumeric: true},
-		{Value: "5", NumericValue: 5, IsNumeric: true},
-		{Value: "6", NumericValue: 6, IsNumeric: true},
-		{Value: "7", NumericValue: 7, IsNumeric: true},
-		{Value: "8", NumericValue: 8, IsNumeric: true},
-		{Value: "9", NumericValue: 9, IsNumeric: true},
-		{Value: "10", NumericValue: 10, IsNumeric: true},
 		{Value: "?", NumericValue: 0, IsNumeric: false},
 		{Value: "\u2615", NumericValue: 0, IsNumeric: false},
 	}
@@ -116,14 +75,8 @@ func GetPresetCards(preset CardPreset) []*Card {
 	switch preset {
 	case CardPresetFibonacci:
 		return copyCards(FibonacciCards)
-	case CardPresetModifiedFibonacci:
-		return copyCards(ModifiedFibonacciCards)
 	case CardPresetTShirt:
 		return copyCards(TShirtCards)
-	case CardPresetPowersOfTwo:
-		return copyCards(PowersOfTwoCards)
-	case CardPresetLinear:
-		return copyCards(LinearCards)
 	default:
 		return copyCards(FibonacciCards)
 	}

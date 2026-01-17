@@ -3,7 +3,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import { CreateRoomRequest, CreateRoomResponse, GetRoomRequest, GetRoomResponse, JoinRoomRequest, JoinRoomResponse, KickParticipantRequest, KickParticipantResponse, LeaveRoomRequest, LeaveRoomResponse, ListRoomsRequest, ListRoomsResponse, RoomEvent, TransferOwnershipRequest, TransferOwnershipResponse, WatchRoomRequest } from "./room_pb.js";
+import { CreateRoomRequest, CreateRoomResponse, JoinRoomRequest, JoinRoomResponse, KickParticipantRequest, KickParticipantResponse, LeaveRoomRequest, LeaveRoomResponse, ListRoomsRequest, ListRoomsResponse, RoomEvent, TransferOwnershipRequest, TransferOwnershipResponse, WatchRoomRequest } from "./room_pb.js";
 import { MethodKind } from "@bufbuild/protobuf";
 
 /**
@@ -56,17 +56,6 @@ export const RoomService = {
       name: "LeaveRoom",
       I: LeaveRoomRequest,
       O: LeaveRoomResponse,
-      kind: MethodKind.Unary,
-    },
-    /**
-     * GetRoom returns the current state of a room
-     *
-     * @generated from rpc esteemed.v1.RoomService.GetRoom
-     */
-    getRoom: {
-      name: "GetRoom",
-      I: GetRoomRequest,
-      O: GetRoomResponse,
       kind: MethodKind.Unary,
     },
     /**

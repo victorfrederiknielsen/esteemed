@@ -210,19 +210,6 @@ func (s *RoomService) LeaveRoom(ctx context.Context, roomID, participantID, sess
 	return nil
 }
 
-// GetRoom returns the current state of a room
-func (s *RoomService) GetRoom(ctx context.Context, roomID string) (*domain.Room, error) {
-	room, err := s.repo.FindByID(ctx, roomID)
-	if err != nil {
-		// Try finding by name
-		room, err = s.repo.FindByName(ctx, roomID)
-		if err != nil {
-			return nil, err
-		}
-	}
-	return room, nil
-}
-
 // WatchRoom returns a channel for room events
 func (s *RoomService) WatchRoom(ctx context.Context, roomID, sessionToken string) (<-chan primary.RoomEvent, error) {
 	// Verify room exists

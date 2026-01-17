@@ -76,22 +76,6 @@ func (r *RoomRepository) Delete(ctx context.Context, id string) error {
 	return nil
 }
 
-// Exists checks if a room exists
-func (r *RoomRepository) Exists(ctx context.Context, id string) (bool, error) {
-	r.mu.RLock()
-	defer r.mu.RUnlock()
-
-	_, exists := r.rooms[id]
-	return exists, nil
-}
-
-// Count returns the number of rooms (for debugging/testing)
-func (r *RoomRepository) Count() int {
-	r.mu.RLock()
-	defer r.mu.RUnlock()
-	return len(r.rooms)
-}
-
 // ListAll returns all rooms
 func (r *RoomRepository) ListAll(ctx context.Context) ([]*domain.Room, error) {
 	r.mu.RLock()

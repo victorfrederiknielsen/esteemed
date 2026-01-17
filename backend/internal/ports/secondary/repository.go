@@ -20,9 +20,6 @@ type RoomRepository interface {
 	// Delete removes a room
 	Delete(ctx context.Context, id string) error
 
-	// Exists checks if a room exists
-	Exists(ctx context.Context, id string) (bool, error)
-
 	// ListAll returns all rooms
 	ListAll(ctx context.Context) ([]*domain.Room, error)
 }

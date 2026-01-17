@@ -112,24 +112,6 @@ func (h *RoomHandler) LeaveRoom(
 	return connect.NewResponse(&esteemedv1.LeaveRoomResponse{}), nil
 }
 
-// GetRoom returns the current room state
-func (h *RoomHandler) GetRoom(
-	ctx context.Context,
-	req *connect.Request[esteemedv1.GetRoomRequest],
-) (*connect.Response[esteemedv1.GetRoomResponse], error) {
-	room, err := h.service.GetRoom(ctx, req.Msg.RoomId)
-	if err != nil {
-		if err == domain.ErrRoomNotFound {
-			return nil, connect.NewError(connect.CodeNotFound, err)
-		}
-		return nil, connect.NewError(connect.CodeInternal, err)
-	}
-
-	return connect.NewResponse(&esteemedv1.GetRoomResponse{
-		Room: domainRoomToProto(room),
-	}), nil
-}
-
 // WatchRoom streams room events
 func (h *RoomHandler) WatchRoom(
 	ctx context.Context,
@@ -291,14 +273,8 @@ func protoPresetToDomain(preset esteemedv1.CardPreset) domain.CardPreset {
 	switch preset {
 	case esteemedv1.CardPreset_CARD_PRESET_FIBONACCI:
 		return domain.CardPresetFibonacci
-	case esteemedv1.CardPreset_CARD_PRESET_MODIFIED_FIBONACCI:
-		return domain.CardPresetModifiedFibonacci
 	case esteemedv1.CardPreset_CARD_PRESET_TSHIRT:
 		return domain.CardPresetTShirt
-	case esteemedv1.CardPreset_CARD_PRESET_POWERS_OF_TWO:
-		return domain.CardPresetPowersOfTwo
-	case esteemedv1.CardPreset_CARD_PRESET_LINEAR:
-		return domain.CardPresetLinear
 	case esteemedv1.CardPreset_CARD_PRESET_CUSTOM:
 		return domain.CardPresetCustom
 	default:
@@ -310,14 +286,8 @@ func domainPresetToProto(preset domain.CardPreset) esteemedv1.CardPreset {
 	switch preset {
 	case domain.CardPresetFibonacci:
 		return esteemedv1.CardPreset_CARD_PRESET_FIBONACCI
-	case domain.CardPresetModifiedFibonacci:
-		return esteemedv1.CardPreset_CARD_PRESET_MODIFIED_FIBONACCI
 	case domain.CardPresetTShirt:
 		return esteemedv1.CardPreset_CARD_PRESET_TSHIRT
-	case domain.CardPresetPowersOfTwo:
-		return esteemedv1.CardPreset_CARD_PRESET_POWERS_OF_TWO
-	case domain.CardPresetLinear:
-		return esteemedv1.CardPreset_CARD_PRESET_LINEAR
 	case domain.CardPresetCustom:
 		return esteemedv1.CardPreset_CARD_PRESET_CUSTOM
 	default:

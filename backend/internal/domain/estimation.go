@@ -182,13 +182,6 @@ func (r *Room) StartVoting() {
 	r.State = RoomStateVoting
 }
 
-// VoteCount returns how many participants have voted
-func (r *Room) VoteCount() int {
-	r.mu.RLock()
-	defer r.mu.RUnlock()
-	return len(r.Votes)
-}
-
 // GetVotes returns all votes (for internal use only)
 func (r *Room) GetVotes() []*Vote {
 	r.mu.RLock()

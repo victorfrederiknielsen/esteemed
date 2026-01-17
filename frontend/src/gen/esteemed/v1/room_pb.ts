@@ -25,32 +25,11 @@ export enum CardPreset {
   FIBONACCI = 1,
 
   /**
-   * 0, 1, 2, 3, 5, 8, 13, 20, 40, 100, ?, ☕
-   *
-   * @generated from enum value: CARD_PRESET_MODIFIED_FIBONACCI = 2;
-   */
-  MODIFIED_FIBONACCI = 2,
-
-  /**
    * XS, S, M, L, XL, ?, ☕
    *
    * @generated from enum value: CARD_PRESET_TSHIRT = 3;
    */
   TSHIRT = 3,
-
-  /**
-   * 1, 2, 4, 8, 16, 32, ?, ☕
-   *
-   * @generated from enum value: CARD_PRESET_POWERS_OF_TWO = 4;
-   */
-  POWERS_OF_TWO = 4,
-
-  /**
-   * 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, ?, ☕
-   *
-   * @generated from enum value: CARD_PRESET_LINEAR = 5;
-   */
-  LINEAR = 5,
 
   /**
    * User-defined cards
@@ -63,10 +42,7 @@ export enum CardPreset {
 proto3.util.setEnumType(CardPreset, "esteemed.v1.CardPreset", [
   { no: 0, name: "CARD_PRESET_UNSPECIFIED" },
   { no: 1, name: "CARD_PRESET_FIBONACCI" },
-  { no: 2, name: "CARD_PRESET_MODIFIED_FIBONACCI" },
   { no: 3, name: "CARD_PRESET_TSHIRT" },
-  { no: 4, name: "CARD_PRESET_POWERS_OF_TWO" },
-  { no: 5, name: "CARD_PRESET_LINEAR" },
   { no: 6, name: "CARD_PRESET_CUSTOM" },
 ]);
 
@@ -794,82 +770,6 @@ export class RoomSummary extends Message<RoomSummary> {
 
   static equals(a: RoomSummary | PlainMessage<RoomSummary> | undefined, b: RoomSummary | PlainMessage<RoomSummary> | undefined): boolean {
     return proto3.util.equals(RoomSummary, a, b);
-  }
-}
-
-/**
- * GetRoomRequest gets current room state
- *
- * @generated from message esteemed.v1.GetRoomRequest
- */
-export class GetRoomRequest extends Message<GetRoomRequest> {
-  /**
-   * @generated from field: string room_id = 1;
-   */
-  roomId = "";
-
-  constructor(data?: PartialMessage<GetRoomRequest>) {
-    super();
-    proto3.util.initPartial(data, this);
-  }
-
-  static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "esteemed.v1.GetRoomRequest";
-  static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "room_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-  ]);
-
-  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): GetRoomRequest {
-    return new GetRoomRequest().fromBinary(bytes, options);
-  }
-
-  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): GetRoomRequest {
-    return new GetRoomRequest().fromJson(jsonValue, options);
-  }
-
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): GetRoomRequest {
-    return new GetRoomRequest().fromJsonString(jsonString, options);
-  }
-
-  static equals(a: GetRoomRequest | PlainMessage<GetRoomRequest> | undefined, b: GetRoomRequest | PlainMessage<GetRoomRequest> | undefined): boolean {
-    return proto3.util.equals(GetRoomRequest, a, b);
-  }
-}
-
-/**
- * @generated from message esteemed.v1.GetRoomResponse
- */
-export class GetRoomResponse extends Message<GetRoomResponse> {
-  /**
-   * @generated from field: esteemed.v1.Room room = 1;
-   */
-  room?: Room;
-
-  constructor(data?: PartialMessage<GetRoomResponse>) {
-    super();
-    proto3.util.initPartial(data, this);
-  }
-
-  static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "esteemed.v1.GetRoomResponse";
-  static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "room", kind: "message", T: Room },
-  ]);
-
-  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): GetRoomResponse {
-    return new GetRoomResponse().fromBinary(bytes, options);
-  }
-
-  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): GetRoomResponse {
-    return new GetRoomResponse().fromJson(jsonValue, options);
-  }
-
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): GetRoomResponse {
-    return new GetRoomResponse().fromJsonString(jsonString, options);
-  }
-
-  static equals(a: GetRoomResponse | PlainMessage<GetRoomResponse> | undefined, b: GetRoomResponse | PlainMessage<GetRoomResponse> | undefined): boolean {
-    return proto3.util.equals(GetRoomResponse, a, b);
   }
 }
 
