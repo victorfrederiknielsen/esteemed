@@ -8,7 +8,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { useHeader } from "@/contexts/HeaderContext";
 import type { RoomSummary } from "@/gen/esteemed/v1/room_pb";
 import { RoomState } from "@/gen/esteemed/v1/room_pb";
 import { useRoom } from "@/hooks/useRoom";
@@ -20,6 +20,7 @@ import { useNavigate } from "react-router-dom";
 
 export function HomePage() {
   const navigate = useNavigate();
+  const { setBreadcrumbs } = useHeader();
   const { createRoom, joinRoom, isLoading, error } = useRoom();
   const [hostName, setHostName] = useState("");
   const [roomCode, setRoomCode] = useState("");
@@ -27,6 +28,11 @@ export function HomePage() {
   const [mode, setMode] = useState<"create" | "join">("create");
   const [rooms, setRooms] = useState<RoomSummary[]>([]);
   const [loadingRooms, setLoadingRooms] = useState(true);
+
+  // Set header breadcrumbs
+  useEffect(() => {
+    setBreadcrumbs([{ label: "Esteemed" }]);
+  }, [setBreadcrumbs]);
 
   const fetchRooms = async () => {
     try {
@@ -98,215 +104,206 @@ export function HomePage() {
   };
 
   return (
-    <div className="min-h-screen p-4 bg-gradient-to-br from-neutral-50 to-neutral-100 dark:from-neutral-900 dark:to-neutral-800">
-      <div className="max-w-4xl mx-auto">
-        <div className="absolute top-4 right-4">
-          <ThemeToggle />
-        </div>
-        <div className="text-center mb-8 pt-8">
-          <h1 className="text-4xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100">
-            Esteemed
-          </h1>
-          <p className="mt-2 text-neutral-600 dark:text-neutral-400">
-            Planning poker for engineering teams
-          </p>
-        </div>
-
-        <div className="grid md:grid-cols-2 gap-6">
-          {/* Create/Join Card */}
-          <Card>
-            <CardHeader>
-              <div className="flex gap-2 mb-4">
-                <Button
-                  variant={mode === "create" ? "default" : "outline"}
-                  className="flex-1"
-                  onClick={() => setMode("create")}
-                >
-                  Create Room
-                </Button>
-                <Button
-                  variant={mode === "join" ? "default" : "outline"}
-                  className="flex-1"
-                  onClick={() => setMode("join")}
-                >
-                  Join Room
-                </Button>
-              </div>
-              <CardTitle>
-                {mode === "create" ? "Create a New Room" : "Join Existing Room"}
-              </CardTitle>
-              <CardDescription>
-                {mode === "create"
-                  ? "Start a new planning poker session"
-                  : "Enter the room code to join"}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {mode === "create" ? (
-                <form onSubmit={handleCreate} className="space-y-4">
-                  <div>
-                    <label
-                      htmlFor="hostName"
-                      className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1"
-                    >
-                      Your Name
-                    </label>
-                    <div className="flex gap-2">
-                      <Input
-                        id="hostName"
-                        placeholder="Enter your name"
-                        value={hostName}
-                        onChange={(e) => setHostName(e.target.value)}
-                        disabled={isLoading}
-                      />
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="icon"
-                        onClick={() => setHostName(generateParticipantName())}
-                        disabled={isLoading}
-                        title="Generate random name"
-                      >
-                        <Dices className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                  <Button
-                    type="submit"
-                    className="w-full"
-                    disabled={isLoading || !hostName.trim()}
-                  >
-                    {isLoading ? "Creating..." : "Create Room"}
-                  </Button>
-                </form>
-              ) : (
-                <form onSubmit={handleJoin} className="space-y-4">
-                  <div>
-                    <label
-                      htmlFor="roomCode"
-                      className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1"
-                    >
-                      Room Code
-                    </label>
-                    <Input
-                      id="roomCode"
-                      placeholder="e.g., brave-falcon-42"
-                      value={roomCode}
-                      onChange={(e) => setRoomCode(e.target.value)}
-                      disabled={isLoading}
-                    />
-                  </div>
-                  <div>
-                    <label
-                      htmlFor="participantName"
-                      className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1"
-                    >
-                      Your Name
-                    </label>
-                    <div className="flex gap-2">
-                      <Input
-                        id="participantName"
-                        placeholder="Enter your name"
-                        value={participantName}
-                        onChange={(e) => setParticipantName(e.target.value)}
-                        disabled={isLoading}
-                      />
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="icon"
-                        onClick={() =>
-                          setParticipantName(generateParticipantName())
-                        }
-                        disabled={isLoading}
-                        title="Generate random name"
-                      >
-                        <Dices className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                  <Button
-                    type="submit"
-                    className="w-full"
-                    disabled={
-                      isLoading || !roomCode.trim() || !participantName.trim()
-                    }
-                  >
-                    {isLoading ? "Joining..." : "Join Room"}
-                  </Button>
-                </form>
-              )}
-
-              {error && (
-                <p className="mt-4 text-sm text-red-600 text-center">{error}</p>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Active Rooms Card */}
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle>Active Rooms</CardTitle>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={fetchRooms}
-                  disabled={loadingRooms}
-                >
-                  <RefreshCw
-                    className={`h-4 w-4 ${loadingRooms ? "animate-spin" : ""}`}
-                  />
-                </Button>
-              </div>
-              <CardDescription>Join an existing session</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {loadingRooms && rooms.length === 0 ? (
-                <p className="text-sm text-neutral-500 dark:text-neutral-400 text-center py-4">
-                  Loading rooms...
-                </p>
-              ) : rooms.length === 0 ? (
-                <p className="text-sm text-neutral-500 dark:text-neutral-400 text-center py-4">
-                  No active rooms
-                </p>
-              ) : (
-                <div className="space-y-3">
-                  {rooms.map((room) => (
-                    <div
-                      key={room.id}
-                      className="flex items-center justify-between p-3 bg-neutral-50 dark:bg-neutral-800/50 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors cursor-pointer"
-                      onClick={() => {
-                        setRoomCode(room.name);
-                        setMode("join");
-                      }}
-                    >
-                      <p className="font-mono font-medium text-sm">
-                        {room.name}
-                      </p>
-                      <div className="flex items-center gap-2">
-                        <div className="flex items-center gap-1 text-neutral-500 dark:text-neutral-400">
-                          <Users className="h-3.5 w-3.5" />
-                          <span className="text-xs">
-                            {room.participantCount}
-                          </span>
-                        </div>
-                        <Badge variant={getRoomStateVariant(room.state)}>
-                          {getRoomStateLabel(room.state)}
-                        </Badge>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-
-        <p className="mt-8 text-center text-sm text-neutral-500 dark:text-neutral-400">
-          Real-time estimation for agile teams
+    <div className="max-w-4xl mx-auto">
+      <div className="text-center mb-8">
+        <h1 className="text-4xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100">
+          Esteemed
+        </h1>
+        <p className="mt-2 text-neutral-600 dark:text-neutral-400">
+          Planning poker for engineering teams
         </p>
       </div>
+
+      <div className="grid md:grid-cols-2 gap-6">
+        {/* Create/Join Card */}
+        <Card>
+          <CardHeader>
+            <div className="flex gap-2 mb-4">
+              <Button
+                variant={mode === "create" ? "default" : "outline"}
+                className="flex-1"
+                onClick={() => setMode("create")}
+              >
+                Create Room
+              </Button>
+              <Button
+                variant={mode === "join" ? "default" : "outline"}
+                className="flex-1"
+                onClick={() => setMode("join")}
+              >
+                Join Room
+              </Button>
+            </div>
+            <CardTitle>
+              {mode === "create" ? "Create a New Room" : "Join Existing Room"}
+            </CardTitle>
+            <CardDescription>
+              {mode === "create"
+                ? "Start a new planning poker session"
+                : "Enter the room code to join"}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {mode === "create" ? (
+              <form onSubmit={handleCreate} className="space-y-4">
+                <div>
+                  <label
+                    htmlFor="hostName"
+                    className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1"
+                  >
+                    Your Name
+                  </label>
+                  <div className="flex gap-2">
+                    <Input
+                      id="hostName"
+                      placeholder="Enter your name"
+                      value={hostName}
+                      onChange={(e) => setHostName(e.target.value)}
+                      disabled={isLoading}
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      onClick={() => setHostName(generateParticipantName())}
+                      disabled={isLoading}
+                      title="Generate random name"
+                    >
+                      <Dices className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={isLoading || !hostName.trim()}
+                >
+                  {isLoading ? "Creating..." : "Create Room"}
+                </Button>
+              </form>
+            ) : (
+              <form onSubmit={handleJoin} className="space-y-4">
+                <div>
+                  <label
+                    htmlFor="roomCode"
+                    className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1"
+                  >
+                    Room Code
+                  </label>
+                  <Input
+                    id="roomCode"
+                    placeholder="e.g., brave-falcon-42"
+                    value={roomCode}
+                    onChange={(e) => setRoomCode(e.target.value)}
+                    disabled={isLoading}
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="participantName"
+                    className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1"
+                  >
+                    Your Name
+                  </label>
+                  <div className="flex gap-2">
+                    <Input
+                      id="participantName"
+                      placeholder="Enter your name"
+                      value={participantName}
+                      onChange={(e) => setParticipantName(e.target.value)}
+                      disabled={isLoading}
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      onClick={() =>
+                        setParticipantName(generateParticipantName())
+                      }
+                      disabled={isLoading}
+                      title="Generate random name"
+                    >
+                      <Dices className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={
+                    isLoading || !roomCode.trim() || !participantName.trim()
+                  }
+                >
+                  {isLoading ? "Joining..." : "Join Room"}
+                </Button>
+              </form>
+            )}
+
+            {error && (
+              <p className="mt-4 text-sm text-red-600 text-center">{error}</p>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Active Rooms Card */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle>Active Rooms</CardTitle>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={fetchRooms}
+                disabled={loadingRooms}
+              >
+                <RefreshCw
+                  className={`h-4 w-4 ${loadingRooms ? "animate-spin" : ""}`}
+                />
+              </Button>
+            </div>
+            <CardDescription>Join an existing session</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {loadingRooms && rooms.length === 0 ? (
+              <p className="text-sm text-neutral-500 dark:text-neutral-400 text-center py-4">
+                Loading rooms...
+              </p>
+            ) : rooms.length === 0 ? (
+              <p className="text-sm text-neutral-500 dark:text-neutral-400 text-center py-4">
+                No active rooms
+              </p>
+            ) : (
+              <div className="space-y-3">
+                {rooms.map((room) => (
+                  <div
+                    key={room.id}
+                    className="flex items-center justify-between p-3 bg-neutral-50 dark:bg-neutral-800/50 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors cursor-pointer"
+                    onClick={() => {
+                      setRoomCode(room.name);
+                      setMode("join");
+                    }}
+                  >
+                    <p className="font-mono font-medium text-sm">{room.name}</p>
+                    <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1 text-neutral-500 dark:text-neutral-400">
+                        <Users className="h-3.5 w-3.5" />
+                        <span className="text-xs">{room.participantCount}</span>
+                      </div>
+                      <Badge variant={getRoomStateVariant(room.state)}>
+                        {getRoomStateLabel(room.state)}
+                      </Badge>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      <p className="mt-8 text-center text-sm text-neutral-500 dark:text-neutral-400">
+        Real-time estimation for agile teams
+      </p>
     </div>
   );
 }

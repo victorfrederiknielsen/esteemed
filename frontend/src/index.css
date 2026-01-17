@@ -176,8 +176,7 @@
     #22c55e
   );
   background-size: 400% 400%;
-  animation: glow-appear 4s ease-out forwards,
-    gradient-flow 12s ease infinite;
+  animation: glow-appear 4s ease-out forwards, gradient-flow 12s ease infinite;
   filter: blur(80px);
   mask-image: radial-gradient(
     ellipse at center,
