@@ -1,4 +1,4 @@
-import { Github, Heart } from "lucide-react";
+import { Bot, Github } from "lucide-react";
 
 export function Footer() {
   const domain = window.location.host;
@@ -18,7 +18,7 @@ export function Footer() {
           </a>
         </span>
         <span className="flex items-center gap-1">
-          Made with <Heart className="h-4 w-4 text-red-500 fill-red-500" /> by{" "}
+          Made with <Bot className="h-4 w-4" /> by{" "}
           <a
             href="https://github.com/victorfrederiknielsen"
             target="_blank"
