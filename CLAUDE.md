@@ -37,7 +37,19 @@ make docker-build   # Build container
 make deploy         # Deploy to Fly.io
 make lint           # Run all linters (Biome + golangci-lint)
 make fmt            # Auto-fix formatting issues
+make release        # Tag, create GitHub release, push to main
 ```
+
+## Releasing to Main
+
+**IMPORTANT**: Never push directly to main. Always use the release flow:
+
+1. When asked to push to main, first ask: "Ready to release? This will auto-increment the version (currently vX.Y.Z) or you can specify a version."
+2. Use `make release` to tag, create GitHub release, and push to main
+3. To specify a version: `make release VERSION=v1.1.0`
+4. Without VERSION, it auto-increments the patch version (v1.0.0 → v1.0.1)
+
+This ensures every push to main has a corresponding GitHub release and tag.
 
 ## Deployment
 

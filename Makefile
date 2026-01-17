@@ -1,4 +1,4 @@
-.PHONY: dev dev-backend dev-frontend proto build docker-build frontend-setup frontend-setup-docker frontend-components clean test up down logs lint lint-backend lint-frontend fmt deploy
+.PHONY: dev dev-backend dev-frontend proto build docker-build frontend-setup frontend-setup-docker frontend-components clean test up down logs lint lint-backend lint-frontend fmt deploy release
 
 # Development
 dev: dev-backend dev-frontend
@@ -45,6 +45,25 @@ logs:
 # Deployment (Fly.io)
 deploy:
 	flyctl deploy
+
+# Release: tag, create GitHub release, push to main
+# Usage: make release VERSION=v1.1.0  (or auto-increments patch if VERSION not set)
+release:
+	@if [ -z "$(VERSION)" ]; then \
+		LATEST=$$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0"); \
+		MAJOR=$$(echo $$LATEST | sed 's/v//' | cut -d. -f1); \
+		MINOR=$$(echo $$LATEST | sed 's/v//' | cut -d. -f2); \
+		PATCH=$$(echo $$LATEST | sed 's/v//' | cut -d. -f3); \
+		NEW_VERSION="v$$MAJOR.$$MINOR.$$((PATCH + 1))"; \
+	else \
+		NEW_VERSION="$(VERSION)"; \
+	fi; \
+	echo "Creating release $$NEW_VERSION..."; \
+	git tag -a $$NEW_VERSION -m "Release $$NEW_VERSION"; \
+	git push origin $$NEW_VERSION; \
+	gh release create $$NEW_VERSION --generate-notes --title "$$NEW_VERSION"; \
+	git push origin main; \
+	echo "Released $$NEW_VERSION"
 
 # Frontend setup
 frontend-setup:
@@ -103,6 +122,7 @@ help:
 	@echo "  build          - Build production artifacts"
 	@echo "  docker-build   - Build container image"
 	@echo "  deploy         - Deploy to Fly.io"
+	@echo "  release        - Tag, create GitHub release, push to main (VERSION=v1.1.0 or auto-increment)"
 	@echo "  frontend-setup        - npm install"
 	@echo "  frontend-setup-docker - npm install in Docker"
 	@echo "  test           - Run all tests"
