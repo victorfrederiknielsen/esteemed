@@ -7,7 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import type { Card, CardConfig } from "@/gen/esteemed/v1/room_pb";
+import type { CardConfig } from "@/gen/esteemed/v1/room_pb";
 import { CardPreset } from "@/gen/esteemed/v1/room_pb";
 import {
   CARD_PRESETS,
@@ -18,7 +18,7 @@ import {
 import { cn } from "@/lib/utils";
 import * as SelectPrimitive from "@radix-ui/react-select";
 import { CheckIcon } from "lucide-react";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useState } from "react";
 
 interface CardPresetSelectorProps {
   value: CardConfig;
@@ -72,15 +72,6 @@ export function CardPresetSelector({
     [onChange],
   );
 
-  // Get cards to display for preview
-  const previewCards = useMemo(() => {
-    if (selectedPreset === CardPreset.CUSTOM) {
-      return value.cards;
-    }
-    const presetDef = CARD_PRESETS.find((p) => p.preset === selectedPreset);
-    return presetDef?.cards || [];
-  }, [selectedPreset, value.cards]);
-
   return (
     <div className="space-y-2">
       <Label>Card Deck</Label>
@@ -118,36 +109,6 @@ export function CardPresetSelector({
           {customError && <p className="text-xs text-red-500">{customError}</p>}
         </div>
       )}
-
-      {/* Card preview */}
-      <CardPreview cards={previewCards} />
-    </div>
-  );
-}
-
-interface CardPreviewProps {
-  cards: Card[];
-}
-
-function CardPreview({ cards }: CardPreviewProps) {
-  if (cards.length === 0) {
-    return (
-      <div className="text-xs text-neutral-400 text-center py-2">
-        No cards to preview
-      </div>
-    );
-  }
-
-  return (
-    <div className="flex flex-wrap gap-1.5">
-      {cards.map((card, index) => (
-        <span
-          key={`${card.value}-${index}`}
-          className="inline-flex items-center justify-center min-w-[2rem] h-8 px-2 rounded border border-neutral-200 dark:border-neutral-700 bg-card text-sm font-medium"
-        >
-          {card.value}
-        </span>
-      ))}
     </div>
   );
 }
