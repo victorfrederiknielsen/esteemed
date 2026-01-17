@@ -1,5 +1,9 @@
 # Esteemed
 
+[![Live](https://img.shields.io/badge/live-esteemed.fly.dev-blue)](https://esteemed.fly.dev)
+[![GitHub](https://img.shields.io/badge/github-victorfrederiknielsen%2Festeemed-black)](https://github.com/victorfrederiknielsen/esteemed)
+[![Version](https://img.shields.io/badge/version-v1.0.0-green)](https://github.com/victorfrederiknielsen/esteemed/releases)
+
 A real-time planning poker application for engineering teams. Estimate story points collaboratively with your team using a clean, modern interface.
 
 ## Features
@@ -10,6 +14,7 @@ A real-time planning poker application for engineering teams. Estimate story poi
 - **Vote statistics** - Average, mode, and consensus detection
 - **Session persistence** - Reconnect automatically if you refresh
 - **Host controls** - Set topics, reveal votes, reset rounds
+- **Open source** - [View on GitHub](https://github.com/victorfrederiknielsen/esteemed)
 
 ## Tech Stack
 

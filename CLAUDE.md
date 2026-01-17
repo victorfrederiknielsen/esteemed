@@ -4,6 +4,8 @@ Planning poker web application for agile estimation. Teams create rooms, vote on
 
 ## What This Is
 
+- **Live**: https://esteemed.fly.dev
+- **GitHub**: https://github.com/victorfrederiknielsen/esteemed
 - **Frontend**: React + TypeScript + Tailwind v4 at `frontend/`
 - **Backend**: Go with hexagonal architecture at `backend/`
 - **API**: ConnectRPC (gRPC-Web) defined in `api/proto/`
