@@ -173,14 +173,6 @@ export const VotingCards = forwardRef<HTMLDivElement, VotingCardsProps>(
               );
             })}
           </div>
-          {!isRevealed && selectedValue !== null && (
-            <p className="mt-4 text-center text-sm text-neutral-600 dark:text-neutral-400">
-              Your vote:{" "}
-              <span className="font-semibold">
-                {CARD_VALUES.find((c) => c.value === selectedValue)?.label}
-              </span>
-            </p>
-          )}
           {/* Statistics - shown when revealed */}
           {isRevealed && summary && (
             <div className="grid grid-cols-3 gap-4 mt-6">
@@ -212,12 +204,6 @@ export const VotingCards = forwardRef<HTMLDivElement, VotingCardsProps>(
                 </span>
               </div>
             </div>
-          )}
-          {/* Consensus badge */}
-          {isRevealed && summary?.hasConsensus && (
-            <p className="mt-4 text-center text-sm font-medium text-green-600">
-              🎉 Consensus reached!
-            </p>
           )}
         </div>
       </div>
