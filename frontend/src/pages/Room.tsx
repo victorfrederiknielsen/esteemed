@@ -8,7 +8,7 @@ import { useHeader } from "@/contexts/HeaderContext";
 import { RoomState, useRoom } from "@/hooks/useRoom";
 import { useVoting } from "@/hooks/useVoting";
 import { generateParticipantName } from "@/lib/namegen";
-import { Clock, Copy, Dices, LogOut } from "lucide-react";
+import { Check, Clock, Copy, Dices, LogOut } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -33,6 +33,8 @@ export function RoomPage() {
     joinRoom,
     leaveRoom,
     startRound,
+    kickParticipant,
+    transferOwnership,
   } = useRoom(roomId);
 
   const {
@@ -74,33 +76,30 @@ export function RoomPage() {
   useEffect(() => {
     const roomName = room?.name || roomId || "";
 
-    const copyButton = (
-      <Button
-        variant="ghost"
-        size="sm"
-        className="h-6 px-2"
-        onClick={copyRoomLink}
-      >
-        <Copy className="h-3 w-3" />
-        <span className="sr-only">{copied ? "Copied!" : "Copy link"}</span>
-      </Button>
+    const roomChip = (
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-neutral-100 dark:bg-neutral-800">
+        <span className="font-mono text-sm">{roomName}</span>
+        <button
+          type="button"
+          onClick={copyRoomLink}
+          className="p-0.5 rounded hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors"
+        >
+          {copied ? (
+            <Check className="h-3.5 w-3.5 text-emerald-500" />
+          ) : (
+            <Copy className="h-3.5 w-3.5 text-neutral-500" />
+          )}
+          <span className="sr-only">{copied ? "Copied!" : "Copy link"}</span>
+        </button>
+      </span>
     );
-
-    const copiedIndicator = copied ? (
-      <span className="text-xs text-muted-foreground">Copied!</span>
-    ) : null;
 
     setBreadcrumbs([
       { label: "Esteemed", href: "/" },
       { label: "Rooms", href: "/" },
       {
         label: roomName,
-        element: (
-          <span className="font-mono flex items-center gap-2">
-            {copyButton}
-            {copiedIndicator}
-          </span>
-        ),
+        element: roomChip,
       },
     ]);
 
@@ -208,6 +207,7 @@ export function RoomPage() {
             roomState={room?.state}
             isRevealed={isRevealed}
             votedCount={votedCount}
+            totalVoters={totalVoters}
             isLoading={voteLoading}
             onStartRound={startRound}
             onRevealVotes={revealVotes}
@@ -255,27 +255,6 @@ export function RoomPage() {
             summary={summary}
           />
         )}
-
-        {/* Vote progress - shown during voting */}
-        {isVoting && !isRevealed && (
-          <Card className="bg-white/70 dark:bg-neutral-800/70 backdrop-blur-sm">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
-                  Votes: {votedCount} / {totalVoters}
-                </span>
-              </div>
-              <div className="w-full bg-neutral-200/50 dark:bg-neutral-700/50 rounded-full h-2">
-                <div
-                  className="bg-primary/80 h-2 rounded-full transition-all duration-300"
-                  style={{
-                    width: `${(votedCount / Math.max(totalVoters, 1)) * 100}%`,
-                  }}
-                />
-              </div>
-            </CardContent>
-          </Card>
-        )}
       </div>
 
       {/* Sidebar */}
@@ -287,6 +266,9 @@ export function RoomPage() {
           currentParticipantId={currentParticipantId}
           isRevealed={isRevealed}
           summary={summary}
+          isHost={isHost}
+          onKickParticipant={kickParticipant}
+          onTransferOwnership={transferOwnership}
         />
       </div>
     </div>

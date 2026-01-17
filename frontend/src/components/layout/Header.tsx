@@ -28,8 +28,7 @@ export function Header() {
                   <BreadcrumbItem>
                     {isLast ? (
                       <BreadcrumbPage className="flex items-center gap-2">
-                        {crumb.label}
-                        {crumb.element}
+                        {crumb.element ?? crumb.label}
                       </BreadcrumbPage>
                     ) : crumb.href ? (
                       <BreadcrumbLink asChild>

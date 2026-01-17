@@ -3,7 +3,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import { CreateRoomRequest, CreateRoomResponse, GetRoomRequest, GetRoomResponse, JoinRoomRequest, JoinRoomResponse, LeaveRoomRequest, LeaveRoomResponse, ListRoomsRequest, ListRoomsResponse, RoomEvent, WatchRoomRequest } from "./room_pb.js";
+import { CreateRoomRequest, CreateRoomResponse, GetRoomRequest, GetRoomResponse, JoinRoomRequest, JoinRoomResponse, KickParticipantRequest, KickParticipantResponse, LeaveRoomRequest, LeaveRoomResponse, ListRoomsRequest, ListRoomsResponse, RoomEvent, TransferOwnershipRequest, TransferOwnershipResponse, WatchRoomRequest } from "./room_pb.js";
 import { MethodKind } from "@bufbuild/protobuf";
 
 /**
@@ -79,6 +79,28 @@ export const RoomService = {
       I: WatchRoomRequest,
       O: RoomEvent,
       kind: MethodKind.ServerStreaming,
+    },
+    /**
+     * KickParticipant removes a participant from the room (host only)
+     *
+     * @generated from rpc esteemed.v1.RoomService.KickParticipant
+     */
+    kickParticipant: {
+      name: "KickParticipant",
+      I: KickParticipantRequest,
+      O: KickParticipantResponse,
+      kind: MethodKind.Unary,
+    },
+    /**
+     * TransferOwnership transfers host privileges to another participant
+     *
+     * @generated from rpc esteemed.v1.RoomService.TransferOwnership
+     */
+    transferOwnership: {
+      name: "TransferOwnership",
+      I: TransferOwnershipRequest,
+      O: TransferOwnershipResponse,
+      kind: MethodKind.Unary,
     },
   }
 } as const;

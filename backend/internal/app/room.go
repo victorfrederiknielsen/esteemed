@@ -235,3 +235,72 @@ func (s *RoomService) WatchRoom(ctx context.Context, roomID, sessionToken string
 
 	return outputCh, nil
 }
+
+// KickParticipant removes a target participant from the room (host only)
+func (s *RoomService) KickParticipant(ctx context.Context, roomID, participantID, sessionToken, targetParticipantID string) error {
+	room, err := s.repo.FindByID(ctx, roomID)
+	if err != nil {
+		return err
+	}
+
+	// Validate token
+	if err := room.ValidateToken(participantID, sessionToken); err != nil {
+		return err
+	}
+
+	// Kick the participant
+	if err := room.KickParticipant(participantID, targetParticipantID); err != nil {
+		return err
+	}
+
+	// Check if room is empty
+	if room.IsEmpty() {
+		s.publisher.PublishRoomEvent(ctx, room.ID, primary.RoomEvent{
+			Type:   primary.RoomEventClosed,
+			Reason: "all participants left",
+		})
+		return s.repo.Delete(ctx, room.ID)
+	}
+
+	if err := s.repo.Save(ctx, room); err != nil {
+		return err
+	}
+
+	// Publish leave event for the kicked participant
+	s.publisher.PublishRoomEvent(ctx, room.ID, primary.RoomEvent{
+		Type:          primary.RoomEventParticipantLeft,
+		ParticipantID: targetParticipantID,
+	})
+
+	return nil
+}
+
+// TransferOwnership transfers host privileges to another participant
+func (s *RoomService) TransferOwnership(ctx context.Context, roomID, participantID, sessionToken, newHostID string) error {
+	room, err := s.repo.FindByID(ctx, roomID)
+	if err != nil {
+		return err
+	}
+
+	// Validate token
+	if err := room.ValidateToken(participantID, sessionToken); err != nil {
+		return err
+	}
+
+	// Transfer ownership
+	if err := room.TransferOwnership(participantID, newHostID); err != nil {
+		return err
+	}
+
+	if err := s.repo.Save(ctx, room); err != nil {
+		return err
+	}
+
+	// Publish host changed event
+	s.publisher.PublishRoomEvent(ctx, room.ID, primary.RoomEvent{
+		Type:      primary.RoomEventHostChanged,
+		NewHostID: newHostID,
+	})
+
+	return nil
+}

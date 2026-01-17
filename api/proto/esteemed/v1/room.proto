@@ -23,6 +23,12 @@ service RoomService {
 
   // WatchRoom streams real-time participant and room state updates
   rpc WatchRoom(WatchRoomRequest) returns (stream RoomEvent);
+
+  // KickParticipant removes a participant from the room (host only)
+  rpc KickParticipant(KickParticipantRequest) returns (KickParticipantResponse);
+
+  // TransferOwnership transfers host privileges to another participant
+  rpc TransferOwnership(TransferOwnershipRequest) returns (TransferOwnershipResponse);
 }
 
 // Room represents a planning poker room
@@ -124,6 +130,7 @@ message RoomEvent {
     ParticipantLeft participant_left = 2;
     RoomStateChanged state_changed = 3;
     RoomClosed room_closed = 4;
+    HostChanged host_changed = 5;
   }
 }
 
@@ -142,3 +149,27 @@ message RoomStateChanged {
 message RoomClosed {
   string reason = 1;
 }
+
+message HostChanged {
+  string new_host_id = 1;
+}
+
+// KickParticipantRequest removes a participant from the room
+message KickParticipantRequest {
+  string room_id = 1;
+  string participant_id = 2;       // ID of the participant making the request (must be host)
+  string session_token = 3;
+  string target_participant_id = 4; // ID of the participant to kick
+}
+
+message KickParticipantResponse {}
+
+// TransferOwnershipRequest transfers host privileges
+message TransferOwnershipRequest {
+  string room_id = 1;
+  string participant_id = 2;       // ID of the current host
+  string session_token = 3;
+  string new_host_id = 4;          // ID of the new host (must not be a spectator)
+}
+
+message TransferOwnershipResponse {}

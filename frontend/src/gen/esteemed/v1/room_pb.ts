@@ -751,6 +751,12 @@ export class RoomEvent extends Message<RoomEvent> {
      */
     value: RoomClosed;
     case: "roomClosed";
+  } | {
+    /**
+     * @generated from field: esteemed.v1.HostChanged host_changed = 5;
+     */
+    value: HostChanged;
+    case: "hostChanged";
   } | { case: undefined; value?: undefined } = { case: undefined };
 
   constructor(data?: PartialMessage<RoomEvent>) {
@@ -765,6 +771,7 @@ export class RoomEvent extends Message<RoomEvent> {
     { no: 2, name: "participant_left", kind: "message", T: ParticipantLeft, oneof: "event" },
     { no: 3, name: "state_changed", kind: "message", T: RoomStateChanged, oneof: "event" },
     { no: 4, name: "room_closed", kind: "message", T: RoomClosed, oneof: "event" },
+    { no: 5, name: "host_changed", kind: "message", T: HostChanged, oneof: "event" },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): RoomEvent {
@@ -929,6 +936,227 @@ export class RoomClosed extends Message<RoomClosed> {
 
   static equals(a: RoomClosed | PlainMessage<RoomClosed> | undefined, b: RoomClosed | PlainMessage<RoomClosed> | undefined): boolean {
     return proto3.util.equals(RoomClosed, a, b);
+  }
+}
+
+/**
+ * @generated from message esteemed.v1.HostChanged
+ */
+export class HostChanged extends Message<HostChanged> {
+  /**
+   * @generated from field: string new_host_id = 1;
+   */
+  newHostId = "";
+
+  constructor(data?: PartialMessage<HostChanged>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "esteemed.v1.HostChanged";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "new_host_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): HostChanged {
+    return new HostChanged().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): HostChanged {
+    return new HostChanged().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): HostChanged {
+    return new HostChanged().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: HostChanged | PlainMessage<HostChanged> | undefined, b: HostChanged | PlainMessage<HostChanged> | undefined): boolean {
+    return proto3.util.equals(HostChanged, a, b);
+  }
+}
+
+/**
+ * KickParticipantRequest removes a participant from the room
+ *
+ * @generated from message esteemed.v1.KickParticipantRequest
+ */
+export class KickParticipantRequest extends Message<KickParticipantRequest> {
+  /**
+   * @generated from field: string room_id = 1;
+   */
+  roomId = "";
+
+  /**
+   * ID of the participant making the request (must be host)
+   *
+   * @generated from field: string participant_id = 2;
+   */
+  participantId = "";
+
+  /**
+   * @generated from field: string session_token = 3;
+   */
+  sessionToken = "";
+
+  /**
+   * ID of the participant to kick
+   *
+   * @generated from field: string target_participant_id = 4;
+   */
+  targetParticipantId = "";
+
+  constructor(data?: PartialMessage<KickParticipantRequest>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "esteemed.v1.KickParticipantRequest";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "room_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "participant_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 3, name: "session_token", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 4, name: "target_participant_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): KickParticipantRequest {
+    return new KickParticipantRequest().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): KickParticipantRequest {
+    return new KickParticipantRequest().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): KickParticipantRequest {
+    return new KickParticipantRequest().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: KickParticipantRequest | PlainMessage<KickParticipantRequest> | undefined, b: KickParticipantRequest | PlainMessage<KickParticipantRequest> | undefined): boolean {
+    return proto3.util.equals(KickParticipantRequest, a, b);
+  }
+}
+
+/**
+ * @generated from message esteemed.v1.KickParticipantResponse
+ */
+export class KickParticipantResponse extends Message<KickParticipantResponse> {
+  constructor(data?: PartialMessage<KickParticipantResponse>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "esteemed.v1.KickParticipantResponse";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): KickParticipantResponse {
+    return new KickParticipantResponse().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): KickParticipantResponse {
+    return new KickParticipantResponse().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): KickParticipantResponse {
+    return new KickParticipantResponse().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: KickParticipantResponse | PlainMessage<KickParticipantResponse> | undefined, b: KickParticipantResponse | PlainMessage<KickParticipantResponse> | undefined): boolean {
+    return proto3.util.equals(KickParticipantResponse, a, b);
+  }
+}
+
+/**
+ * TransferOwnershipRequest transfers host privileges
+ *
+ * @generated from message esteemed.v1.TransferOwnershipRequest
+ */
+export class TransferOwnershipRequest extends Message<TransferOwnershipRequest> {
+  /**
+   * @generated from field: string room_id = 1;
+   */
+  roomId = "";
+
+  /**
+   * ID of the current host
+   *
+   * @generated from field: string participant_id = 2;
+   */
+  participantId = "";
+
+  /**
+   * @generated from field: string session_token = 3;
+   */
+  sessionToken = "";
+
+  /**
+   * ID of the new host (must not be a spectator)
+   *
+   * @generated from field: string new_host_id = 4;
+   */
+  newHostId = "";
+
+  constructor(data?: PartialMessage<TransferOwnershipRequest>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "esteemed.v1.TransferOwnershipRequest";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "room_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "participant_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 3, name: "session_token", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 4, name: "new_host_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): TransferOwnershipRequest {
+    return new TransferOwnershipRequest().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): TransferOwnershipRequest {
+    return new TransferOwnershipRequest().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): TransferOwnershipRequest {
+    return new TransferOwnershipRequest().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: TransferOwnershipRequest | PlainMessage<TransferOwnershipRequest> | undefined, b: TransferOwnershipRequest | PlainMessage<TransferOwnershipRequest> | undefined): boolean {
+    return proto3.util.equals(TransferOwnershipRequest, a, b);
+  }
+}
+
+/**
+ * @generated from message esteemed.v1.TransferOwnershipResponse
+ */
+export class TransferOwnershipResponse extends Message<TransferOwnershipResponse> {
+  constructor(data?: PartialMessage<TransferOwnershipResponse>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "esteemed.v1.TransferOwnershipResponse";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): TransferOwnershipResponse {
+    return new TransferOwnershipResponse().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): TransferOwnershipResponse {
+    return new TransferOwnershipResponse().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): TransferOwnershipResponse {
+    return new TransferOwnershipResponse().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: TransferOwnershipResponse | PlainMessage<TransferOwnershipResponse> | undefined, b: TransferOwnershipResponse | PlainMessage<TransferOwnershipResponse> | undefined): boolean {
+    return proto3.util.equals(TransferOwnershipResponse, a, b);
   }
 }
 

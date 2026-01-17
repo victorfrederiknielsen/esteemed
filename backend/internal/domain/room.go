@@ -8,13 +8,15 @@ import (
 
 // Errors
 var (
-	ErrRoomNotFound        = errors.New("room not found")
-	ErrParticipantExists   = errors.New("participant already exists")
-	ErrParticipantNotFound = errors.New("participant not found")
-	ErrNotHost             = errors.New("only the host can perform this action")
-	ErrInvalidState        = errors.New("invalid room state for this action")
-	ErrInvalidToken        = errors.New("invalid session token")
-	ErrSpectatorCannotVote = errors.New("spectators cannot vote")
+	ErrRoomNotFound              = errors.New("room not found")
+	ErrParticipantExists         = errors.New("participant already exists")
+	ErrParticipantNotFound       = errors.New("participant not found")
+	ErrNotHost                   = errors.New("only the host can perform this action")
+	ErrInvalidState              = errors.New("invalid room state for this action")
+	ErrInvalidToken              = errors.New("invalid session token")
+	ErrSpectatorCannotVote       = errors.New("spectators cannot vote")
+	ErrCannotKickSelf            = errors.New("cannot kick yourself")
+	ErrCannotTransferToSpectator = errors.New("cannot transfer ownership to a spectator")
 )
 
 // RoomState represents the current phase of estimation
@@ -195,4 +197,64 @@ func (r *Room) GetParticipants() []*Participant {
 		participants = append(participants, p)
 	}
 	return participants
+}
+
+// KickParticipant removes a target participant from the room (host action)
+func (r *Room) KickParticipant(hostID, targetID string) error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	// Verify the requester is the host
+	host, exists := r.Participants[hostID]
+	if !exists {
+		return ErrParticipantNotFound
+	}
+	if !host.IsHost {
+		return ErrNotHost
+	}
+
+	// Cannot kick yourself
+	if hostID == targetID {
+		return ErrCannotKickSelf
+	}
+
+	// Verify target exists
+	if _, exists := r.Participants[targetID]; !exists {
+		return ErrParticipantNotFound
+	}
+
+	delete(r.Participants, targetID)
+	delete(r.Votes, targetID)
+
+	return nil
+}
+
+// TransferOwnership transfers host privileges from current host to new participant
+func (r *Room) TransferOwnership(currentHostID, newHostID string) error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	// Verify current host
+	currentHost, exists := r.Participants[currentHostID]
+	if !exists {
+		return ErrParticipantNotFound
+	}
+	if !currentHost.IsHost {
+		return ErrNotHost
+	}
+
+	// Verify new host exists and is not a spectator
+	newHost, exists := r.Participants[newHostID]
+	if !exists {
+		return ErrParticipantNotFound
+	}
+	if newHost.IsSpectator {
+		return ErrCannotTransferToSpectator
+	}
+
+	// Transfer ownership
+	currentHost.IsHost = false
+	newHost.IsHost = true
+
+	return nil
 }

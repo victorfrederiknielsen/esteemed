@@ -30,6 +30,8 @@ interface UseRoomActions {
   ) => Promise<void>;
   leaveRoom: () => Promise<void>;
   startRound: () => Promise<void>;
+  kickParticipant: (targetId: string) => Promise<void>;
+  transferOwnership: (newHostId: string) => Promise<void>;
 }
 
 export function useRoom(roomId?: string): UseRoomState & UseRoomActions {
@@ -88,12 +90,37 @@ export function useRoom(roomId?: string): UseRoomState & UseRoomActions {
             }));
           } else if (event.event?.case === "participantLeft") {
             const participantId = event.event.value.participantId;
-            setState((prev) => ({
-              ...prev,
-              participants: prev.participants.filter(
-                (p) => p.id !== participantId,
-              ),
-            }));
+            // Check if current user was kicked
+            setState((prev) => {
+              if (participantId === prev.currentParticipantId) {
+                // Current user was kicked
+                clearSession();
+                return {
+                  ...prev,
+                  room: null,
+                  isConnected: false,
+                  error: "You have been removed from the room",
+                };
+              }
+              return {
+                ...prev,
+                participants: prev.participants.filter(
+                  (p) => p.id !== participantId,
+                ),
+              };
+            });
+          } else if (event.event?.case === "hostChanged") {
+            const newHostId = event.event.value.newHostId;
+            setState((prev) => {
+              for (const p of prev.participants) {
+                p.isHost = p.id === newHostId;
+              }
+              return {
+                ...prev,
+                isHost: prev.currentParticipantId === newHostId,
+                participants: [...prev.participants],
+              };
+            });
           } else if (event.event?.case === "stateChanged") {
             const newState = event.event.value.newState;
             setState((prev) => {
@@ -288,12 +315,68 @@ export function useRoom(roomId?: string): UseRoomState & UseRoomActions {
     }
   }, [state.room?.id, state.currentParticipantId, state.sessionToken]);
 
+  const kickParticipant = useCallback(
+    async (targetId: string): Promise<void> => {
+      if (
+        !state.room?.id ||
+        !state.currentParticipantId ||
+        !state.sessionToken
+      ) {
+        return;
+      }
+
+      try {
+        await roomClient.kickParticipant({
+          roomId: state.room.id,
+          participantId: state.currentParticipantId,
+          sessionToken: state.sessionToken,
+          targetParticipantId: targetId,
+        });
+        // The participantLeft event will update the state
+      } catch (err) {
+        const error =
+          err instanceof Error ? err.message : "Failed to remove participant";
+        setState((prev) => ({ ...prev, error }));
+      }
+    },
+    [state.room?.id, state.currentParticipantId, state.sessionToken],
+  );
+
+  const transferOwnership = useCallback(
+    async (newHostId: string): Promise<void> => {
+      if (
+        !state.room?.id ||
+        !state.currentParticipantId ||
+        !state.sessionToken
+      ) {
+        return;
+      }
+
+      try {
+        await roomClient.transferOwnership({
+          roomId: state.room.id,
+          participantId: state.currentParticipantId,
+          sessionToken: state.sessionToken,
+          newHostId,
+        });
+        // The hostChanged event will update the state
+      } catch (err) {
+        const error =
+          err instanceof Error ? err.message : "Failed to transfer ownership";
+        setState((prev) => ({ ...prev, error }));
+      }
+    },
+    [state.room?.id, state.currentParticipantId, state.sessionToken],
+  );
+
   return {
     ...state,
     createRoom,
     joinRoom,
     leaveRoom,
     startRound,
+    kickParticipant,
+    transferOwnership,
   };
 }
 

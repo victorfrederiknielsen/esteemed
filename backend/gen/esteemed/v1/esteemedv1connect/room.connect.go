@@ -45,6 +45,12 @@ const (
 	RoomServiceGetRoomProcedure = "/esteemed.v1.RoomService/GetRoom"
 	// RoomServiceWatchRoomProcedure is the fully-qualified name of the RoomService's WatchRoom RPC.
 	RoomServiceWatchRoomProcedure = "/esteemed.v1.RoomService/WatchRoom"
+	// RoomServiceKickParticipantProcedure is the fully-qualified name of the RoomService's
+	// KickParticipant RPC.
+	RoomServiceKickParticipantProcedure = "/esteemed.v1.RoomService/KickParticipant"
+	// RoomServiceTransferOwnershipProcedure is the fully-qualified name of the RoomService's
+	// TransferOwnership RPC.
+	RoomServiceTransferOwnershipProcedure = "/esteemed.v1.RoomService/TransferOwnership"
 )
 
 // RoomServiceClient is a client for the esteemed.v1.RoomService service.
@@ -61,6 +67,10 @@ type RoomServiceClient interface {
 	GetRoom(context.Context, *connect.Request[v1.GetRoomRequest]) (*connect.Response[v1.GetRoomResponse], error)
 	// WatchRoom streams real-time participant and room state updates
 	WatchRoom(context.Context, *connect.Request[v1.WatchRoomRequest]) (*connect.ServerStreamForClient[v1.RoomEvent], error)
+	// KickParticipant removes a participant from the room (host only)
+	KickParticipant(context.Context, *connect.Request[v1.KickParticipantRequest]) (*connect.Response[v1.KickParticipantResponse], error)
+	// TransferOwnership transfers host privileges to another participant
+	TransferOwnership(context.Context, *connect.Request[v1.TransferOwnershipRequest]) (*connect.Response[v1.TransferOwnershipResponse], error)
 }
 
 // NewRoomServiceClient constructs a client for the esteemed.v1.RoomService service. By default, it
@@ -110,17 +120,31 @@ func NewRoomServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 			connect.WithSchema(roomServiceMethods.ByName("WatchRoom")),
 			connect.WithClientOptions(opts...),
 		),
+		kickParticipant: connect.NewClient[v1.KickParticipantRequest, v1.KickParticipantResponse](
+			httpClient,
+			baseURL+RoomServiceKickParticipantProcedure,
+			connect.WithSchema(roomServiceMethods.ByName("KickParticipant")),
+			connect.WithClientOptions(opts...),
+		),
+		transferOwnership: connect.NewClient[v1.TransferOwnershipRequest, v1.TransferOwnershipResponse](
+			httpClient,
+			baseURL+RoomServiceTransferOwnershipProcedure,
+			connect.WithSchema(roomServiceMethods.ByName("TransferOwnership")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // roomServiceClient implements RoomServiceClient.
 type roomServiceClient struct {
-	listRooms  *connect.Client[v1.ListRoomsRequest, v1.ListRoomsResponse]
-	createRoom *connect.Client[v1.CreateRoomRequest, v1.CreateRoomResponse]
-	joinRoom   *connect.Client[v1.JoinRoomRequest, v1.JoinRoomResponse]
-	leaveRoom  *connect.Client[v1.LeaveRoomRequest, v1.LeaveRoomResponse]
-	getRoom    *connect.Client[v1.GetRoomRequest, v1.GetRoomResponse]
-	watchRoom  *connect.Client[v1.WatchRoomRequest, v1.RoomEvent]
+	listRooms         *connect.Client[v1.ListRoomsRequest, v1.ListRoomsResponse]
+	createRoom        *connect.Client[v1.CreateRoomRequest, v1.CreateRoomResponse]
+	joinRoom          *connect.Client[v1.JoinRoomRequest, v1.JoinRoomResponse]
+	leaveRoom         *connect.Client[v1.LeaveRoomRequest, v1.LeaveRoomResponse]
+	getRoom           *connect.Client[v1.GetRoomRequest, v1.GetRoomResponse]
+	watchRoom         *connect.Client[v1.WatchRoomRequest, v1.RoomEvent]
+	kickParticipant   *connect.Client[v1.KickParticipantRequest, v1.KickParticipantResponse]
+	transferOwnership *connect.Client[v1.TransferOwnershipRequest, v1.TransferOwnershipResponse]
 }
 
 // ListRooms calls esteemed.v1.RoomService.ListRooms.
@@ -153,6 +177,16 @@ func (c *roomServiceClient) WatchRoom(ctx context.Context, req *connect.Request[
 	return c.watchRoom.CallServerStream(ctx, req)
 }
 
+// KickParticipant calls esteemed.v1.RoomService.KickParticipant.
+func (c *roomServiceClient) KickParticipant(ctx context.Context, req *connect.Request[v1.KickParticipantRequest]) (*connect.Response[v1.KickParticipantResponse], error) {
+	return c.kickParticipant.CallUnary(ctx, req)
+}
+
+// TransferOwnership calls esteemed.v1.RoomService.TransferOwnership.
+func (c *roomServiceClient) TransferOwnership(ctx context.Context, req *connect.Request[v1.TransferOwnershipRequest]) (*connect.Response[v1.TransferOwnershipResponse], error) {
+	return c.transferOwnership.CallUnary(ctx, req)
+}
+
 // RoomServiceHandler is an implementation of the esteemed.v1.RoomService service.
 type RoomServiceHandler interface {
 	// ListRooms returns all active rooms
@@ -167,6 +201,10 @@ type RoomServiceHandler interface {
 	GetRoom(context.Context, *connect.Request[v1.GetRoomRequest]) (*connect.Response[v1.GetRoomResponse], error)
 	// WatchRoom streams real-time participant and room state updates
 	WatchRoom(context.Context, *connect.Request[v1.WatchRoomRequest], *connect.ServerStream[v1.RoomEvent]) error
+	// KickParticipant removes a participant from the room (host only)
+	KickParticipant(context.Context, *connect.Request[v1.KickParticipantRequest]) (*connect.Response[v1.KickParticipantResponse], error)
+	// TransferOwnership transfers host privileges to another participant
+	TransferOwnership(context.Context, *connect.Request[v1.TransferOwnershipRequest]) (*connect.Response[v1.TransferOwnershipResponse], error)
 }
 
 // NewRoomServiceHandler builds an HTTP handler from the service implementation. It returns the path
@@ -212,6 +250,18 @@ func NewRoomServiceHandler(svc RoomServiceHandler, opts ...connect.HandlerOption
 		connect.WithSchema(roomServiceMethods.ByName("WatchRoom")),
 		connect.WithHandlerOptions(opts...),
 	)
+	roomServiceKickParticipantHandler := connect.NewUnaryHandler(
+		RoomServiceKickParticipantProcedure,
+		svc.KickParticipant,
+		connect.WithSchema(roomServiceMethods.ByName("KickParticipant")),
+		connect.WithHandlerOptions(opts...),
+	)
+	roomServiceTransferOwnershipHandler := connect.NewUnaryHandler(
+		RoomServiceTransferOwnershipProcedure,
+		svc.TransferOwnership,
+		connect.WithSchema(roomServiceMethods.ByName("TransferOwnership")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/esteemed.v1.RoomService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case RoomServiceListRoomsProcedure:
@@ -226,6 +276,10 @@ func NewRoomServiceHandler(svc RoomServiceHandler, opts ...connect.HandlerOption
 			roomServiceGetRoomHandler.ServeHTTP(w, r)
 		case RoomServiceWatchRoomProcedure:
 			roomServiceWatchRoomHandler.ServeHTTP(w, r)
+		case RoomServiceKickParticipantProcedure:
+			roomServiceKickParticipantHandler.ServeHTTP(w, r)
+		case RoomServiceTransferOwnershipProcedure:
+			roomServiceTransferOwnershipHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -257,4 +311,12 @@ func (UnimplementedRoomServiceHandler) GetRoom(context.Context, *connect.Request
 
 func (UnimplementedRoomServiceHandler) WatchRoom(context.Context, *connect.Request[v1.WatchRoomRequest], *connect.ServerStream[v1.RoomEvent]) error {
 	return connect.NewError(connect.CodeUnimplemented, errors.New("esteemed.v1.RoomService.WatchRoom is not implemented"))
+}
+
+func (UnimplementedRoomServiceHandler) KickParticipant(context.Context, *connect.Request[v1.KickParticipantRequest]) (*connect.Response[v1.KickParticipantResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("esteemed.v1.RoomService.KickParticipant is not implemented"))
+}
+
+func (UnimplementedRoomServiceHandler) TransferOwnership(context.Context, *connect.Request[v1.TransferOwnershipRequest]) (*connect.Response[v1.TransferOwnershipResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("esteemed.v1.RoomService.TransferOwnership is not implemented"))
 }

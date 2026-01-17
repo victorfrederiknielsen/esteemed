@@ -295,26 +295,30 @@ export function HomePage() {
                     return a.name.localeCompare(b.name);
                   })
                   .map((room) => (
-                  <div
-                    key={room.id}
-                    className="flex items-center justify-between p-3 bg-neutral-50 dark:bg-neutral-800/50 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors cursor-pointer"
-                    onClick={() => {
-                      setRoomCode(room.name);
-                      setMode("join");
-                    }}
-                  >
-                    <p className="font-mono font-medium text-sm">{room.name}</p>
-                    <div className="flex items-center gap-2">
-                      <div className="flex items-center gap-1 text-neutral-500 dark:text-neutral-400">
-                        <Users className="h-3.5 w-3.5" />
-                        <span className="text-xs">{room.participantCount}</span>
+                    <div
+                      key={room.id}
+                      className="flex items-center justify-between p-3 bg-neutral-50 dark:bg-neutral-800/50 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors cursor-pointer"
+                      onClick={() => {
+                        setRoomCode(room.name);
+                        setMode("join");
+                      }}
+                    >
+                      <p className="font-mono font-medium text-sm">
+                        {room.name}
+                      </p>
+                      <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1 text-neutral-500 dark:text-neutral-400">
+                          <Users className="h-3.5 w-3.5" />
+                          <span className="text-xs">
+                            {room.participantCount}
+                          </span>
+                        </div>
+                        <Badge variant={getRoomStateVariant(room.state)}>
+                          {getRoomStateLabel(room.state)}
+                        </Badge>
                       </div>
-                      <Badge variant={getRoomStateVariant(room.state)}>
-                        {getRoomStateLabel(room.state)}
-                      </Badge>
                     </div>
-                  </div>
-                ))}
+                  ))}
               </div>
             )}
           </CardContent>

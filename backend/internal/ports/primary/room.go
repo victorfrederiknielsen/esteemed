@@ -25,6 +25,12 @@ type RoomService interface {
 
 	// WatchRoom returns a channel for room events
 	WatchRoom(ctx context.Context, roomID, sessionToken string) (<-chan RoomEvent, error)
+
+	// KickParticipant removes a target participant from the room (host only)
+	KickParticipant(ctx context.Context, roomID, participantID, sessionToken, targetParticipantID string) error
+
+	// TransferOwnership transfers host privileges to another participant
+	TransferOwnership(ctx context.Context, roomID, participantID, sessionToken, newHostID string) error
 }
 
 // RoomSummary is a brief view of a room for listing
@@ -58,6 +64,7 @@ const (
 	RoomEventParticipantLeft
 	RoomEventStateChanged
 	RoomEventClosed
+	RoomEventHostChanged
 )
 
 // RoomEvent represents a real-time room event
@@ -67,4 +74,5 @@ type RoomEvent struct {
 	ParticipantID string
 	NewState      domain.RoomState
 	Reason        string
+	NewHostID     string
 }

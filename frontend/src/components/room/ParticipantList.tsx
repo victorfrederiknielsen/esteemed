@@ -1,10 +1,18 @@
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import type { CardValue, Participant, VoteSummary } from "@/lib/types";
 import { cardValueToLabel } from "@/lib/types";
 import { cn } from "@/lib/utils";
-import { Check, Crown, Eye, Users } from "lucide-react";
+import { Check, Crown, Eye, MoreHorizontal, UserX, Users } from "lucide-react";
 
 interface VoteStatus {
   participantId: string;
@@ -18,6 +26,9 @@ interface ParticipantListProps {
   currentParticipantId: string | null;
   isRevealed: boolean;
   summary: VoteSummary | null;
+  isHost: boolean;
+  onKickParticipant?: (participantId: string) => void;
+  onTransferOwnership?: (participantId: string) => void;
 }
 
 export function ParticipantList({
@@ -26,6 +37,9 @@ export function ParticipantList({
   currentParticipantId,
   isRevealed,
   summary,
+  isHost,
+  onKickParticipant,
+  onTransferOwnership,
 }: ParticipantListProps) {
   // Split participants into voters and spectators
   const voters = participants.filter((p) => !p.isSpectator);
@@ -57,12 +71,13 @@ export function ParticipantList({
     const hasVoted = getVoteStatus(participant.id);
     const voteValue = getVoteValue(participant.id);
     const isCurrentUser = participant.id === currentParticipantId;
+    const showMenu = isHost && !isCurrentUser;
 
     return (
       <div
         key={participant.id}
         className={cn(
-          "flex items-center gap-3 p-2 rounded-lg transition-colors",
+          "group flex items-center gap-3 p-2 rounded-lg transition-colors",
           isCurrentUser && "bg-neutral-100/50 dark:bg-neutral-700/50",
         )}
       >
@@ -114,6 +129,41 @@ export function ParticipantList({
                     : "Waiting..."}
           </span>
         </div>
+
+        {showMenu && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 opacity-0 group-hover:opacity-100 hover:opacity-100 focus:opacity-100"
+              >
+                <MoreHorizontal className="h-4 w-4" />
+                <span className="sr-only">Actions</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {!participant.isSpectator && (
+                <>
+                  <DropdownMenuItem
+                    onClick={() => onTransferOwnership?.(participant.id)}
+                  >
+                    <Crown className="h-4 w-4" />
+                    Make Host
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                </>
+              )}
+              <DropdownMenuItem
+                variant="destructive"
+                onClick={() => onKickParticipant?.(participant.id)}
+              >
+                <UserX className="h-4 w-4" />
+                Remove
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
       </div>
     );
   };
@@ -129,9 +179,7 @@ export function ParticipantList({
       <CardContent className="space-y-4">
         {/* Voters section */}
         {voters.length > 0 && (
-          <div className="space-y-2">
-            {voters.map(renderParticipant)}
-          </div>
+          <div className="space-y-2">{voters.map(renderParticipant)}</div>
         )}
 
         {/* Spectators section */}

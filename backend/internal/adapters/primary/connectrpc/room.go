@@ -158,6 +158,62 @@ func (h *RoomHandler) WatchRoom(
 	}
 }
 
+// KickParticipant removes a participant from the room (host only)
+func (h *RoomHandler) KickParticipant(
+	ctx context.Context,
+	req *connect.Request[esteemedv1.KickParticipantRequest],
+) (*connect.Response[esteemedv1.KickParticipantResponse], error) {
+	err := h.service.KickParticipant(ctx, req.Msg.RoomId, req.Msg.ParticipantId, req.Msg.SessionToken, req.Msg.TargetParticipantId)
+	if err != nil {
+		if err == domain.ErrRoomNotFound {
+			return nil, connect.NewError(connect.CodeNotFound, err)
+		}
+		if err == domain.ErrInvalidToken {
+			return nil, connect.NewError(connect.CodePermissionDenied, err)
+		}
+		if err == domain.ErrNotHost {
+			return nil, connect.NewError(connect.CodePermissionDenied, err)
+		}
+		if err == domain.ErrCannotKickSelf {
+			return nil, connect.NewError(connect.CodeInvalidArgument, err)
+		}
+		if err == domain.ErrParticipantNotFound {
+			return nil, connect.NewError(connect.CodeNotFound, err)
+		}
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+
+	return connect.NewResponse(&esteemedv1.KickParticipantResponse{}), nil
+}
+
+// TransferOwnership transfers host privileges to another participant
+func (h *RoomHandler) TransferOwnership(
+	ctx context.Context,
+	req *connect.Request[esteemedv1.TransferOwnershipRequest],
+) (*connect.Response[esteemedv1.TransferOwnershipResponse], error) {
+	err := h.service.TransferOwnership(ctx, req.Msg.RoomId, req.Msg.ParticipantId, req.Msg.SessionToken, req.Msg.NewHostId)
+	if err != nil {
+		if err == domain.ErrRoomNotFound {
+			return nil, connect.NewError(connect.CodeNotFound, err)
+		}
+		if err == domain.ErrInvalidToken {
+			return nil, connect.NewError(connect.CodePermissionDenied, err)
+		}
+		if err == domain.ErrNotHost {
+			return nil, connect.NewError(connect.CodePermissionDenied, err)
+		}
+		if err == domain.ErrCannotTransferToSpectator {
+			return nil, connect.NewError(connect.CodeInvalidArgument, err)
+		}
+		if err == domain.ErrParticipantNotFound {
+			return nil, connect.NewError(connect.CodeNotFound, err)
+		}
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+
+	return connect.NewResponse(&esteemedv1.TransferOwnershipResponse{}), nil
+}
+
 // Helper functions to convert domain types to proto types
 
 func domainRoomToProto(room *domain.Room) *esteemedv1.Room {
@@ -228,6 +284,12 @@ func domainRoomEventToProto(event primary.RoomEvent) *esteemedv1.RoomEvent {
 		protoEvent.Event = &esteemedv1.RoomEvent_RoomClosed{
 			RoomClosed: &esteemedv1.RoomClosed{
 				Reason: event.Reason,
+			},
+		}
+	case primary.RoomEventHostChanged:
+		protoEvent.Event = &esteemedv1.RoomEvent_HostChanged{
+			HostChanged: &esteemedv1.HostChanged{
+				NewHostId: event.NewHostID,
 			},
 		}
 	}
