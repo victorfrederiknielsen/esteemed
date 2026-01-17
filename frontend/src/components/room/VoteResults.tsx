@@ -15,7 +15,7 @@ export function VoteResults({ summary }: VoteResultsProps) {
   const hasTriggeredConfetti = useRef(false);
   const consensusCardRef = useRef<HTMLDivElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
-  const [glowPosition, setGlowPosition] = useState<{
+  const [_glowPosition, setGlowPosition] = useState<{
     top: number;
     left: number;
     width: number;

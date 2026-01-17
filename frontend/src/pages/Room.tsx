@@ -1,3 +1,4 @@
+import { HostActionBar } from "@/components/room/HostActionBar";
 import { ParticipantList } from "@/components/room/ParticipantList";
 import { VotingCards } from "@/components/room/VotingCards";
 import { Button } from "@/components/ui/button";
@@ -7,16 +8,7 @@ import { useHeader } from "@/contexts/HeaderContext";
 import { RoomState, useRoom } from "@/hooks/useRoom";
 import { useVoting } from "@/hooks/useVoting";
 import { generateParticipantName } from "@/lib/namegen";
-import {
-  Clock,
-  Copy,
-  Dices,
-  Eye,
-  LogOut,
-  Play,
-  RefreshCw,
-  Users,
-} from "lucide-react";
+import { Clock, Copy, Dices, LogOut, Users } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -204,6 +196,19 @@ export function RoomPage() {
     <div className="grid gap-8 lg:grid-cols-3">
       {/* Main content */}
       <div className="lg:col-span-2 space-y-6">
+        {/* Host Action Bar */}
+        {isHost && (
+          <HostActionBar
+            roomState={room?.state}
+            isRevealed={isRevealed}
+            votedCount={votedCount}
+            isLoading={voteLoading}
+            onStartRound={startRound}
+            onRevealVotes={revealVotes}
+            onResetRound={resetRound}
+          />
+        )}
+
         {/* Waiting state */}
         {isWaiting && (
           <Card className="bg-white/70 dark:bg-neutral-800/70 backdrop-blur-sm">
@@ -269,43 +274,6 @@ export function RoomPage() {
 
       {/* Sidebar */}
       <div className="space-y-6">
-        {/* Host Controls */}
-        {isHost && (
-          <Card className="bg-white/70 dark:bg-neutral-800/70 backdrop-blur-sm">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg">Controls</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {isWaiting && (
-                <Button size="lg" onClick={startRound} className="w-full gap-2">
-                  <Play className="h-5 w-5" />
-                  Start Round
-                </Button>
-              )}
-              {isVoting && (
-                <Button
-                  onClick={revealVotes}
-                  disabled={voteLoading || votedCount === 0}
-                  className="w-full gap-2"
-                >
-                  <Eye className="h-4 w-4" />
-                  Reveal Votes
-                </Button>
-              )}
-              {isRevealed && (
-                <Button
-                  onClick={resetRound}
-                  variant="outline"
-                  className="w-full gap-2"
-                >
-                  <RefreshCw className="h-4 w-4" />
-                  New Round
-                </Button>
-              )}
-            </CardContent>
-          </Card>
-        )}
-
         {/* Participants */}
         <ParticipantList
           participants={participants}
