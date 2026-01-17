@@ -75,7 +75,7 @@ func (h *RoomHandler) JoinRoom(
 	ctx context.Context,
 	req *connect.Request[esteemedv1.JoinRoomRequest],
 ) (*connect.Response[esteemedv1.JoinRoomResponse], error) {
-	result, err := h.service.JoinRoom(ctx, req.Msg.RoomId, req.Msg.ParticipantName, req.Msg.SessionToken)
+	result, err := h.service.JoinRoom(ctx, req.Msg.RoomId, req.Msg.ParticipantName, req.Msg.SessionToken, req.Msg.IsSpectator)
 	if err != nil {
 		if err == domain.ErrRoomNotFound {
 			return nil, connect.NewError(connect.CodeNotFound, err)
@@ -169,6 +169,7 @@ func domainRoomToProto(room *domain.Room) *esteemedv1.Room {
 			IsHost:      p.IsHost,
 			IsConnected: p.IsConnected,
 			JoinedAt:    p.JoinedAt.Unix(),
+			IsSpectator: p.IsSpectator,
 		})
 	}
 
@@ -207,6 +208,7 @@ func domainRoomEventToProto(event primary.RoomEvent) *esteemedv1.RoomEvent {
 					IsHost:      event.Participant.IsHost,
 					IsConnected: event.Participant.IsConnected,
 					JoinedAt:    event.Participant.JoinedAt.Unix(),
+					IsSpectator: event.Participant.IsSpectator,
 				},
 			},
 		}

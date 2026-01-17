@@ -110,6 +110,10 @@ func (r *Room) CastVote(participantID string, value CardValue) error {
 		return ErrParticipantNotFound
 	}
 
+	if p.IsSpectator {
+		return ErrSpectatorCannotVote
+	}
+
 	if r.State != RoomStateVoting {
 		return ErrInvalidState
 	}
@@ -134,12 +138,17 @@ func (r *Room) HasVoted(participantID string) bool {
 }
 
 // GetVoteStatus returns which participants have voted (without revealing values)
+// Spectators are excluded from the vote status list
 func (r *Room) GetVoteStatus() []*Vote {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 
 	status := make([]*Vote, 0, len(r.Participants))
 	for _, p := range r.Participants {
+		// Skip spectators - they don't vote
+		if p.IsSpectator {
+			continue
+		}
 		_, hasVoted := r.Votes[p.ID]
 		if hasVoted {
 			// Only include that they voted, not the value

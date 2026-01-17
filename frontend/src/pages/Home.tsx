@@ -25,6 +25,7 @@ export function HomePage() {
   const [hostName, setHostName] = useState("");
   const [roomCode, setRoomCode] = useState("");
   const [participantName, setParticipantName] = useState("");
+  const [joinAsSpectator, setJoinAsSpectator] = useState(false);
   const [mode, setMode] = useState<"create" | "join">("create");
   const [rooms, setRooms] = useState<RoomSummary[]>([]);
   const [loadingRooms, setLoadingRooms] = useState(true);
@@ -70,7 +71,7 @@ export function HomePage() {
     if (!roomCode.trim() || !participantName.trim()) return;
 
     try {
-      await joinRoom(roomCode.trim(), participantName.trim());
+      await joinRoom(roomCode.trim(), participantName.trim(), joinAsSpectator);
       navigate(`/room/${roomCode.trim()}`);
     } catch (err) {
       console.error("Failed to join room:", err);
@@ -227,6 +228,17 @@ export function HomePage() {
                     </Button>
                   </div>
                 </div>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={joinAsSpectator}
+                    onChange={(e) => setJoinAsSpectator(e.target.checked)}
+                    className="h-4 w-4 rounded border-neutral-300 text-primary focus:ring-primary"
+                  />
+                  <span className="text-sm text-neutral-600 dark:text-neutral-400">
+                    Join as spectator (watch only)
+                  </span>
+                </label>
                 <Button
                   type="submit"
                   className="w-full"
@@ -274,7 +286,15 @@ export function HomePage() {
               </p>
             ) : (
               <div className="space-y-3">
-                {rooms.map((room) => (
+                {[...rooms]
+                  .sort((a, b) => {
+                    // Sort by participant count descending, then alphabetically
+                    if (b.participantCount !== a.participantCount) {
+                      return b.participantCount - a.participantCount;
+                    }
+                    return a.name.localeCompare(b.name);
+                  })
+                  .map((room) => (
                   <div
                     key={room.id}
                     className="flex items-center justify-between p-3 bg-neutral-50 dark:bg-neutral-800/50 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors cursor-pointer"

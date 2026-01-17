@@ -74,7 +74,7 @@ func (s *RoomService) CreateRoom(ctx context.Context, hostName string) (*primary
 }
 
 // JoinRoom adds a participant to an existing room
-func (s *RoomService) JoinRoom(ctx context.Context, roomID, participantName, sessionToken string) (*primary.JoinRoomResult, error) {
+func (s *RoomService) JoinRoom(ctx context.Context, roomID, participantName, sessionToken string, isSpectator bool) (*primary.JoinRoomResult, error) {
 	room, err := s.repo.FindByID(ctx, roomID)
 	if err != nil {
 		// Try finding by name if ID lookup fails
@@ -118,6 +118,7 @@ func (s *RoomService) JoinRoom(ctx context.Context, roomID, participantName, ses
 		SessionToken: newToken,
 		IsHost:       false,
 		IsConnected:  true,
+		IsSpectator:  isSpectator,
 		JoinedAt:     time.Now(),
 	}
 

@@ -15,6 +15,7 @@ interface UseRoomState {
   currentParticipantId: string | null;
   sessionToken: string | null;
   isHost: boolean;
+  isSpectator: boolean;
   isConnected: boolean;
   isLoading: boolean;
   error: string | null;
@@ -22,7 +23,11 @@ interface UseRoomState {
 
 interface UseRoomActions {
   createRoom: (hostName: string) => Promise<string>;
-  joinRoom: (roomId: string, participantName: string) => Promise<void>;
+  joinRoom: (
+    roomId: string,
+    participantName: string,
+    isSpectator?: boolean,
+  ) => Promise<void>;
   leaveRoom: () => Promise<void>;
   startRound: () => Promise<void>;
 }
@@ -34,6 +39,7 @@ export function useRoom(roomId?: string): UseRoomState & UseRoomActions {
     currentParticipantId: null,
     sessionToken: null,
     isHost: false,
+    isSpectator: false,
     isConnected: false,
     isLoading: false,
     error: null,
@@ -147,6 +153,7 @@ export function useRoom(roomId?: string): UseRoomState & UseRoomActions {
           currentParticipantId: response.participantId,
           sessionToken: response.sessionToken,
           isHost: true,
+          isSpectator: false,
           isConnected: true,
           isLoading: false,
           error: null,
@@ -168,6 +175,7 @@ export function useRoom(roomId?: string): UseRoomState & UseRoomActions {
     roomIdOrName: string,
     participantName: string,
     existingToken?: string,
+    isSpectator = false,
   ): Promise<void> => {
     setState((prev) => ({ ...prev, isLoading: true, error: null }));
 
@@ -176,6 +184,7 @@ export function useRoom(roomId?: string): UseRoomState & UseRoomActions {
         roomId: roomIdOrName,
         participantName,
         sessionToken: existingToken,
+        isSpectator,
       });
 
       if (response.room) {
@@ -195,6 +204,7 @@ export function useRoom(roomId?: string): UseRoomState & UseRoomActions {
           currentParticipantId: response.participantId,
           sessionToken: response.sessionToken,
           isHost: currentParticipant?.isHost ?? false,
+          isSpectator: currentParticipant?.isSpectator ?? false,
           isConnected: true,
           isLoading: false,
           error: null,
@@ -208,8 +218,17 @@ export function useRoom(roomId?: string): UseRoomState & UseRoomActions {
   };
 
   const joinRoom = useCallback(
-    async (roomIdOrName: string, participantName: string): Promise<void> => {
-      return joinRoomInternal(roomIdOrName, participantName);
+    async (
+      roomIdOrName: string,
+      participantName: string,
+      isSpectator = false,
+    ): Promise<void> => {
+      return joinRoomInternal(
+        roomIdOrName,
+        participantName,
+        undefined,
+        isSpectator,
+      );
     },
     [],
   );
@@ -235,6 +254,7 @@ export function useRoom(roomId?: string): UseRoomState & UseRoomActions {
         currentParticipantId: null,
         sessionToken: null,
         isHost: false,
+        isSpectator: false,
         isConnected: false,
         isLoading: false,
         error: null,

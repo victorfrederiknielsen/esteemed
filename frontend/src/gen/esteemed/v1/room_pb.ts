@@ -140,6 +140,11 @@ export class Participant extends Message<Participant> {
    */
   joinedAt = protoInt64.zero;
 
+  /**
+   * @generated from field: bool is_spectator = 6;
+   */
+  isSpectator = false;
+
   constructor(data?: PartialMessage<Participant>) {
     super();
     proto3.util.initPartial(data, this);
@@ -153,6 +158,7 @@ export class Participant extends Message<Participant> {
     { no: 3, name: "is_host", kind: "scalar", T: 8 /* ScalarType.BOOL */ },
     { no: 4, name: "is_connected", kind: "scalar", T: 8 /* ScalarType.BOOL */ },
     { no: 5, name: "joined_at", kind: "scalar", T: 3 /* ScalarType.INT64 */ },
+    { no: 6, name: "is_spectator", kind: "scalar", T: 8 /* ScalarType.BOOL */ },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Participant {
@@ -289,6 +295,13 @@ export class JoinRoomRequest extends Message<JoinRoomRequest> {
    */
   sessionToken = "";
 
+  /**
+   * Join as spectator (watch only)
+   *
+   * @generated from field: bool is_spectator = 4;
+   */
+  isSpectator = false;
+
   constructor(data?: PartialMessage<JoinRoomRequest>) {
     super();
     proto3.util.initPartial(data, this);
@@ -300,6 +313,7 @@ export class JoinRoomRequest extends Message<JoinRoomRequest> {
     { no: 1, name: "room_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 2, name: "participant_name", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 3, name: "session_token", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 4, name: "is_spectator", kind: "scalar", T: 8 /* ScalarType.BOOL */ },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): JoinRoomRequest {

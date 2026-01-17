@@ -17,6 +17,7 @@ export function RoomPage() {
   const navigate = useNavigate();
   const { setBreadcrumbs, setActions } = useHeader();
   const [joinName, setJoinName] = useState("");
+  const [joinAsSpectator, setJoinAsSpectator] = useState(false);
   const [copied, setCopied] = useState(false);
 
   const {
@@ -25,6 +26,7 @@ export function RoomPage() {
     currentParticipantId,
     sessionToken,
     isHost,
+    isSpectator,
     isConnected,
     isLoading: roomLoading,
     error: roomError,
@@ -47,7 +49,7 @@ export function RoomPage() {
   const handleJoin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!roomId || !joinName.trim()) return;
-    await joinRoom(roomId, joinName.trim());
+    await joinRoom(roomId, joinName.trim(), joinAsSpectator);
   };
 
   const handleLeave = useCallback(async () => {
@@ -160,6 +162,17 @@ export function RoomPage() {
                   </Button>
                 </div>
               </div>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={joinAsSpectator}
+                  onChange={(e) => setJoinAsSpectator(e.target.checked)}
+                  className="h-4 w-4 rounded border-neutral-300 text-primary focus:ring-primary"
+                />
+                <span className="text-sm text-neutral-600 dark:text-neutral-400">
+                  Join as spectator (watch only)
+                </span>
+              </label>
               <Button
                 type="submit"
                 className="w-full"
@@ -182,7 +195,8 @@ export function RoomPage() {
   const isWaiting = room?.state === RoomState.WAITING;
   const isVoting = room?.state === RoomState.VOTING;
   const votedCount = voteStatuses.filter((v) => v.hasVoted).length;
-  const totalParticipants = participants.length;
+  // Exclude spectators from the total count (they don't vote)
+  const totalVoters = participants.filter((p) => !p.isSpectator).length;
 
   return (
     <div className="grid gap-8 lg:grid-cols-3">
@@ -221,9 +235,9 @@ export function RoomPage() {
                       : "Waiting for the host to start"}
                   </p>
                   <p className="text-sm text-neutral-400">
-                    {totalParticipants === 1
+                    {participants.length === 1
                       ? "You're the only one here so far"
-                      : `${totalParticipants} participants in the room`}
+                      : `${participants.length} participants in the room`}
                   </p>
                 </div>
               </div>
@@ -231,12 +245,12 @@ export function RoomPage() {
           </Card>
         )}
 
-        {/* Voting cards - shown during voting and after reveal */}
-        {(isVoting || isRevealed) && (
+        {/* Voting cards - shown during voting (not for spectators) and after reveal (for everyone) */}
+        {((isVoting && !isSpectator) || isRevealed) && (
           <VotingCards
             selectedValue={currentVote}
             onSelect={castVote}
-            disabled={false}
+            disabled={isSpectator}
             isRevealed={isRevealed}
             summary={summary}
           />
@@ -248,14 +262,14 @@ export function RoomPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
-                  Votes: {votedCount} / {totalParticipants}
+                  Votes: {votedCount} / {totalVoters}
                 </span>
               </div>
               <div className="w-full bg-neutral-200/50 dark:bg-neutral-700/50 rounded-full h-2">
                 <div
                   className="bg-primary/80 h-2 rounded-full transition-all duration-300"
                   style={{
-                    width: `${(votedCount / Math.max(totalParticipants, 1)) * 100}%`,
+                    width: `${(votedCount / Math.max(totalVoters, 1)) * 100}%`,
                   }}
                 />
               </div>

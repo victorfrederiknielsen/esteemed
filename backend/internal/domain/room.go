@@ -14,6 +14,7 @@ var (
 	ErrNotHost             = errors.New("only the host can perform this action")
 	ErrInvalidState        = errors.New("invalid room state for this action")
 	ErrInvalidToken        = errors.New("invalid session token")
+	ErrSpectatorCannotVote = errors.New("spectators cannot vote")
 )
 
 // RoomState represents the current phase of estimation
@@ -44,6 +45,7 @@ type Participant struct {
 	SessionToken string
 	IsHost       bool
 	IsConnected  bool
+	IsSpectator  bool
 	JoinedAt     time.Time
 }
 
@@ -95,10 +97,12 @@ func (r *Room) RemoveParticipant(participantID string) error {
 			}
 		}
 		if !hasHost {
-			// Assign first participant as new host
+			// Assign first non-spectator participant as new host
 			for _, p := range r.Participants {
-				p.IsHost = true
-				break
+				if !p.IsSpectator {
+					p.IsHost = true
+					break
+				}
 			}
 		}
 	}

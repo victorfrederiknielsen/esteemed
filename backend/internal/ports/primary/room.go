@@ -15,7 +15,7 @@ type RoomService interface {
 	CreateRoom(ctx context.Context, hostName string) (*CreateRoomResult, error)
 
 	// JoinRoom adds a participant to an existing room
-	JoinRoom(ctx context.Context, roomID, participantName, sessionToken string) (*JoinRoomResult, error)
+	JoinRoom(ctx context.Context, roomID, participantName, sessionToken string, isSpectator bool) (*JoinRoomResult, error)
 
 	// LeaveRoom removes a participant from a room
 	LeaveRoom(ctx context.Context, roomID, participantID, sessionToken string) error

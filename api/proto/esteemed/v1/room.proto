@@ -41,6 +41,7 @@ message Participant {
   bool is_host = 3;
   bool is_connected = 4;
   int64 joined_at = 5;
+  bool is_spectator = 6;
 }
 
 // RoomState represents the current phase of estimation
@@ -67,6 +68,7 @@ message JoinRoomRequest {
   string room_id = 1;
   string participant_name = 2;
   string session_token = 3;    // Optional: for reconnection
+  bool is_spectator = 4;       // Join as spectator (watch only)
 }
 
 message JoinRoomResponse {
