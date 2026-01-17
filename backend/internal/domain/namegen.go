@@ -6,31 +6,44 @@ import (
 )
 
 var adjectives = []string{
+	// Original
 	"brave", "clever", "happy", "swift", "calm",
 	"bold", "bright", "quick", "gentle", "kind",
 	"wise", "cool", "epic", "fancy", "grand",
 	"jolly", "keen", "lucky", "merry", "noble",
 	"proud", "quiet", "rapid", "sharp", "smart",
 	"sunny", "super", "tiny", "vast", "warm",
+	// Extended
+	"agile", "eager", "fair", "fierce", "free",
+	"golden", "great", "hardy", "humble", "lively",
+	"mighty", "nimble", "peaceful", "playful", "radiant",
+	"serene", "silent", "steady", "true", "vivid",
 }
 
-var animals = []string{
-	"falcon", "dolphin", "penguin", "tiger", "eagle",
-	"panda", "koala", "otter", "fox", "owl",
-	"wolf", "bear", "hawk", "lynx", "raven",
-	"shark", "whale", "seal", "deer", "hare",
-	"crane", "finch", "gecko", "ibis", "jay",
-	"kiwi", "lemur", "moose", "newt", "ocelot",
+var roomNouns = []string{
+	// Celestial
+	"nebula", "comet", "nova", "aurora", "cosmos",
+	"meteor", "eclipse", "orbit", "galaxy", "zenith",
+	"solstice", "pulsar", "quasar", "corona", "vortex",
+	// Terrain/Geography
+	"canyon", "summit", "ridge", "mesa", "glacier",
+	"delta", "reef", "basin", "peak", "fjord",
+	"plateau", "dune", "ravine", "tundra", "crater",
+	"valley", "cliff", "oasis",
+	// Nature
+	"meadow", "forest", "willow", "cedar", "grove",
+	"brook", "glade", "fern", "lotus", "sequoia",
+	"marsh", "birch", "aspen", "cypress", "prairie",
+	"river", "lagoon",
 }
 
-// GenerateRoomName creates a fun room name in the format adjective-animal-number
-// e.g., "brave-falcon-42", "clever-penguin-17"
+// GenerateRoomName creates a fun room name in the format adjective-noun
+// e.g., "brave-nebula", "swift-canyon", "calm-meadow"
 func GenerateRoomName() string {
 	adj := adjectives[rand.Intn(len(adjectives))]
-	animal := animals[rand.Intn(len(animals))]
-	number := rand.Intn(100) // 0-99
+	noun := roomNouns[rand.Intn(len(roomNouns))]
 
-	return fmt.Sprintf("%s-%s-%02d", adj, animal, number)
+	return fmt.Sprintf("%s-%s", adj, noun)
 }
 
 // GenerateID creates a short unique identifier
