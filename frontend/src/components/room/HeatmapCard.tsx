@@ -1,5 +1,5 @@
 import { useTilt3D } from "@/hooks/useTilt3D";
-import { forwardRef, useEffect } from "react";
+import { forwardRef, useCallback } from "react";
 import { ProfileCircleStack } from "./ProfileCircleStack";
 
 interface HeatmapCardProps {
@@ -16,17 +16,22 @@ export const HeatmapCard = forwardRef<HTMLDivElement, HeatmapCardProps>(
     { label, voteCount, maxVoteCount, voterNames, isMode },
     forwardedRef,
   ) {
-    const { ref: tiltRef, style: tiltStyle } = useTilt3D<HTMLDivElement>(isMode);
+    const { ref: tiltRef, style: tiltStyle } =
+      useTilt3D<HTMLDivElement>(isMode);
 
-    // Merge refs
-    useEffect(() => {
-      if (!tiltRef.current) return;
-      if (typeof forwardedRef === "function") {
-        forwardedRef(tiltRef.current);
-      } else if (forwardedRef) {
-        forwardedRef.current = tiltRef.current;
-      }
-    }, [forwardedRef]);
+    // Merge refs using callback ref
+    const setRefs = useCallback(
+      (node: HTMLDivElement | null) => {
+        (tiltRef as React.MutableRefObject<HTMLDivElement | null>).current =
+          node;
+        if (typeof forwardedRef === "function") {
+          forwardedRef(node);
+        } else if (forwardedRef) {
+          forwardedRef.current = node;
+        }
+      },
+      [forwardedRef, tiltRef],
+    );
 
     // Calculate lightness: higher votes = darker/more saturated
     // Zero votes: very light (85%), max votes: fully saturated primary (53%)
@@ -38,7 +43,7 @@ export const HeatmapCard = forwardRef<HTMLDivElement, HeatmapCardProps>(
 
     return (
       <div
-        ref={tiltRef}
+        ref={setRefs}
         className={`relative h-[120px] rounded-lg ${isMode ? "consensus-badge" : ""}`}
         style={isMode ? tiltStyle : undefined}
       >

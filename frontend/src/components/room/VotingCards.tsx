@@ -123,7 +123,9 @@ export const VotingCards = forwardRef<HTMLDivElement, VotingCardsProps>(
                         <span
                           className={cn(
                             "text-xs",
-                            isMode ? "text-muted-foreground" : "text-primary/70",
+                            isMode
+                              ? "text-muted-foreground"
+                              : "text-primary/70",
                           )}
                         >
                           {voteData?.count} vote

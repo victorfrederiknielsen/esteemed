@@ -33,7 +33,14 @@ export function Tilt3DWrapper({
         particleCount: 40,
         spread: 80,
         origin: { x, y },
-        colors: ["#22c55e", "#10b981", "#06b6d4", "#8b5cf6", "#ec4899", "#f59e0b"],
+        colors: [
+          "#22c55e",
+          "#10b981",
+          "#06b6d4",
+          "#8b5cf6",
+          "#ec4899",
+          "#f59e0b",
+        ],
         startVelocity: 25,
         gravity: 0.8,
         ticks: 120,
@@ -54,11 +61,7 @@ export function Tilt3DWrapper({
   }, [enabled, ref]);
 
   return (
-    <div
-      ref={ref}
-      className={className}
-      style={enabled ? style : undefined}
-    >
+    <div ref={ref} className={className} style={enabled ? style : undefined}>
       {enabled && (
         <>
           <span className="consensus-text absolute top-2 left-1/2 -translate-x-1/2 text-base font-black tracking-wide z-10">
