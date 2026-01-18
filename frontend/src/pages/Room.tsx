@@ -1,6 +1,7 @@
 import { HostActionBar } from "@/components/room/HostActionBar";
 import { LeaveConfirmDialog } from "@/components/room/LeaveConfirmDialog";
 import { ParticipantList } from "@/components/room/ParticipantList";
+import { QRCodeShare } from "@/components/room/QRCodeShare";
 import { VotingCards } from "@/components/room/VotingCards";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -158,20 +159,23 @@ export function RoomPage() {
     const roomName = room?.name || roomId || "";
 
     const roomChip = (
-      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-muted">
-        <span className="font-mono text-sm">{roomName}</span>
-        <button
-          type="button"
-          onClick={copyRoomLink}
-          className="p-0.5 rounded hover:bg-accent transition-colors"
-        >
-          {copied ? (
-            <Check className="h-3.5 w-3.5 text-emerald-500" />
-          ) : (
-            <Copy className="h-3.5 w-3.5 text-neutral-500" />
-          )}
-          <span className="sr-only">{copied ? "Copied!" : "Copy link"}</span>
-        </button>
+      <span className="inline-flex items-center gap-2">
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-muted">
+          <span className="font-mono text-sm">{roomName}</span>
+          <button
+            type="button"
+            onClick={copyRoomLink}
+            className="p-0.5 rounded hover:bg-accent transition-colors"
+          >
+            {copied ? (
+              <Check className="h-3.5 w-3.5 text-emerald-500" />
+            ) : (
+              <Copy className="h-3.5 w-3.5 text-neutral-500" />
+            )}
+            <span className="sr-only">{copied ? "Copied!" : "Copy link"}</span>
+          </button>
+        </span>
+        <QRCodeShare url={window.location.href} />
       </span>
     );
 
