@@ -16,9 +16,23 @@ import {
   setCustomName,
 } from "@/lib/client";
 import { getDefaultCardConfig } from "@/lib/types";
-import { Check, Clock, Copy } from "lucide-react";
+import { Check, Clock, Copy, Globe } from "lucide-react";
+import { QRCodeCanvas } from "qrcode.react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useBlocker, useNavigate, useParams } from "react-router-dom";
+
+const waitingMessages = [
+  "Waiting for others to join...",
+  "Still waiting...",
+  "Any minute now...",
+  "Did everyone get the link?",
+  "Taking their time, huh?",
+  "Maybe try the QR code?",
+  "Coffee break?",
+  "Patience is a virtue...",
+  "Hello? Anyone there?",
+  "The suspense is killing me...",
+];
 
 export function RoomPage() {
   const { roomId } = useParams<{ roomId: string }>();
@@ -28,6 +42,7 @@ export function RoomPage() {
   const [joinAsSpectator, setJoinAsSpectator] = useState(false);
   const [copied, setCopied] = useState(false);
   const [showLeaveDialog, setShowLeaveDialog] = useState(false);
+  const [waitingMessageIndex, setWaitingMessageIndex] = useState(0);
 
   // Initialize name from global identity
   useEffect(() => {
@@ -145,6 +160,15 @@ export function RoomPage() {
       navigate("/");
     }
   }, [roomError, navigate]);
+
+  // Cycle through waiting messages
+  useEffect(() => {
+    if (room?.state !== RoomState.WAITING) return;
+    const interval = setInterval(() => {
+      setWaitingMessageIndex((prev) => (prev + 1) % waitingMessages.length);
+    }, 8000);
+    return () => clearInterval(interval);
+  }, [room?.state]);
 
   // Set header breadcrumbs and actions
   useEffect(() => {
@@ -304,29 +328,48 @@ export function RoomPage() {
           {/* Waiting state */}
           {isWaiting && (
             <Card className="bg-card/70 backdrop-blur-sm">
-              <CardHeader className="pb-3">
-                <CardTitle as="h2" className="text-lg">
-                  Ready to Estimate?
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center space-y-4 py-4">
-                  <div className="flex justify-center">
-                    <div className="w-16 h-16 rounded-full bg-muted/50 flex items-center justify-center">
-                      <Clock className="h-8 w-8 text-neutral-400 animate-pulse" />
-                    </div>
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-neutral-600 dark:text-neutral-300 font-medium">
-                      {isHost
-                        ? "Ready when you are"
-                        : "Waiting for the host to start"}
-                    </p>
-                    <p className="text-sm text-neutral-400">
-                      {participants.length === 1
-                        ? "You're the only one here so far"
-                        : `${participants.length} participants in the room`}
-                    </p>
+              <CardContent className="pt-6">
+                <div className="flex flex-col items-center gap-6 py-4">
+                  <span
+                    key={waitingMessageIndex}
+                    className="text-lg font-semibold animate-in fade-in duration-500"
+                  >
+                    {waitingMessages[waitingMessageIndex]}
+                  </span>
+                  <a
+                    href={window.location.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block rounded-xl overflow-hidden hover:opacity-90 transition-opacity shadow-lg"
+                  >
+                    <QRCodeCanvas
+                      value={window.location.href}
+                      size={200}
+                      bgColor="#ffffff"
+                      fgColor="#000000"
+                      level="M"
+                      marginSize={2}
+                    />
+                  </a>
+                  <div className="flex items-center gap-2 bg-muted pl-3 pr-2 py-2 rounded-md max-w-full">
+                    <Globe className="h-4 w-4 text-muted-foreground shrink-0" />
+                    <code className="text-xs break-all">
+                      {window.location.href}
+                    </code>
+                    <button
+                      type="button"
+                      onClick={copyRoomLink}
+                      className="p-1 rounded hover:bg-accent transition-colors shrink-0"
+                    >
+                      {copied ? (
+                        <Check className="h-3.5 w-3.5 text-emerald-500" />
+                      ) : (
+                        <Copy className="h-3.5 w-3.5 text-muted-foreground" />
+                      )}
+                      <span className="sr-only">
+                        {copied ? "Copied!" : "Copy link"}
+                      </span>
+                    </button>
                   </div>
                 </div>
               </CardContent>
