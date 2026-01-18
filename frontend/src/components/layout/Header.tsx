@@ -22,12 +22,18 @@ export function Header() {
         <Breadcrumb>
           <BreadcrumbList>
             {breadcrumbs.map((crumb, index) => {
+              const isFirst = index === 0;
               const isLast = index === breadcrumbs.length - 1;
+              const isMiddle = !isFirst && !isLast;
 
               return (
                 <Fragment key={crumb.label}>
-                  {index > 0 && <BreadcrumbSeparator />}
-                  <BreadcrumbItem>
+                  {index > 0 && (
+                    <BreadcrumbSeparator
+                      className={isMiddle ? "hidden md:block" : ""}
+                    />
+                  )}
+                  <BreadcrumbItem className={isMiddle ? "hidden md:block" : ""}>
                     {isLast ? (
                       <BreadcrumbPage
                         className={

@@ -16,14 +16,14 @@ import {
   setCustomName,
 } from "@/lib/client";
 import { getDefaultCardConfig } from "@/lib/types";
-import { Check, Clock, Copy, LogOut } from "lucide-react";
+import { Check, Clock, Copy } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useBlocker, useNavigate, useParams } from "react-router-dom";
 
 export function RoomPage() {
   const { roomId } = useParams<{ roomId: string }>();
   const navigate = useNavigate();
-  const { setBreadcrumbs, setActions } = useHeader();
+  const { setBreadcrumbs } = useHeader();
   const [joinName, setJoinName] = useState("");
   const [joinAsSpectator, setJoinAsSpectator] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -116,14 +116,6 @@ export function RoomPage() {
     }
   }, [blocker.state]);
 
-  const handleLeaveClick = useCallback(() => {
-    if (isConnected) {
-      setShowLeaveDialog(true);
-    } else {
-      navigate("/");
-    }
-  }, [isConnected, navigate]);
-
   const handleLeaveConfirm = useCallback(async () => {
     setShowLeaveDialog(false);
 
@@ -188,26 +180,10 @@ export function RoomPage() {
       },
     ]);
 
-    setActions(
-      <Button variant="outline" size="sm" onClick={handleLeaveClick}>
-        <LogOut className="h-4 w-4 mr-1" />
-        Leave
-      </Button>,
-    );
-
     return () => {
       setBreadcrumbs([]);
-      setActions(null);
     };
-  }, [
-    room?.name,
-    roomId,
-    copied,
-    setBreadcrumbs,
-    setActions,
-    copyRoomLink,
-    handleLeaveClick,
-  ]);
+  }, [room?.name, roomId, copied, setBreadcrumbs, copyRoomLink]);
 
   // Check if we have a previous session (for auto-reconnect)
   const hasPreviousSession = roomId ? !!getRoomParticipantId(roomId) : false;

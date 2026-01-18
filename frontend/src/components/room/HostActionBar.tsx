@@ -52,7 +52,7 @@ export function HostActionBar({
   const isVoting = roomState === RoomState.VOTING && !isRevealed;
 
   return (
-    <div className="relative z-10 flex items-center gap-3 p-3 rounded-lg border bg-card/70 backdrop-blur-sm">
+    <div className="flex items-center gap-3 p-3 rounded-lg border bg-card/70 backdrop-blur-sm">
       {isWaiting && (
         <Button disabled={isLoading} onClick={onStartRound}>
           <Play className="h-4 w-4" />
