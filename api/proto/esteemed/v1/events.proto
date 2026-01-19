@@ -1,0 +1,63 @@
+syntax = "proto3";
+
+package esteemed.v1;
+
+option go_package = "github.com/vicmanager/esteemed/backend/gen/esteemed/v1;esteemedv1";
+
+// EventService provides real-time application event streaming
+service EventService {
+  // WatchEvents streams application-wide events for monitoring
+  rpc WatchEvents(WatchEventsRequest) returns (stream AppEvent);
+}
+
+// AppEventType represents the type of application event
+enum AppEventType {
+  APP_EVENT_TYPE_UNSPECIFIED = 0;
+  APP_EVENT_TYPE_ROOM_CREATED = 1;
+  APP_EVENT_TYPE_ROOM_CLOSED = 2;
+  APP_EVENT_TYPE_VOTE_CAST = 3;
+  APP_EVENT_TYPE_VOTE_REVEALED = 4;
+}
+
+// AppEvent represents an application-wide event
+message AppEvent {
+  AppEventType type = 1;
+  int64 timestamp = 2;
+  string room_id = 3;
+  string room_name = 4;
+  oneof payload {
+    RoomCreatedPayload room_created = 10;
+    RoomClosedPayload room_closed = 11;
+    VoteCastPayload vote_cast = 12;
+    VoteRevealedPayload vote_revealed = 13;
+  }
+}
+
+// RoomCreatedPayload contains details about a room creation event
+message RoomCreatedPayload {
+  string host_name = 1;
+}
+
+// RoomClosedPayload contains details about a room closure event
+message RoomClosedPayload {
+  string reason = 1;
+}
+
+// VoteCastPayload contains details about a vote being cast
+message VoteCastPayload {
+  string participant_name = 1;
+  int32 votes_in_round = 2;
+}
+
+// VoteRevealedPayload contains details about votes being revealed
+message VoteRevealedPayload {
+  int32 vote_count = 1;
+  bool consensus = 2;
+  string average = 3;
+}
+
+// WatchEventsRequest specifies filters for the event stream
+message WatchEventsRequest {
+  // Filter to specific event types (empty = all types)
+  repeated AppEventType types = 1;
+}

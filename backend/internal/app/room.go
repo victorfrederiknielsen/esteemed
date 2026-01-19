@@ -14,17 +14,19 @@ const RoomInactivityTimeout = 15 * time.Minute
 
 // RoomService implements the primary.RoomService interface
 type RoomService struct {
-	repo      secondary.RoomRepository
-	publisher secondary.EventPublisher
-	analytics secondary.AnalyticsRepository
+	repo         secondary.RoomRepository
+	publisher    secondary.EventPublisher
+	analytics    secondary.AnalyticsRepository
+	appPublisher secondary.AppEventPublisher
 }
 
 // NewRoomService creates a new room service
-func NewRoomService(repo secondary.RoomRepository, publisher secondary.EventPublisher, analytics secondary.AnalyticsRepository) *RoomService {
+func NewRoomService(repo secondary.RoomRepository, publisher secondary.EventPublisher, analytics secondary.AnalyticsRepository, appPublisher secondary.AppEventPublisher) *RoomService {
 	return &RoomService{
-		repo:      repo,
-		publisher: publisher,
-		analytics: analytics,
+		repo:         repo,
+		publisher:    publisher,
+		analytics:    analytics,
+		appPublisher: appPublisher,
 	}
 }
 
@@ -79,6 +81,11 @@ func (s *RoomService) CreateRoom(ctx context.Context, hostName, sessionToken str
 	// Record analytics event
 	if s.analytics != nil {
 		_ = s.analytics.RecordEvent(ctx, domain.NewAnalyticsEvent(domain.EventTypeRoomCreated, roomID, ""))
+	}
+
+	// Emit app event
+	if s.appPublisher != nil {
+		_ = s.appPublisher.Publish(ctx, domain.NewRoomCreatedEvent(roomID, roomName, hostName))
 	}
 
 	return &primary.CreateRoomResult{
@@ -190,6 +197,10 @@ func (s *RoomService) LeaveRoom(ctx context.Context, roomID, participantID, sess
 		if s.analytics != nil {
 			_ = s.analytics.RecordEvent(ctx, domain.NewAnalyticsEvent(domain.EventTypeRoomClosed, room.ID, ""))
 		}
+		// Emit app event
+		if s.appPublisher != nil {
+			_ = s.appPublisher.Publish(ctx, domain.NewRoomClosedEvent(room.ID, room.Name, "all participants left"))
+		}
 		// Delete room when everyone has disconnected
 		_ = s.publisher.PublishRoomEvent(ctx, room.ID, primary.RoomEvent{
 			Type:   primary.RoomEventClosed,
@@ -284,6 +295,10 @@ func (s *RoomService) KickParticipant(ctx context.Context, roomID, participantID
 		// Record analytics event
 		if s.analytics != nil {
 			_ = s.analytics.RecordEvent(ctx, domain.NewAnalyticsEvent(domain.EventTypeRoomClosed, room.ID, ""))
+		}
+		// Emit app event
+		if s.appPublisher != nil {
+			_ = s.appPublisher.Publish(ctx, domain.NewRoomClosedEvent(room.ID, room.Name, "all participants left"))
 		}
 		_ = s.publisher.PublishRoomEvent(ctx, room.ID, primary.RoomEvent{
 			Type:   primary.RoomEventClosed,

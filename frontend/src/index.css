@@ -101,6 +101,16 @@
   }
 }
 
+@layer utilities {
+  .scrollbar-none {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 /* Animated gradient for consensus celebration */
 @keyframes gradient-flow {
   0% {
@@ -153,6 +163,22 @@
   border-radius: inherit;
   background: var(--card);
   z-index: -1;
+}
+
+/* Pop-in animation for live event stream items */
+@keyframes pop-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-pop-in {
+  animation: pop-in 0.15s ease-out forwards;
 }
 
 .consensus-text {

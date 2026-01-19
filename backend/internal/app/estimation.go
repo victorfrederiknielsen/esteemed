@@ -10,17 +10,19 @@ import (
 
 // EstimationService implements the primary.EstimationService interface
 type EstimationService struct {
-	repo      secondary.RoomRepository
-	publisher secondary.EventPublisher
-	analytics secondary.AnalyticsRepository
+	repo         secondary.RoomRepository
+	publisher    secondary.EventPublisher
+	analytics    secondary.AnalyticsRepository
+	appPublisher secondary.AppEventPublisher
 }
 
 // NewEstimationService creates a new estimation service
-func NewEstimationService(repo secondary.RoomRepository, publisher secondary.EventPublisher, analytics secondary.AnalyticsRepository) *EstimationService {
+func NewEstimationService(repo secondary.RoomRepository, publisher secondary.EventPublisher, analytics secondary.AnalyticsRepository, appPublisher secondary.AppEventPublisher) *EstimationService {
 	return &EstimationService{
-		repo:      repo,
-		publisher: publisher,
-		analytics: analytics,
+		repo:         repo,
+		publisher:    publisher,
+		analytics:    analytics,
+		appPublisher: appPublisher,
 	}
 }
 
@@ -56,6 +58,12 @@ func (s *EstimationService) CastVote(ctx context.Context, roomID, participantID,
 	// Record analytics event
 	if s.analytics != nil {
 		_ = s.analytics.RecordEvent(ctx, domain.NewAnalyticsEvent(domain.EventTypeVoteCast, room.ID, ""))
+	}
+
+	// Emit app event
+	if s.appPublisher != nil {
+		votesInRound := len(room.GetVotes())
+		_ = s.appPublisher.Publish(ctx, domain.NewVoteCastEvent(room.ID, room.Name, participant.Name, votesInRound))
 	}
 
 	// Publish vote event (without the value - hidden until reveal)
@@ -100,6 +108,17 @@ func (s *EstimationService) RevealVotes(ctx context.Context, roomID, participant
 	// Record analytics event
 	if s.analytics != nil {
 		_ = s.analytics.RecordEvent(ctx, domain.NewAnalyticsEvent(domain.EventTypeVoteRevealed, room.ID, ""))
+	}
+
+	// Emit app event
+	if s.appPublisher != nil {
+		_ = s.appPublisher.Publish(ctx, domain.NewVoteRevealedEvent(
+			room.ID,
+			room.Name,
+			len(summary.Votes),
+			summary.HasConsensus,
+			summary.Average,
+		))
 	}
 
 	// Publish reveal event

@@ -1,11 +1,14 @@
 import { AnalyticsChart, metrics } from "@/components/admin/AnalyticsChart";
 import { DateRangeSelector } from "@/components/admin/DateRangeSelector";
+import { LiveEvents } from "@/components/admin/LiveEvents";
 import { MetricCard } from "@/components/admin/MetricCard";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useHeader } from "@/contexts/HeaderContext";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import {
+  Activity,
+  BarChart3,
   DoorClosed,
   DoorOpen,
   Eye,
@@ -15,24 +18,13 @@ import {
 } from "lucide-react";
 import { useEffect } from "react";
 
-export function AdminPage() {
-  const { setBreadcrumbs } = useHeader();
+function AnalyticsDashboard() {
   const { summary, buckets, dateRange, isLoading, error, setDateRange } =
     useAnalytics();
 
-  useEffect(() => {
-    setBreadcrumbs([{ label: "Esteemed", href: "/" }, { label: "Admin" }]);
-  }, [setBreadcrumbs]);
-
   return (
-    <div className="container mx-auto max-w-6xl space-y-6 p-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Analytics Dashboard</h1>
-          <p className="text-muted-foreground">
-            Track room and voting activity over time
-          </p>
-        </div>
+    <div className="space-y-6">
+      <div className="flex justify-end">
         <DateRangeSelector value={dateRange} onChange={setDateRange} />
       </div>
 
@@ -100,6 +92,53 @@ export function AdminPage() {
           </Tabs>
         </>
       )}
+    </div>
+  );
+}
+
+export function AdminPage() {
+  const { setBreadcrumbs } = useHeader();
+
+  useEffect(() => {
+    setBreadcrumbs([{ label: "Esteemed", href: "/" }, { label: "Admin" }]);
+  }, [setBreadcrumbs]);
+
+  return (
+    <div className="flex h-[calc(100vh-4rem)] flex-col p-6">
+      <Tabs defaultValue="analytics" className="flex flex-1 flex-col">
+        <div className="mx-auto flex w-full max-w-6xl items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold">Admin Dashboard</h1>
+            <p className="text-muted-foreground">
+              Monitor application activity and events
+            </p>
+          </div>
+          <TabsList>
+            <TabsTrigger value="analytics" className="gap-2">
+              <BarChart3 className="size-4" />
+              Analytics
+            </TabsTrigger>
+            <TabsTrigger value="live-events" className="gap-2">
+              <Activity className="size-4" />
+              Live Events
+            </TabsTrigger>
+          </TabsList>
+        </div>
+
+        <TabsContent
+          value="analytics"
+          className="mx-auto mt-6 w-full max-w-6xl"
+        >
+          <AnalyticsDashboard />
+        </TabsContent>
+
+        <TabsContent
+          value="live-events"
+          className="mx-auto mt-6 w-full max-w-6xl flex-1"
+        >
+          <LiveEvents />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

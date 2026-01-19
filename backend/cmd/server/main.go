@@ -43,6 +43,7 @@ func main() {
 	// Initialize secondary adapters (driven)
 	roomRepo := memory.NewRoomRepository()
 	eventBroker := pubsub.NewBroker()
+	appEventBroker := pubsub.NewAppEventBroker()
 
 	// Initialize analytics repository (optional - log error but continue if fails)
 	analyticsRepo, err := sqlite.NewAnalyticsRepository(sqlitePath)
@@ -51,8 +52,8 @@ func main() {
 	}
 
 	// Initialize application services
-	roomService := app.NewRoomService(roomRepo, eventBroker, analyticsRepo)
-	estimationService := app.NewEstimationService(roomRepo, eventBroker, analyticsRepo)
+	roomService := app.NewRoomService(roomRepo, eventBroker, analyticsRepo, appEventBroker)
+	estimationService := app.NewEstimationService(roomRepo, eventBroker, analyticsRepo, appEventBroker)
 	analyticsService := app.NewAnalyticsService(analyticsRepo)
 
 	// Initialize and start room cleaner
@@ -64,6 +65,7 @@ func main() {
 	roomHandler := connectrpc.NewRoomHandler(roomService)
 	estimationHandler := connectrpc.NewEstimationHandler(estimationService)
 	analyticsHandler := connectrpc.NewAnalyticsHandler(analyticsService)
+	eventHandler := connectrpc.NewEventHandler(appEventBroker)
 
 	// Set up HTTP mux
 	mux := http.NewServeMux()
@@ -77,6 +79,9 @@ func main() {
 
 	analyticsPath, analyticsSvc := analyticsHandler.Handler()
 	mux.Handle(analyticsPath, analyticsSvc)
+
+	eventPath, eventSvc := eventHandler.Handler()
+	mux.Handle(eventPath, eventSvc)
 
 	// Health check endpoint
 	mux.HandleFunc("/health", func(w http.ResponseWriter, _ *http.Request) {
