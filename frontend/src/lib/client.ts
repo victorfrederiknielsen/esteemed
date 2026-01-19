@@ -1,3 +1,4 @@
+import { AnalyticsService } from "@/gen/esteemed/v1/analytics_connect";
 import { EstimationService } from "@/gen/esteemed/v1/estimation_connect";
 import { RoomService } from "@/gen/esteemed/v1/room_connect";
 import { createPromiseClient } from "@connectrpc/connect";
@@ -16,6 +17,7 @@ export const estimationClient = createPromiseClient(
   EstimationService,
   transport,
 );
+export const analyticsClient = createPromiseClient(AnalyticsService, transport);
 
 // Global identity storage - single token and name that follows user everywhere
 const IDENTITY_KEY = "esteemed_identity";
