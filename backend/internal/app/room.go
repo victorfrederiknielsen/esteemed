@@ -16,13 +16,15 @@ const RoomInactivityTimeout = 15 * time.Minute
 type RoomService struct {
 	repo      secondary.RoomRepository
 	publisher secondary.EventPublisher
+	analytics secondary.AnalyticsRepository
 }
 
 // NewRoomService creates a new room service
-func NewRoomService(repo secondary.RoomRepository, publisher secondary.EventPublisher) *RoomService {
+func NewRoomService(repo secondary.RoomRepository, publisher secondary.EventPublisher, analytics secondary.AnalyticsRepository) *RoomService {
 	return &RoomService{
 		repo:      repo,
 		publisher: publisher,
+		analytics: analytics,
 	}
 }
 
@@ -72,6 +74,11 @@ func (s *RoomService) CreateRoom(ctx context.Context, hostName, sessionToken str
 
 	if err := s.repo.Save(ctx, room); err != nil {
 		return nil, err
+	}
+
+	// Record analytics event
+	if s.analytics != nil {
+		_ = s.analytics.RecordEvent(ctx, domain.NewAnalyticsEvent(domain.EventTypeRoomCreated, roomID, ""))
 	}
 
 	return &primary.CreateRoomResult{
@@ -179,6 +186,10 @@ func (s *RoomService) LeaveRoom(ctx context.Context, roomID, participantID, sess
 
 	// Check if all participants are disconnected
 	if !room.HasConnectedParticipants() {
+		// Record analytics event
+		if s.analytics != nil {
+			_ = s.analytics.RecordEvent(ctx, domain.NewAnalyticsEvent(domain.EventTypeRoomClosed, room.ID, ""))
+		}
 		// Delete room when everyone has disconnected
 		_ = s.publisher.PublishRoomEvent(ctx, room.ID, primary.RoomEvent{
 			Type:   primary.RoomEventClosed,
@@ -270,6 +281,10 @@ func (s *RoomService) KickParticipant(ctx context.Context, roomID, participantID
 
 	// Check if room is empty
 	if room.IsEmpty() {
+		// Record analytics event
+		if s.analytics != nil {
+			_ = s.analytics.RecordEvent(ctx, domain.NewAnalyticsEvent(domain.EventTypeRoomClosed, room.ID, ""))
+		}
 		_ = s.publisher.PublishRoomEvent(ctx, room.ID, primary.RoomEvent{
 			Type:   primary.RoomEventClosed,
 			Reason: "all participants left",

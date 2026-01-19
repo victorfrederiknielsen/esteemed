@@ -1,0 +1,64 @@
+syntax = "proto3";
+
+package esteemed.v1;
+
+option go_package = "github.com/vicmanager/esteemed/backend/gen/esteemed/v1;esteemedv1";
+
+// AnalyticsService provides analytics data for the admin dashboard
+service AnalyticsService {
+  // GetAnalytics returns aggregated analytics with time buckets
+  rpc GetAnalytics(GetAnalyticsRequest) returns (GetAnalyticsResponse);
+}
+
+// DateRange specifies the time period for analytics queries
+enum DateRange {
+  DATE_RANGE_UNSPECIFIED = 0;
+  DATE_RANGE_TODAY = 1;
+  DATE_RANGE_LAST_7_DAYS = 2;
+  DATE_RANGE_LAST_30_DAYS = 3;
+  DATE_RANGE_LAST_90_DAYS = 4;
+  DATE_RANGE_ALL_TIME = 5;
+}
+
+// Granularity specifies the time bucketing for analytics data
+enum Granularity {
+  GRANULARITY_UNSPECIFIED = 0;
+  GRANULARITY_HOURLY = 1;
+  GRANULARITY_DAILY = 2;
+  GRANULARITY_WEEKLY = 3;
+  GRANULARITY_MONTHLY = 4;
+}
+
+// GetAnalyticsRequest specifies the date range for analytics
+message GetAnalyticsRequest {
+  DateRange date_range = 1;
+}
+
+// GetAnalyticsResponse contains the analytics summary and time series data
+message GetAnalyticsResponse {
+  AnalyticsSummary summary = 1;
+  repeated TimeBucket buckets = 2;
+  Granularity granularity = 3;
+  int64 start_time = 4;
+  int64 end_time = 5;
+}
+
+// AnalyticsSummary provides aggregate statistics for the selected period
+message AnalyticsSummary {
+  int64 total_rooms = 1;
+  int64 total_votes = 2;
+  int64 total_reveals = 3;
+  int64 total_closures = 4;
+  double rooms_change_percent = 5;  // vs previous period
+  double votes_change_percent = 6;  // vs previous period
+}
+
+// TimeBucket contains aggregated metrics for a specific time interval
+message TimeBucket {
+  int64 timestamp = 1;
+  string label = 2;
+  int64 rooms_created = 3;
+  int64 votes_cast = 4;
+  int64 votes_revealed = 5;
+  int64 rooms_closed = 6;
+}

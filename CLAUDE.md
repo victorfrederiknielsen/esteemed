@@ -62,6 +62,55 @@ This ensures every push to main has a corresponding GitHub release and tag.
 - **Frontend**: Biome (`frontend/biome.json`) - lint + format in one tool
 - **Backend**: golangci-lint (`backend/.golangci.yml`) - Go meta-linter
 
+## Analytics
+
+The app tracks usage analytics persisted to SQLite.
+
+### Events Tracked
+- `room_created` - When a new room is created
+- `room_closed` - When a room is deleted (all participants left)
+- `vote_cast` - Each vote submitted
+- `vote_revealed` - When votes are revealed
+
+### Storage
+- **Production**: SQLite on Fly.io volume at `/data/analytics.db`
+- **Local**: Auto-creates `./analytics.db` in backend directory
+- Uses WAL mode for concurrent read/write performance
+
+### API
+ConnectRPC service at `esteemed.v1.AnalyticsService`:
+
+```protobuf
+rpc GetAnalytics(GetAnalyticsRequest) returns (GetAnalyticsResponse);
+```
+
+**Date Ranges & Granularity**:
+| DateRange | Granularity | Labels |
+|-----------|-------------|--------|
+| TODAY | Hourly | "2 PM" |
+| LAST_7_DAYS | Daily | "Jan 15" |
+| LAST_30_DAYS | Daily | "Jan 15" |
+| LAST_90_DAYS | Weekly | "Week 3" |
+| ALL_TIME | Monthly | "Jan 2024" |
+
+**Response includes**:
+- Summary totals (rooms, votes, reveals, closures)
+- Trend percentages vs previous period
+- Time-series buckets with labels
+
+### Fly.io Volume Setup
+```bash
+# One-time setup (already done)
+fly volumes create esteemed_data --size 1 --region lhr
+```
+
+Volume mount configured in `fly.toml`:
+```toml
+[mounts]
+  source = "esteemed_data"
+  destination = "/data"
+```
+
 ## File Locations
 
 - Proto definitions: `api/proto/esteemed/v1/`
@@ -69,3 +118,4 @@ This ensures every push to main has a corresponding GitHub release and tag.
 - React pages: `frontend/src/pages/`
 - React hooks: `frontend/src/hooks/`
 - UI components: `frontend/src/components/ui/`
+- Analytics SQLite adapter: `backend/internal/adapters/secondary/sqlite/`

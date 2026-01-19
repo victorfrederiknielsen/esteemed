@@ -12,13 +12,15 @@ import (
 type EstimationService struct {
 	repo      secondary.RoomRepository
 	publisher secondary.EventPublisher
+	analytics secondary.AnalyticsRepository
 }
 
 // NewEstimationService creates a new estimation service
-func NewEstimationService(repo secondary.RoomRepository, publisher secondary.EventPublisher) *EstimationService {
+func NewEstimationService(repo secondary.RoomRepository, publisher secondary.EventPublisher, analytics secondary.AnalyticsRepository) *EstimationService {
 	return &EstimationService{
 		repo:      repo,
 		publisher: publisher,
+		analytics: analytics,
 	}
 }
 
@@ -49,6 +51,11 @@ func (s *EstimationService) CastVote(ctx context.Context, roomID, participantID,
 
 	if err := s.repo.Save(ctx, room); err != nil {
 		return err
+	}
+
+	// Record analytics event
+	if s.analytics != nil {
+		_ = s.analytics.RecordEvent(ctx, domain.NewAnalyticsEvent(domain.EventTypeVoteCast, room.ID, ""))
 	}
 
 	// Publish vote event (without the value - hidden until reveal)
@@ -88,6 +95,11 @@ func (s *EstimationService) RevealVotes(ctx context.Context, roomID, participant
 
 	if err := s.repo.Save(ctx, room); err != nil {
 		return nil, err
+	}
+
+	// Record analytics event
+	if s.analytics != nil {
+		_ = s.analytics.RecordEvent(ctx, domain.NewAnalyticsEvent(domain.EventTypeVoteRevealed, room.ID, ""))
 	}
 
 	// Publish reveal event

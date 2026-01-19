@@ -17,6 +17,7 @@ import (
 	"github.com/vicmanager/esteemed/backend/internal/adapters/primary/connectrpc"
 	"github.com/vicmanager/esteemed/backend/internal/adapters/secondary/memory"
 	"github.com/vicmanager/esteemed/backend/internal/adapters/secondary/pubsub"
+	"github.com/vicmanager/esteemed/backend/internal/adapters/secondary/sqlite"
 	"github.com/vicmanager/esteemed/backend/internal/app"
 )
 
@@ -28,13 +29,31 @@ func main() {
 		port = "8080"
 	}
 
+	// Get SQLite path from environment or use smart default
+	sqlitePath := os.Getenv("SQLITE_PATH")
+	if sqlitePath == "" {
+		// Use /data in production (Fly.io volume), otherwise local file
+		if _, err := os.Stat("/data"); err == nil {
+			sqlitePath = "/data/analytics.db"
+		} else {
+			sqlitePath = "./analytics.db"
+		}
+	}
+
 	// Initialize secondary adapters (driven)
 	roomRepo := memory.NewRoomRepository()
 	eventBroker := pubsub.NewBroker()
 
+	// Initialize analytics repository (optional - log error but continue if fails)
+	analyticsRepo, err := sqlite.NewAnalyticsRepository(sqlitePath)
+	if err != nil {
+		log.Printf("Warning: Failed to initialize analytics: %v (analytics will be disabled)", err)
+	}
+
 	// Initialize application services
-	roomService := app.NewRoomService(roomRepo, eventBroker)
-	estimationService := app.NewEstimationService(roomRepo, eventBroker)
+	roomService := app.NewRoomService(roomRepo, eventBroker, analyticsRepo)
+	estimationService := app.NewEstimationService(roomRepo, eventBroker, analyticsRepo)
+	analyticsService := app.NewAnalyticsService(analyticsRepo)
 
 	// Initialize and start room cleaner
 	roomCleaner := app.NewRoomCleaner(roomRepo, eventBroker)
@@ -44,6 +63,7 @@ func main() {
 	// Initialize primary adapters (driving)
 	roomHandler := connectrpc.NewRoomHandler(roomService)
 	estimationHandler := connectrpc.NewEstimationHandler(estimationService)
+	analyticsHandler := connectrpc.NewAnalyticsHandler(analyticsService)
 
 	// Set up HTTP mux
 	mux := http.NewServeMux()
@@ -54,6 +74,9 @@ func main() {
 
 	estimationPath, estimationSvc := estimationHandler.Handler()
 	mux.Handle(estimationPath, estimationSvc)
+
+	analyticsPath, analyticsSvc := analyticsHandler.Handler()
+	mux.Handle(analyticsPath, analyticsSvc)
 
 	// Health check endpoint
 	mux.HandleFunc("/health", func(w http.ResponseWriter, _ *http.Request) {
@@ -87,6 +110,13 @@ func main() {
 
 		// Stop room cleaner
 		cleanupCancel()
+
+		// Close analytics database
+		if analyticsRepo != nil {
+			if err := analyticsRepo.Close(); err != nil {
+				log.Printf("Error closing analytics database: %v", err)
+			}
+		}
 
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()

@@ -38,3 +38,8 @@ coverage/
 tmp/
 .tmp/
 backend/server
+
+# Local database
+*.db
+*.db-wal
+*.db-shm
