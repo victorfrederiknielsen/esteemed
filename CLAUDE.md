@@ -51,11 +51,59 @@ make release        # Tag, create GitHub release, push to main
 
 This ensures every push to main has a corresponding GitHub release and tag.
 
-## Deployment
+## Infrastructure
+
+### Fly.io Configuration
+
+| Setting | Value |
+|---------|-------|
+| App name | `esteemed-poker` |
+| Region | `lhr` (London) |
+| VM | 256MB RAM, shared CPU |
+| Auto-scaling | Scales to zero when idle |
+
+### Persistent Storage
+
+SQLite database stored on a Fly.io volume:
+
+```
+Volume: esteemed_data (1GB)
+Mount:  /data
+File:   /data/analytics.db
+```
+
+**Volume management:**
+```bash
+fly volumes list                    # List volumes
+fly volumes create esteemed_data --size 1 --region lhr  # Create (one-time)
+fly volumes extend <vol-id> --size 2  # Resize if needed
+```
+
+**Important**: Volumes are region-specific. The app and volume must be in the same region.
+
+### Environment Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `PORT` | `8080` | HTTP server port |
+| `SQLITE_PATH` | Auto-detected | Path to SQLite database |
+
+**SQLITE_PATH auto-detection:**
+- If `/data` exists → `/data/analytics.db` (production)
+- Otherwise → `./analytics.db` (local development)
+
+### Deployment
 
 - **Platform**: Fly.io (auto-deploys on push to main via GitHub Actions)
 - **Config**: `fly.toml`
 - **CI/CD**: `.github/workflows/ci.yml`
+
+```bash
+fly deploy              # Manual deploy
+fly logs                # View logs
+fly ssh console         # SSH into container
+fly apps restart        # Restart app
+```
 
 ## Linting
 
