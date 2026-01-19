@@ -14,7 +14,7 @@ ENV VITE_APP_VERSION=$APP_VERSION
 RUN npm run build
 
 # Stage 2: Build backend
-FROM golang:1.23-alpine AS backend-builder
+FROM golang:1.24-alpine AS backend-builder
 
 WORKDIR /app
 
