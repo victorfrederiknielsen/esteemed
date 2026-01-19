@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { useHeader } from "@/contexts/HeaderContext";
-import { BarChart3, Sparkles, User } from "lucide-react";
+import { Sparkles, User } from "lucide-react";
 import { Fragment } from "react";
 import { Link } from "react-router-dom";
 
@@ -78,11 +78,6 @@ export function Header() {
           </BreadcrumbList>
         </Breadcrumb>
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" asChild>
-            <Link to="/admin" aria-label="Analytics">
-              <BarChart3 className="h-4 w-4" />
-            </Link>
-          </Button>
           <Button variant="ghost" size="icon" asChild>
             <Link to="/profile" aria-label="Profile">
               <User className="h-4 w-4" />
